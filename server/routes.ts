@@ -80,7 +80,7 @@ class Routes {
  
   @Router.get("/listings")
   @Router.validate(z.object({ author: z.string().optional() }))
-  async getAllListings(author?: string) {
+  async getListings(author?: string) {
     let listings;
     if (author) {
       const id = (await Authing.getUserByUsername(author))._id;
@@ -112,6 +112,21 @@ class Routes {
     const oid = new ObjectId(id);
     await Listing.assertAuthorIsUser(oid, user);
     return Listing.delete(oid);
+  }
+
+  @Router.get("/posts/:id")
+  async getRemainingQuantity(session: SessionDoc, id: string) {
+    const oid = new ObjectId(id);
+    const remaining = await Listing.getRemainingQuantity(oid)
+    return {msg: remaining.msg}
+  }
+
+  @Router.patch("/listings/:id")
+  async updateRemainingQuantity(session: SessionDoc, id: string, substract: number) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(id);
+    await Listing.assertAuthorIsUser(oid, user);
+    return await Listing.updateRemainingQuantity(oid, substract);
   }
 
 

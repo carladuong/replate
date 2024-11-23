@@ -4,9 +4,6 @@ import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
 
 
-/* export interface ListOptions {
-  backgroundColor?: string;       //if I wanted to let users edit the background color of their 
-} */
 
 export interface ListingDoc extends BaseDoc {
   author: ObjectId;
@@ -16,7 +13,6 @@ export interface ListingDoc extends BaseDoc {
   quantity: number;
   remaining: number;
   hidden: boolean;
-  // options?: ListOptions;
 }
 
 /**
