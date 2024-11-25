@@ -1,4 +1,3 @@
-
 import { Router, getExpressRouter } from "./framework/router";
 
 import { Authing, Sessioning } from "./app";
@@ -66,7 +65,6 @@ class Routes {
     Sessioning.end(session);
     return { msg: "Logged out!" };
   }
-
 }
 
 /** The web app. */
