@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import { fetchy } from "@/utils/fetchy";
+// import { fetchy } from "@/utils/fetchy";
 
 const props = defineProps<{
   item: { id: number; name: string; quantity: number; author: string; review: string; imageUrl: string; pickupNumber: string; expirationDateandTime: string };
@@ -13,34 +13,34 @@ const isEditing = ref(false);
 const editedName = ref(props.item.name);
 const editedQuantity = ref(props.item.quantity);
 
-const startEditing = () => {
-  isEditing.value = true;
-};
+// const startEditing = () => {
+//   isEditing.value = true;
+// };
 
-const cancelEditing = () => {
-  isEditing.value = false;
-  editedName.value = props.item.name;
-  editedQuantity.value = props.item.quantity;
-};
+// const cancelEditing = () => {
+//   isEditing.value = false;
+//   editedName.value = props.item.name;
+//   editedQuantity.value = props.item.quantity;
+// };
 
-const saveChanges = async () => {
-  try {
-    await fetchy(`/api/items/${props.item.id}`, "PATCH", {
-      body: {
-        name: editedName.value,
-        quantity: editedQuantity.value,
-        author: currentUsername.value,
-        review: props.item.review,
-        imageUrl: props.item.imageUrl,
-        pickupNumber: props.item.pickupNumber,
-        expirationDateandTime: props.item.expirationDateandTime,
-      },
-    });
-    isEditing.value = false;
-  } catch (error) {
-    console.error("Failed to save changes:", error);
-  }
-};
+// const saveChanges = async () => {
+//   try {
+//     await fetchy(`/api/items/${props.item.id}`, "PATCH", {
+//       body: {
+//         name: editedName.value,
+//         quantity: editedQuantity.value,
+//         author: currentUsername.value,
+//         review: props.item.review,
+//         imageUrl: props.item.imageUrl,
+//         pickupNumber: props.item.pickupNumber,
+//         expirationDateandTime: props.item.expirationDateandTime,
+//       },
+//     });
+//     isEditing.value = false;
+//   } catch (error) {
+//     console.error("Failed to save changes:", error);
+//   }
+// };
 </script>
 
 <template>
@@ -60,6 +60,7 @@ const saveChanges = async () => {
       <p><strong>Expiration Date and Time:</strong> {{ props.item.expirationDateandTime }}</p>
       <p><strong>Coordinate Pickup Number:</strong> {{ props.item.pickupNumber }}</p>
       <button v-if="props.item.author === currentUsername" @click="startEditing">Edit</button>
+      <button @click="claimItem">Claim</button>
     </div>
   </div>
 </template>
