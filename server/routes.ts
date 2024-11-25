@@ -115,7 +115,56 @@ class Routes {
   }
 
 
-
+  /* 
+  Claiming
+  */
+  @Router.get("/requests")
+  async getRequests(requester?: string, include_hidden: boolean = false) {
+    let requests;
+    if (requester) {
+      const user_id = (await Authing.getUserByUsername(requester))._id;
+      requests = await Requesting.getByRequester(user_id);
+    } else if (include_hidden) {
+      requests = await Requesting.getRequests();
+    } else {
+      requests = await Requesting.getRequestsOngoing();
+    }
+    return requests;
+  }
+  //add needed by
+  @Router.post("/requests")
+  async addRequest(session: SessionDoc, name: string, quantity: number, needBy: Date, image?: File, description?: string) {
+    const user = Sessioning.getUser(session);
+    const created = await Requesting.add(user, name, quantity, image, description);
+    //call expiring to set needBy date as expiration date of the resource
+    return { msg: created };
+  }
+ 
+ 
+  //handles editing and hiding request by author (we also use hide request in a synchronization when offer is accepted etc)
+  //set hideSwitch to true for "hide" button in the requesting front end
+  @Router.patch("/requests/:id")
+  async updateRequest(session: SessionDoc, id: string, name?: string, quantity?: number, image?: File, description?: string, hideSwitch?: boolean) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(id);
+    if (hideSwitch) {
+      await Requesting.assertAuthor(oid, user);
+      await Requesting.hideSwitch(oid);
+    } else {
+      await Requesting.edit(user, oid, name, quantity, image, description);
+    }
+    return Requesting.getRequestById(oid);
+  }
+ 
+ 
+  @Router.delete("/requests/:id")
+  async deleteRequest(session: SessionDoc, id: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(id);
+    await Requesting.assertAuthor(oid, user);
+    return Requesting.delete(oid);
+  }
+ 
 
 
 
