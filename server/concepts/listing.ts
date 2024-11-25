@@ -42,10 +42,19 @@ export default class ListingConcept {
     await this.listings.deleteOne({ _id });
     return { msg: "Listing deleted successfully!" };}
 
-  async editlisting(_id: ObjectId, name?: string, meetup_location?: string, image?: string, quantity?: number) {// questions about , remaining?: number, hidden?: boolean
-    await this.listings.partialUpdateOne({ _id }, { name, meetup_location, image, quantity});
-
-    return { msg: "Listing successfully updated!"};
+    async editlisting( _id: ObjectId, name?: string, meetup_location?: string, image?: string, quantity?: number) {
+    // Create an object with the provided values
+    const updateData: Partial<ListingDoc> = { name, meetup_location, image, quantity };
+  
+    // Filter out properties that are undefined
+    const filteredUpdateData = Object.fromEntries(
+      Object.entries(updateData).filter(([_, value]) => value !== undefined)
+    );
+  
+    // Pass only the filtered update data to the partial update
+    await this.listings.partialUpdateOne({ _id }, filteredUpdateData);
+  
+    return { msg: "Listing successfully updated!" };
   }
 
 
