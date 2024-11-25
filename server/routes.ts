@@ -1,10 +1,11 @@
+import { ObjectId } from "mongodb";
+
 
 import { Router, getExpressRouter } from "./framework/router";
-
-import { Authing, Sessioning } from "./app";
+import { Authing, Sessioning, Listing} from "./app";
 import { SessionDoc } from "./concepts/sessioning";
-
 import { z } from "zod";
+import Responses from "./responses";
 
 /**
  * Web server routes for the app. Implements synchronizations between concepts.
@@ -12,6 +13,10 @@ import { z } from "zod";
 class Routes {
   // Synchronize the concepts from `app.ts`.
 
+
+  /* 
+  Sessioning
+  */
   @Router.get("/session")
   async getSessionUser(session: SessionDoc) {
     const user = Sessioning.getUser(session);
@@ -66,6 +71,54 @@ class Routes {
     Sessioning.end(session);
     return { msg: "Logged out!" };
   }
+
+
+
+  /* 
+  Listing
+  */
+ 
+  @Router.get("/listings")
+  @Router.validate(z.object({ author: z.string().optional() }))
+  async getListings(author?: string) {
+    let listings;
+    if (author) {
+      const id = (await Authing.getUserByUsername(author))._id;
+      listings = await Listing.getByAuthor(id);
+    } else {
+      listings = await Listing.getAllListings();
+    }
+    return Responses.listings(listings);
+  }
+
+  @Router.post("/listings")
+  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string , quantity: number ) { //change img back to File
+    const user = Sessioning.getUser(session);
+    const created = await Listing.addListing(user, name, meetup_location, image, quantity );
+    return { msg: created.msg, listing: await Responses.listing(created.listing) };
+  }
+
+  @Router.patch("/listings/:id")
+  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(id);
+    await Listing.assertAuthorIsUser(oid, user);
+    return await Listing.editlisting(oid, name, meetup_location, image, quantity);
+  }
+
+  @Router.delete("/listings/:id")
+  async deleteListing(session: SessionDoc, id: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(id);
+    await Listing.assertAuthorIsUser(oid, user);
+    return Listing.delete(oid);
+  }
+
+
+
+
+
+
 
 }
 
