@@ -9,7 +9,7 @@ export interface ListingDoc extends BaseDoc {
   author: ObjectId;
   name: string;
   meetup_location: string;
-  image: File;
+  image: string; //change back to File after testing with backend
   quantity: number;
   remaining: number;
   hidden: boolean;
@@ -29,12 +29,12 @@ export default class ListingConcept {
   }
 
 
-  async addListing(author: ObjectId, name: string, meetup_location: string, image: File, quantity: number ) {
+  async addListing(author: ObjectId, name: string, meetup_location: string, image: string, quantity: number ) {
     const remaining= quantity;     //quantity remaining is set to quantity because it is the same when the listing is just created, no user input in that field
     const hidden= false;
     const _id = await this.listings.createOne({ author, name, meetup_location, image, quantity, remaining , hidden});
     const listing = await this.listings.readOne({ _id }); 
-    return { msg: "Listing successfully created!", listing};
+    return { msg: "Listing successfully created!: ", listing};
 
   }
 
@@ -42,9 +42,10 @@ export default class ListingConcept {
     await this.listings.deleteOne({ _id });
     return { msg: "Listing deleted successfully!" };}
 
-  async editlisting(_id: ObjectId, name?: string, meetup_location?: string, image?: File, quantity?: number) {// questions about , remaining?: number, hidden?: boolean
+  async editlisting(_id: ObjectId, name?: string, meetup_location?: string, image?: string, quantity?: number) {// questions about , remaining?: number, hidden?: boolean
     await this.listings.partialUpdateOne({ _id }, { name, meetup_location, image, quantity});
-    return { msg: "Listing successfully updated!" };
+
+    return { msg: "Listing successfully updated!"};
   }
 
 
@@ -62,25 +63,10 @@ export default class ListingConcept {
         throw new NotFoundError(`Listing ${_id} does not exist!`);
       }
     const remaining= await listing.remaining;
-    return { msg: "Remaining quantity",  remaining};
+    return { msg: "Remaining quantity: " + remaining};
 
   }
 
-  async updateRemainingQuantity(_id:ObjectId, substract: number) {
-    const listing = await this.listings.readOne({ _id });
-    if (!listing) {
-        throw new NotFoundError(`Listing ${_id} does not exist!`);
-      }
-    const currentRemaining= await listing.remaining;
-    const updatedRemaining= currentRemaining - substract;
-    await this.listings.partialUpdateOne({ _id }, {remaining: updatedRemaining});
-    
-    if (updatedRemaining == 0){
-        await this.listings.partialUpdateOne({ _id }, {hidden: true});
-    }
-
-    return { msg: "Listing successfully updated!" };
-  }
 
 
   async assertAuthorIsUser(_id: ObjectId, user: ObjectId) {

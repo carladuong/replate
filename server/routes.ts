@@ -92,42 +92,31 @@ class Routes {
   }
 
   @Router.post("/listings")
-  async addListing(session: SessionDoc, name: string, meetup_location: string, image: File, quantity: number ) {
+  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string , quantity: number ) { //change img back to File
     const user = Sessioning.getUser(session);
     const created = await Listing.addListing(user, name, meetup_location, image, quantity );
     return { msg: created.msg, listing: await Responses.listing(created.listing) };
   }
 
   @Router.patch("/listings/:id")
-  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: File, quantity?: number) {
+  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     await Listing.assertAuthorIsUser(oid, user);
     return await Listing.editlisting(oid, name, meetup_location, image, quantity);
   }
 
-  @Router.delete("/posts/:id")
-  async deletePost(session: SessionDoc, id: string) {
+  @Router.delete("/listings/:id")
+  async deleteListing(session: SessionDoc, id: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     await Listing.assertAuthorIsUser(oid, user);
     return Listing.delete(oid);
   }
 
-  @Router.get("/posts/:id")
-  async getRemainingQuantity(session: SessionDoc, id: string) {
-    const oid = new ObjectId(id);
-    const remaining = await Listing.getRemainingQuantity(oid)
-    return {msg: remaining.msg}
-  }
 
-  @Router.patch("/listings/:id")
-  async updateRemainingQuantity(session: SessionDoc, id: string, substract: number) {
-    const user = Sessioning.getUser(session);
-    const oid = new ObjectId(id);
-    await Listing.assertAuthorIsUser(oid, user);
-    return await Listing.updateRemainingQuantity(oid, substract);
-  }
+
+
 
 
 
