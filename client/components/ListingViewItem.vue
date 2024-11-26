@@ -4,7 +4,8 @@ import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 // import { fetchy } from "@/utils/fetchy";
 
-// props is a way to pass data from a parent component to a child component. in this case, the parent component is HomeView.vue and the child component is ListingViewItem.vue  
+// props is a way to pass data from a parent component to a child component. in this case, the parent component is HomeView.vue and the child component is ListingViewItem.vue
+
 // the item prop is an object with the following properties: id, name, quantity, author, review, imageUrl, pickupNumber, and expirationDateandTime, which is used for one list in the listing array in HomeView.vue
 const props = defineProps<{
   item: { id: number; name: string; quantity: number; author: string; review: string; imageUrl: string; pickupNumber: string; expirationDateandTime: string };

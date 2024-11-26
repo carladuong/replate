@@ -1,8 +1,6 @@
 import { ObjectId } from "mongodb";
-
-
 import { Router, getExpressRouter } from "./framework/router";
-import { Authing, Sessioning, Listing} from "./app";
+import { Authing, Sessioning, Listing, Requesting } from "./app";
 import { SessionDoc } from "./concepts/sessioning";
 import { z } from "zod";
 import Responses from "./responses";
@@ -12,7 +10,6 @@ import Responses from "./responses";
  */
 class Routes {
   // Synchronize the concepts from `app.ts`.
-
 
   /* 
   Sessioning
@@ -72,12 +69,10 @@ class Routes {
     return { msg: "Logged out!" };
   }
 
-
-
   /* 
   Listing
   */
- 
+
   @Router.get("/listings")
   @Router.validate(z.object({ author: z.string().optional() }))
   async getListings(author?: string) {
@@ -92,9 +87,10 @@ class Routes {
   }
 
   @Router.post("/listings")
-  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string , quantity: number ) { //change img back to File
+  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number) {
+    //change img back to File
     const user = Sessioning.getUser(session);
-    const created = await Listing.addListing(user, name, meetup_location, image, quantity );
+    const created = await Listing.addListing(user, name, meetup_location, image, quantity);
     return { msg: created.msg, listing: await Responses.listing(created.listing) };
   }
 
@@ -113,7 +109,6 @@ class Routes {
     await Listing.assertAuthorIsUser(oid, user);
     return Listing.delete(oid);
   }
-
 
   /* 
   Claiming
@@ -139,8 +134,7 @@ class Routes {
     //call expiring to set needBy date as expiration date of the resource
     return { msg: created };
   }
- 
- 
+
   //handles editing and hiding request by author (we also use hide request in a synchronization when offer is accepted etc)
   //set hideSwitch to true for "hide" button in the requesting front end
   @Router.patch("/requests/:id")
@@ -155,8 +149,7 @@ class Routes {
     }
     return Requesting.getRequestById(oid);
   }
- 
- 
+
   @Router.delete("/requests/:id")
   async deleteRequest(session: SessionDoc, id: string) {
     const user = Sessioning.getUser(session);
@@ -164,11 +157,6 @@ class Routes {
     await Requesting.assertAuthor(oid, user);
     return Requesting.delete(oid);
   }
- 
-
-
-
-
 }
 
 /** The web app. */
