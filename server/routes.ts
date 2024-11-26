@@ -111,6 +111,8 @@ class Routes {
     return Listing.delete(oid);
   }
 
+  //add system action that hides expired listings and requests
+
   /* 
   Requesting
   */
@@ -164,6 +166,147 @@ class Routes {
     const oid = new ObjectId(id);
     await Requesting.assertAuthor(oid, user);
     return Requesting.delete(oid);
+  }
+
+  /*
+  Claming
+  */
+  @Router.post("/claims")
+  async claim(session: SessionDoc, listingId: string, quantity: number) {
+    const user = Sessioning.getUser(session);
+    //Reporting.checkIfUserReported(claimer)
+    //Claiming.claim(claimer, item, quantity)
+    const oid = new ObjectId(listingId);
+    //Listing.getListingById(oid)
+    //get curr_quantity and calc new_quantity
+    //await Listing.editlisting(quantity=new_quantity)
+  }
+
+  @Router.get("/claims")
+  async getClaims(listingId?: string, claimer?: string) {
+    let claims;
+    if (listingId) {
+      //get all claims for that listing
+    } else if (claimer) {
+      //get all claims authored by that claimer
+    } else {
+      //get all claims
+    }
+    return claims;
+  }
+
+  @Router.get("/claims/:id")
+  async getClaim(claimId: string) {
+    const oid = new ObjectId(claimId);
+    // return Claiming/getClaimById(oid)
+  }
+
+  @Router.delete("/claims/:id")
+  async unclaimItem(session: SessionDoc, claimId: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(claimId);
+    //Claiming.unclaim(item)
+    //Listing edit quantity
+  }
+
+  @Router.post("/offers")
+  async offer(session: SessionDoc, requestId: string, image: string, location: string, message: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(requestId);
+    //set accepted to false
+    //get request and check it exist
+    //check user not author
+    //Offering.offer(user, oid, image, location, message)
+  }
+
+  @Router.get("/offers")
+  async getOffers(requestId?: string, offerer?: string) {
+    if (requestId) {
+      //return offers made on request
+    } else if (offerer) {
+      //return offers made by the user including accepted and not accepted
+    } else {
+      //return all offers
+    }
+  }
+
+  @Router.get("/offers/:id")
+  async getOffer(offerId: string) {
+    const oid = new ObjectId(offerId);
+    //return Offering.getOfferById(oid)
+  }
+
+  @Router.patch("/offers/hide") //can we select one param in route?
+  async acceptOffer(session: SessionDoc, offerId: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(offerId);
+    //get offer check it exists
+    //Offering.accept(offerId) will  hide the offer and
+    //get request of the offer
+    //Requesting.hideSwitch(item)
+  }
+
+  @Router.patch("/offers/:id")
+  async editOffer(session: SessionDoc, offerId: string, image?: string, location?: string, message?: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(offerId);
+    //get offer check it exists
+    //Offering.edit(offer, item, IMG, message)
+  }
+
+  @Router.delete("/offers/:id")
+  async deleteOffer(session: SessionDoc, offerId: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(offerId);
+    //get offer check if exists
+    //Offering.checkIfAuthor(user, offer)
+    //Offering.remove(offer)
+  }
+
+  @Router.post("/reviews")
+  async review(session: SessionDoc, offerId: string, rating: number, message?: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(offerId);
+    //Claiming.checkIfClaimed(user, oid)
+    //Reviewing.addReview(user, oid, rating, message)
+  }
+
+  @Router.patch("/reviews/:id")
+  async editReview(session: SessionDoc, reviewId: string, rating?: number, message?: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(reviewId);
+    //Reviewing.checkIfReviewAuthor(user, oid)
+    //Reviewing.editReview(user, oid, rating, message)
+  }
+
+  @Router.delete("/reviews/:id")
+  async deleteReview(session: SessionDoc, reviewId: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(reviewId);
+    //Reviewing.checkIfReviewAuthor(user, oid)
+    //Reviewing.delete(user, oid)
+  }
+
+  @Router.get("/reviews")
+  async getReviews(userId?: string) {
+    const oid = new ObjectId(userId);
+    //return reviews on the user
+    //otherwise return all reviews
+  }
+
+  @Router.get("/reviews/:id")
+  async getReview(id: string) {
+    const oid = new ObjectId(id);
+    //return await Reviewing.getReviewById(oid)
+  }
+
+  @Router.post("/reports")
+  async report(session: SessionDoc, reportedId: string, message?: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(reportedId);
+    const reported = Authing.getUserById(oid);
+    //Reporting.checkIfUserReported(user, reported, messsage)
+    //Reporting.report(reporter, reported)
   }
 }
 

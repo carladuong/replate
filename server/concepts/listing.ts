@@ -52,6 +52,10 @@ export default class ListingConcept {
     return { msg: "Listing successfully updated!" };
   }
 
+  async getListingById(_id: ObjectId) {
+    return await this.listings.readOne({ _id });
+  }
+
   async getAllListings() {
     return await this.listings.readMany({}, { sort: { _id: -1 } });
   }
