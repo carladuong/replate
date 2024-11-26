@@ -19,7 +19,7 @@ const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
   </main>
 </template>
 
-<style scoped> 
+<style scoped>
 h1 {
   text-align: center;
 }

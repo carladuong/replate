@@ -15,11 +15,10 @@ const { toast } = storeToRefs(useToastStore());
 // Make sure to update the session before mounting the app in case the user is already logged in
 
 onBeforeMount(async () => {
-  const id = "674559f06a1733583592899d";
   try {
     await userStore.updateSession();
     if (isLoggedIn.value) {
-      await router.push(`/requests/${id}`);
+      await router.push(`/`);
     } else {
       await router.push("/login");
     }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import router from "@/router";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
@@ -11,7 +12,7 @@ const request = ref<Record<string, string> | null>(null);
 
 const imageSrc = computed(() => request.value?.image || "@/assets/images/no-image.jpg");
 
-async function getRequest(requestId: string) {
+async function getRequest() {
   try {
     const requestResult = await fetchy(`/api/requests/${props.requestId}`, "GET");
     request.value = requestResult;
@@ -20,13 +21,17 @@ async function getRequest(requestId: string) {
   }
 }
 
+function openRequest() {
+  void router.push(`/requests/${props.requestId}`);
+}
+
 onBeforeMount(async () => {
-  await getRequest(props.requestId.value);
+  await getRequest();
 });
 </script>
 
 <template>
-  <div v-if="request" class="request-thumbnail">
+  <div v-if="request" class="request-thumbnail" @click="openRequest">
     <img :src="imageSrc" class="produce-image" />
     <p>{{ request.name }}</p>
   </div>
