@@ -10,4 +10,3 @@ export const Authing = new AuthenticatingConcept("users");
 export const Listing = new ListingConcept("listings");
 export const Requesting = new RequestingConcept("requests");
 //   }
-export const Requesting = new RequestingConcept("requests");
