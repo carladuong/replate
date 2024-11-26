@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+
 import { Router, getExpressRouter } from "./framework/router";
 import { Authing, Sessioning, Listing, Requesting } from "./app";
 import { SessionDoc } from "./concepts/sessioning";
@@ -111,7 +112,7 @@ class Routes {
   }
 
   /* 
-  Claiming
+  Requesting
   */
   @Router.get("/requests")
   async getRequests(requester?: string, include_hidden: boolean = false) {
