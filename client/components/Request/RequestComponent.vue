@@ -2,7 +2,7 @@
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
-import { onBeforeMount, ref } from "vue";
+import { computed, onBeforeMount, ref } from "vue";
 
 const props = defineProps(["requestId"]);
 
@@ -14,6 +14,8 @@ const editedName = ref("");
 const editedQuantity = ref("");
 const editedDescription = ref("");
 const editedImage = ref("");
+
+const imageSrc = computed(() => (isEditing.value ? editedImage.value || "@/assets/images/no-image.jpg" : request.value?.image || "@/assets/images/no-image.jpg"));
 
 const startEditing = () => {
   isEditing.value = true;
@@ -28,6 +30,7 @@ const cancelEditing = () => {
   editedName.value = request.value.name;
   editedQuantity.value = request.value.quantity;
   editedDescription.value = request.value.description;
+  editedImage.value = request.value.image;
 };
 
 const saveChanges = async () => {
@@ -46,6 +49,7 @@ const saveChanges = async () => {
       },
     });
     isEditing.value = false;
+    await getRequest(props.requestId.value);
   } catch (error) {
     console.error("Failed to save changes:", error);
   }
@@ -53,14 +57,15 @@ const saveChanges = async () => {
 
 async function getRequest(requestId: string) {
   try {
-    const requestResult = await fetchy(`/api/circles/${requestId}`, "GET");
+    const requestResult = await fetchy(`/api/requests/${requestId}`, "GET");
     request.value = requestResult;
+    //refs for placeholders when editing
     editedName.value = requestResult.name;
     editedQuantity.value = requestResult.quantity;
     editedDescription.value = requestResult.description || "";
     editedImage.value = requestResult.image || "";
   } catch (_) {
-    console.error("Failed to fetch circle details.");
+    console.error("Failed to fetch request details.");
   }
 }
 
@@ -70,42 +75,89 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <div class="request-item">
-    <div v-if="request">
-      <!-- the edit button is only visible if the author of the item is the same as the current user -->
-      <div v-if="isEditing && request">
-        <input v-model="editedName" placeholder="Item Name" />
-        <input v-model="editedQuantity" type="number" placeholder="Quantity" />
-        <button @click="saveChanges">Save</button>
-        <button @click="cancelEditing">Cancel</button>
-      </div>
-      <div v-else>
-        <img :src="request.image" alt="Produce Image" class="produce-image" />
+  <h1>Request</h1>
+  <div v-if="request" class="request-item">
+    <div class="image-column">
+      <img :src="imageSrc" class="produce-image" />
+    </div>
+    <div class="info-column">
+      <!-- Content -->
+      <div>
+        <!-- Requester -->
         <p><strong>Requester:</strong> {{ request.requester }}</p>
-        <p><strong>Item:</strong> {{ request.name }}</p>
-        <p><strong>Description</strong> {{ request.description }}</p>
-        <p><strong>Quantity:</strong> {{ request.quantity }}</p>
-        <p><strong>Expiration Date and Time:</strong> needs expiring concept</p>
-        <!-- this line checks if the author is the user, and if so, displays the edit button -->
-        <button v-if="request.requester === currentUsername" @click="startEditing">Edit</button>
-        <button v-else>Offer</button>
+
+        <!-- Item Name -->
+        <p><strong>Item:</strong></p>
+        <div v-if="isEditing">
+          <input v-model="editedName" placeholder="Item Name" />
+        </div>
+        <div v-else>
+          {{ request.name }}
+        </div>
+
+        <!-- Quantity -->
+        <p><strong>Quantity:</strong></p>
+        <div v-if="isEditing">
+          <input v-model="editedQuantity" type="number" placeholder="Quantity" />
+        </div>
+        <div v-else>
+          {{ request.quantity }}
+        </div>
+
+        <!-- Description -->
+        <p><strong>Description:</strong></p>
+        <div v-if="isEditing">
+          <textarea v-model="editedDescription" placeholder="Description"></textarea>
+        </div>
+        <div v-else>
+          {{ request.description }}
+        </div>
+
+        <!-- Buttons -->
+        <div>
+          <button v-if="isEditing" @click="saveChanges">Save</button>
+          <button v-if="isEditing" @click="cancelEditing">Cancel</button>
+          <button v-else-if="request.requester === currentUsername" @click="startEditing">Edit</button>
+          <!-- also need to check is reqeust is satisfied (hide==true), in which case no offer option -->
+          <button v-else>Offer</button>
+        </div>
       </div>
     </div>
-    <div v-else>
-      <p>Loading...</p>
-    </div>
+  </div>
+  <div v-else>
+    <p>Loading...</p>
   </div>
 </template>
 
 <style scoped>
-.listing-item {
-  border: 1px solid #ccc;
-  padding: 1em;
-  border-radius: 4px;
-  margin-bottom: 1em;
+h1 {
+  text-align: center;
+}
+.request-item {
+  display: flex;
+  gap: 20px;
 }
 
 button {
   margin-right: 0.5em;
+}
+.image-column {
+  flex: 1;
+  max-width: 50%;
+}
+
+.produce-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.info-column {
+  flex: 1;
+  max-width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 </style>

@@ -1,9 +1,9 @@
 import { ObjectId } from "mongodb";
 
-import { Router, getExpressRouter } from "./framework/router";
-import { Authing, Sessioning, Listing, Requesting } from "./app";
-import { SessionDoc } from "./concepts/sessioning";
 import { z } from "zod";
+import { Authing, Listing, Requesting, Sessioning } from "./app";
+import { SessionDoc } from "./concepts/sessioning";
+import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
 
 /**
@@ -127,6 +127,13 @@ class Routes {
     }
     return requests;
   }
+
+  @Router.get("/requests/:id")
+  async getRequest(id: string) {
+    const oid = new ObjectId(id);
+    return await Requesting.getRequestById(oid);
+  }
+
   //add needed by
   @Router.post("/requests")
   async addRequest(session: SessionDoc, name: string, quantity: number, needBy: Date, image?: File, description?: string) {
@@ -148,7 +155,7 @@ class Routes {
     } else {
       await Requesting.edit(user, oid, name, quantity, image, description);
     }
-    return Requesting.getRequestById(oid);
+    return await Requesting.getRequestById(oid);
   }
 
   @Router.delete("/requests/:id")
