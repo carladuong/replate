@@ -26,7 +26,6 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <h1>Requests</h1>
   <section class="requests" v-if="loaded && requests.length !== 0">
     <article class="thumb" v-for="request in requests" :key="request._id">
       <RequestThumbComponent :requestId="request._id" />
