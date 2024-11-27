@@ -1,16 +1,72 @@
 <script setup lang="ts">
 import PostListComponent from "@/components/Post/PostListComponent.vue";
-import ListingViewItem from "@/components/ListingViewItem.vue";
+import ListingViewItem from "@/components/Listing/ListingViewItem.vue";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
+import { ref, onMounted, watch } from "vue";
+import { fetchy } from "@/utils/fetchy";
 
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
+const items = ref([]);
+const isEditing = ref(false);
+const currentListing = ref(null);
 
-const items = [
-  { id: 1, name: "Item 1", quantity: 10, author: "alice", review: "4/5 stars", imageUrl: "@/assets/images/oranges.jpeg", expirationDateandTime: "...", pickupNumber: "123-456-7891" },
-  { id: 2, name: "Item 2", quantity: 5, author: "bob", review: "5/5", imageUrl: "@/assets/images/oranges.jpeg", expirationDateandTime: "...", pickupNumber: "..." },
-  { id: 3, name: "Item 3", quantity: 8, author: "alice", review: "3/5", imageUrl: "@/assets/images/oranges.jpeg", pickupNumber: "..." },
-];
+const fetchListings = async () => {
+  try {
+    const response = await fetchy("/api/listings", "GET");
+    items.value = response;
+  } catch (error) {
+    console.error("Failed to fetch listings:", error);
+  }
+};
+
+const startEditing = (listing) => {
+  currentListing.value = { ...listing };
+  isEditing.value = true;
+};
+
+const cancelEditing = () => {
+  isEditing.value = false;
+  currentListing.value = null;
+};
+
+const saveChanges = async () => {
+  let imageBase64 = currentListing.value.imageUrl;
+  if (currentListing.value.image) {
+    const reader = new FileReader();
+    reader.readAsDataURL(currentListing.value.image);
+    imageBase64 = await new Promise<string>((resolve) => {
+      reader.onload = () => resolve(reader.result as string);
+    });
+  }
+
+  try {
+    await fetchy(`/api/listings/${currentListing.value._id}`, "PATCH", {
+      body: {
+        name: currentListing.value.name,
+        meetup_location: currentListing.value.meetup_location,
+        image: imageBase64,
+        quantity: currentListing.value.quantity,
+      },
+    });
+    await fetchListings();
+    cancelEditing();
+  } catch (error) {
+    console.error("Failed to save changes:", error);
+  }
+};
+
+onMounted(async () => {
+  if (isLoggedIn.value) {
+    await fetchListings();
+  }
+});
+
+watch(isLoggedIn, async (newVal) => {
+  if (newVal) {
+    await fetchListings();
+  }
+});
 </script>
 
 <template>
@@ -21,15 +77,73 @@ const items = [
       <h1 v-else>Please login!</h1>
     </section>
     <PostListComponent />
-    <section>
+    <section v-if="isLoggedIn">
       <h2>Items:</h2>
-      <ListingViewItem v-for="item in items" :key="item.id" :item="item" />
+      <ListingViewItem v-for="item in items" :key="item._id" :item="item" @edit="startEditing" />
     </section>
+
+    <div v-if="isEditing" class="modal">
+      <div class="modal-content">
+        <h2>Edit Listing</h2>
+        <form @submit.prevent="saveChanges" class="pure-form pure-form-stacked">
+          <fieldset>
+            <legend>Edit Listing</legend>
+            <div class="pure-control-group">
+              <label for="name">Name</label>
+              <input id="name" type="text" v-model="currentListing.name" placeholder="Name" required />
+            </div>
+            <div class="pure-control-group">
+              <label for="meetupLocation">Meetup Location</label>
+              <input id="meetupLocation" type="text" v-model="currentListing.meetup_location" placeholder="Meetup Location" required />
+            </div>
+            <div class="pure-control-group">
+              <label for="image">Image</label>
+              <input id="image" type="file" @change="handleImageUpload" />
+              <img v-if="currentListing.imageUrl" :src="currentListing.imageUrl" alt="Current Image" class="current-image" />
+            </div>
+            <div class="pure-control-group">
+              <label for="quantity">Quantity</label>
+              <input id="quantity" type="number" v-model="currentListing.quantity" placeholder="Quantity" required />
+            </div>
+            <button type="submit" class="pure-button pure-button-primary">Save Changes</button>
+            <button type="button" class="pure-button" @click="cancelEditing">Cancel</button>
+          </fieldset>
+        </form>
+      </div>
+    </div>
   </main>
 </template>
 
 <style scoped>
 h1 {
   text-align: center;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 2em;
+  border-radius: 8px;
+  width: 400px;
+}
+
+.pure-control-group {
+  margin-bottom: 1em;
+}
+
+.current-image {
+  max-width: 100px;
+  margin-top: 10px;
 }
 </style>

@@ -86,6 +86,12 @@ class Routes {
     }
     return Responses.listings(listings);
   }
+  @Router.get("/listings/:id")
+  async getListingByID(id: string) {
+    const oid = new ObjectId(id);
+    const listing = await Listing.getListingById(oid);
+    return Responses.listing(listing);
+  }
 
   @Router.post("/listings")
   async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number) {

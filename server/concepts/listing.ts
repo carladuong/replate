@@ -31,6 +31,7 @@ export default class ListingConcept {
     const hidden = false;
     const _id = await this.listings.createOne({ author, name, meetup_location, image, quantity, remaining, hidden });
     const listing = await this.listings.readOne({ _id });
+    console.log("Incoming data:", { author, name, meetup_location, image, quantity });
     return { msg: "Listing successfully created!: ", listing };
   }
 
@@ -51,7 +52,13 @@ export default class ListingConcept {
 
     return { msg: "Listing successfully updated!" };
   }
-
+  async getListingById(_id: ObjectId) {
+    const listing = await this.listings.readOne({ _id });
+    if (!listing) {
+      throw new NotFoundError(`Listing ${_id} does not exist!`);
+    }
+    return listing;
+  }
   async getAllListings() {
     return await this.listings.readMany({}, { sort: { _id: -1 } });
   }
