@@ -60,9 +60,18 @@ const emptyForm = () => {
         <input id="image" type="text" v-model="image" />
 
         <label for="description"> Description (optional) </label>
-        <input id="description" type="text" v-model="description" />
+        <textarea id="description" v-model="description"></textarea>
 
         <button type="submit" class="pure-button-primary pure-button">Post</button>
     </form>
     
 </template>
+
+<style scoped>
+    form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    padding: 1em;
+    }
+</style>
