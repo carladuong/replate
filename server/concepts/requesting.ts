@@ -7,7 +7,7 @@ export interface UserDoc extends BaseDoc {
   name: string;
   quantity: number;
   hide: boolean;
-  image?: File;
+  image?: string;
   description?: string;
 }
 
@@ -24,13 +24,13 @@ export default class RequestingConcept {
     this.requests = new DocCollection<UserDoc>(collectionName);
   }
 
-  async add(requester: ObjectId, name: string, quantity: number, image?: File, description?: string) {
+  async add(requester: ObjectId, name: string, quantity: number, image?: string, description?: string) {
     const hide = false;
     const _id = await this.requests.createOne({ requester, name, quantity, hide, image, description });
     return { msg: "Request successfully created!", post: await this.requests.readOne({ _id }) };
   }
 
-  async edit(requester: ObjectId, _id: ObjectId, name?: string, quantity?: number, image?: File, description?: string) {
+  async edit(requester: ObjectId, _id: ObjectId, name?: string, quantity?: number, image?: string, description?: string) {
     await this.assertAuthor(_id, requester);
     await this.requests.partialUpdateOne({ _id }, { name, quantity, image, description });
     return { msg: "Post successfully updated!" };
