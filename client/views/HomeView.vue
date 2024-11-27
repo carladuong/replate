@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import PostListComponent from "@/components/Post/PostListComponent.vue";
 import ListingViewItem from "@/components/Listing/ListingViewItem.vue";
+import RequestListComponent from "@/components/Request/RequestListComponent.vue";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import { ref, onMounted, watch } from "vue";
@@ -123,6 +124,9 @@ watch(isLoggedIn, async (newVal) => {
         </form>
       </div>
     </div>
+    <h2>Listings</h2>
+    <h2>Requests</h2>
+    <RequestListComponent />
   </main>
 </template>
 
