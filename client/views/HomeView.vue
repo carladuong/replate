@@ -56,6 +56,17 @@ const saveChanges = async () => {
   }
 };
 
+const deleteListing = async () => {
+  try {
+    await fetchy(`/api/listings/${currentListing.value._id}`, "DELETE");
+    await fetchListings();
+    cancelEditing();
+  } catch (error) {
+    console.error("Failed to delete listing:", error);
+  }
+};
+
+
 onMounted(async () => {
   if (isLoggedIn.value) {
     await fetchListings();
@@ -107,6 +118,7 @@ watch(isLoggedIn, async (newVal) => {
             </div>
             <button type="submit" class="pure-button pure-button-primary">Save Changes</button>
             <button type="button" class="pure-button" @click="cancelEditing">Cancel</button>
+            <button type="button" class="pure-button button-error" @click="deleteListing">Delete Listing</button>
           </fieldset>
         </form>
       </div>
