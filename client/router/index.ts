@@ -5,7 +5,9 @@ import { useUserStore } from "@/stores/user";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
+import RequestView from "../views/RequestView.vue";
 import SettingView from "../views/SettingView.vue";
+import CreateListingView from "../views/CreateListingView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -16,9 +18,23 @@ const router = createRouter({
       component: HomeView,
     },
     {
+      path: "/create-listing",
+      name: "CreateListing",
+      component: CreateListingView,
+      meta: { requiresAuth: true },
+    },
+
+    {
       path: "/setting",
       name: "Settings",
       component: SettingView,
+      meta: { requiresAuth: true },
+    },
+
+    {
+      path: "/requests/:id/",
+      name: "Request Item",
+      component: RequestView,
       meta: { requiresAuth: true },
     },
     {

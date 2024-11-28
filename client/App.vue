@@ -3,22 +3,35 @@ import { useToastStore } from "@/stores/toast";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import { computed, onBeforeMount } from "vue";
-import { RouterLink, RouterView, useRoute } from "vue-router";
+import { RouterLink, RouterView, useRoute, useRouter } from "vue-router";
 
 const currentRoute = useRoute();
 const currentRouteName = computed(() => currentRoute.name);
 const userStore = useUserStore();
 const { isLoggedIn } = storeToRefs(userStore);
 const { toast } = storeToRefs(useToastStore());
+const router = useRouter();
 
 // Make sure to update the session before mounting the app in case the user is already logged in
+
 onBeforeMount(async () => {
   try {
     await userStore.updateSession();
+    if (isLoggedIn.value) {
+      await router.push(`/`);
+    } else {
+      await router.push("/login");
+    }
   } catch {
-    // User is not logged in
+    await router.push("/login");
   }
 });
+
+const navigateToCreateListing = () => {
+  router.push({ name: "CreateListing" }).catch((error) => {
+    console.error("Failed to navigate:", error);
+  });
+};
 </script>
 
 <template>
@@ -27,7 +40,7 @@ onBeforeMount(async () => {
       <div class="title">
         <img src="@/assets/images/logo.svg" />
         <RouterLink :to="{ name: 'Home' }">
-          <h1>Social Media App</h1>
+          <h1>RePlate</h1>
         </RouterLink>
       </div>
       <ul>
@@ -39,6 +52,10 @@ onBeforeMount(async () => {
         </li>
         <li v-else>
           <RouterLink :to="{ name: 'Login' }" :class="{ underline: currentRouteName == 'Login' }"> Login </RouterLink>
+        </li>
+
+        <li v-if="isLoggedIn">
+          <button @click="navigateToCreateListing" class="pure-button pure-button-primary">Create New Listing</button>
         </li>
       </ul>
     </nav>
