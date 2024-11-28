@@ -1,7 +1,7 @@
 import { useToastStore } from "../stores/toast";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-export type BodyT = string | number | boolean | null | BodyT[] | { [key: string]: BodyT } | FormData;
+export type BodyT = string | number | boolean | null | BodyT[] | { [key: string]: BodyT };
 
 /**
  * A wrapper around fetch that handles errors and alerts the messages to the user.
@@ -9,7 +9,7 @@ export type BodyT = string | number | boolean | null | BodyT[] | { [key: string]
  * @param url The url to fetch from
  * @param method The HTTP method to use
  * @param options.query The query parameters to add to the url
- * @param options.body The body to send (supports JSON and FormData)
+ * @param options.body The body to send 
  * @param options.alert Whether to alert the user of the response message (default: true)
  * @returns The response body
  * @throws An error if the response is not ok
@@ -28,7 +28,8 @@ export async function fetchy(
 
   // Build query string
   const queryString = new URLSearchParams(options.query).toString();
-  const fullUrl = queryString ? `${url}?${queryString}` : url;
+  const fullUrl = `${url}?${queryString}`;
+  // const fullUrl = queryString ? `${url}?${queryString}` : url;
 
   if ((method === "GET" || method === "DELETE") && options.body) {
     throw new Error(`Cannot have a body with a ${method} request`);
@@ -37,17 +38,25 @@ export async function fetchy(
   // Set up fetch options
   const fetchOptions: RequestInit = {
     method,
-    headers: {},
-    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json",
+      credentials: "same-origin",
+    },
+    // headers: {},
+    // credentials: "same-origin",
   };
 
-  // Handle the body
-  if (options.body instanceof FormData) {
-    fetchOptions.body = options.body;
-    // Do not set the Content-Type header; the browser will handle it for FormData
-  } else if (options.body) {
-    fetchOptions.body = JSON.stringify(options.body);
-    fetchOptions.headers!["Content-Type"] = "application/json";
+  // // Handle the body
+  // if (options.body instanceof FormData) {
+  //   fetchOptions.body = options.body;
+  //   // Do not set the Content-Type header; the browser will handle it for FormData
+  // } else if (options.body) {
+  //   fetchOptions.body = JSON.stringify(options.body);
+  //   fetchOptions.headers!["Content-Type"] = "application/json";
+  // }
+
+  if (options.body) {
+      fetchOptions.body = JSON.stringify(options.body);
   }
 
   // Perform fetch request

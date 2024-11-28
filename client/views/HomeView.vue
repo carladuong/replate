@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import PostListComponent from "@/components/Post/PostListComponent.vue";
 import ListingViewItem from "@/components/Listing/ListingViewItem.vue";
+import PostListComponent from "@/components/Post/PostListComponent.vue";
 import RequestListComponent from "@/components/Request/RequestListComponent.vue";
 import { useUserStore } from "@/stores/user";
-import { storeToRefs } from "pinia";
-import { ref, onMounted, watch } from "vue";
 import { fetchy } from "@/utils/fetchy";
+import { storeToRefs } from "pinia";
+import { onMounted, ref, watch } from "vue";
 
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
-const items = ref([]);
+const items = ref([{_id: "default ID", name: "item name", quantity: 0, author: "author", review: "5/5 stars", imageUrl: "image.com", meetup_location: "student center" }]);
 const isEditing = ref(false);
-const currentListing = ref(null);
+const currentListing = ref({_id: "default ID", name: "item name", quantity: 0, author: "author", review: "5/5 stars", imageUrl: "image.com", meetup_location: "student center" });
 
 const fetchListings = async () => {
   try {
@@ -21,32 +21,32 @@ const fetchListings = async () => {
   }
 };
 
-const startEditing = (listing) => {
+const startEditing = (listing: { _id: string; name: string; quantity: number; author: string; review: string; imageUrl: string; meetup_location: string }) => {
   currentListing.value = { ...listing };
   isEditing.value = true;
 };
 
 const cancelEditing = () => {
   isEditing.value = false;
-  currentListing.value = null;
+  currentListing.value = {_id: "default ID", name: "item name", quantity: 0, author: "author", review: "5/5 stars", imageUrl: "image.com", meetup_location: "student center" };
 };
 
 const saveChanges = async () => {
-  let imageBase64 = currentListing.value.imageUrl;
-  if (currentListing.value.image) {
-    const reader = new FileReader();
-    reader.readAsDataURL(currentListing.value.image);
-    imageBase64 = await new Promise<string>((resolve) => {
-      reader.onload = () => resolve(reader.result as string);
-    });
-  }
+  // let imageBase64 = currentListing.value.imageUrl;
+  // if (currentListing.value.image) {
+  //   const reader = new FileReader();
+  //   reader.readAsDataURL(currentListing.value.image);
+  //   imageBase64 = await new Promise<string>((resolve) => {
+  //     reader.onload = () => resolve(reader.result as string);
+  //   });
+  // }
 
   try {
     await fetchy(`/api/listings/${currentListing.value._id}`, "PATCH", {
       body: {
         name: currentListing.value.name,
         meetup_location: currentListing.value.meetup_location,
-        image: imageBase64,
+        image: currentListing.value.imageUrl,
         quantity: currentListing.value.quantity,
       },
     });
@@ -110,7 +110,8 @@ watch(isLoggedIn, async (newVal) => {
             </div>
             <div class="pure-control-group">
               <label for="image">Image</label>
-              <input id="image" type="file" @change="handleImageUpload" />
+              <!-- <input id="image" type="file" @change="handleImageUpload" /> -->
+              <input id="image" type="text" v-model="currentListing.imageUrl" />
               <img v-if="currentListing.imageUrl" :src="currentListing.imageUrl" alt="Current Image" class="current-image" />
             </div>
             <div class="pure-control-group">

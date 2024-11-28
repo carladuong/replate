@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import router from "@/router";
 import { useToastStore } from "@/stores/toast";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
