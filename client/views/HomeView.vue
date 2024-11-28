@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ListingViewItem from "@/components/ListingViewItem.vue";
+import ListingViewItem from "@/components/Listing/ListingViewItem.vue";
 import PostListComponent from "@/components/Post/PostListComponent.vue";
 import RequestListComponent from "@/components/Request/RequestListComponent.vue";
 import { useUserStore } from "@/stores/user";
