@@ -143,9 +143,11 @@ class Routes {
   }
 
   //add needed by
+  // add synchronization with tagging
   @Router.post("/requests")
-  async addRequest(session: SessionDoc, name: string, quantity: number, needBy: Date, image?: File, description?: string) {
+  async addRequest(session: SessionDoc, name: string, quantity: number, needBy: string, image?: string, description?: string) {
     const user = Sessioning.getUser(session);
+    const needByDate = new Date(needBy);
     const created = await Requesting.add(user, name, quantity, image, description);
     //call expiring to set needBy date as expiration date of the resource
     return { msg: created };
@@ -154,7 +156,7 @@ class Routes {
   //handles editing and hiding request by author (we also use hide request in a synchronization when offer is accepted etc)
   //set hideSwitch to true for "hide" button in the requesting front end
   @Router.patch("/requests/:id")
-  async updateRequest(session: SessionDoc, id: string, name?: string, quantity?: number, image?: File, description?: string, hideSwitch?: boolean) {
+  async updateRequest(session: SessionDoc, id: string, name?: string, quantity?: number, image?: string, description?: string, hideSwitch?: boolean) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     if (hideSwitch) {

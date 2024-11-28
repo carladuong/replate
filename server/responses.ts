@@ -1,5 +1,5 @@
 import { Authing } from "./app";
-import { ListingAuthorNotMatchError, ListingDoc } from "./concepts/listing";
+import { ListingDoc } from "./concepts/listing";
 
 
 /**
