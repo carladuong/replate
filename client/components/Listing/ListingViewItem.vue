@@ -18,7 +18,7 @@ const startEditing = () => {
 <template>
   <div class="listing-item">
     <div>
-      <img :src="props.item.imageUrl" alt="Produce Image" class="produce-image" />
+      <img v-if="item.image" :src="item.image" alt="Listing Image" class="listing-image" />
       <p><strong>Name:</strong> {{ props.item.name }}</p>
       <p><strong>Quantity:</strong> {{ props.item.quantity }}</p>
       <p><strong>Meetup Location:</strong> {{ props.item.meetup_location }}</p>
@@ -37,7 +37,7 @@ const startEditing = () => {
   margin-bottom: 1em;
 }
 
-.produce-image {
+.listing-image {
   width: 100%;
   height: auto;
   max-width: 300px;
