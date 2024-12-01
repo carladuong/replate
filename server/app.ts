@@ -10,5 +10,7 @@ export const Sessioning = new SessioningConcept();
 export const Authing = new AuthenticatingConcept("users");
 export const Listing = new ListingConcept("listings");
 export const Requesting = new RequestingConcept("requests");
-export const Expiring = new ExpiringConcept("expirings");
+export const Request_Expiring = new ExpiringConcept("request_expirations");
+export const Listing_Expiring = new ExpiringConcept("listing_expirations");
+
 //   }

@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import cron from "node-cron";
 import { z } from "zod";
-import { Authing, Listing, Requesting, Sessioning, Expiring } from "./app";
+import { Authing, Listing, Requesting, Sessioning, Request_Expiring, Listing_Expiring } from "./app";
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
 import {NotFoundError } from "./concepts/errors";
@@ -22,12 +22,14 @@ class Routes {
   private initializeCronJobs() {
     // cron job to runs every day at midnight
     cron.schedule("59 23 * * *", async () => {
-      this.handleExpired()
+      this.handleListingsExpired();
+      this.handleRequestsExpired();
     });
   }
 
-  async handleExpired(){
-    const expiredDocs= await Expiring.getAllExpired();
+  @Router.delete("/requests")
+  async handleRequestsExpired(){
+    const expiredDocs= await Request_Expiring.getAllExpired();
     if (!expiredDocs) {
       return { msg: "No expired documents to process." };
     }
@@ -35,22 +37,28 @@ class Routes {
     for (const doc of expiredDocs){
       const item_oid= new ObjectId(doc.item)
       const exp_oid= new ObjectId(doc._id);
-
-      // Check if the item belongs to Listings
-      const listing = await Listing.getListingById(item_oid);
-      if (listing) {
-        await Listing.delete(item_oid);
-        Expiring.delete(exp_oid);      
-      }
-  
-      // Check if the item belongs to Requests
-      const request = await Requesting.getRequestById(item_oid);
-      if (request) {
-        await Requesting.delete(item_oid);
-        Expiring.delete(exp_oid);
-      }
+      await Requesting.delete(item_oid);
+      await Request_Expiring.delete(exp_oid);
+      
     }
   }
+
+  @Router.delete("/listings")
+  async handleListingsExpired(){
+    const expiredDocs= await Listing_Expiring.getAllExpired();
+    if (!expiredDocs) {
+      return { msg: "No expired documents to process." };
+    }
+
+    for (const doc of expiredDocs){
+      const item_oid= new ObjectId(doc.item)
+      const exp_oid= new ObjectId(doc._id);
+      await Listing.delete(item_oid);
+      await Listing_Expiring.delete(exp_oid);      
+      }
+
+  }
+  
 
   /* 
   Sessioning
@@ -141,7 +149,7 @@ class Routes {
     const created = await Listing.addListing(user, name, meetup_location, image, quantity);
 
     if (created.listing) {
-      const create_expireObj= await Expiring.allocate(created.listing._id, expireDate);
+      const create_expireObj= await Listing_Expiring.allocate(created.listing._id, expireDate);
     }
     
     return { msg: created.msg, listing: await Responses.listing(created.listing) };
@@ -196,7 +204,7 @@ class Routes {
     const created = await Requesting.add(user, name, quantity, image, description);
     //expiration date of the resource
     if (created.request) {
-      const create_needBy= await Expiring.allocate(created.request._id, needBy);
+      const create_needBy= await Request_Expiring.allocate(created.request._id, needBy);
     }
       return { msg: created  };
   }

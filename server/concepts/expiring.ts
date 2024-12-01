@@ -15,7 +15,7 @@ export default class ExpiringConcept {
   public readonly expirings: DocCollection<ExpiringDoc>;
 
   /**
-   * Make an instance of Listing.
+   * Make an instance of Expiring.
    */
   constructor(collectionName: string) {
     this.expirings = new DocCollection<ExpiringDoc>(collectionName);
