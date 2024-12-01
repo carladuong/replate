@@ -36,15 +36,22 @@ export default class ExpiringConcept {
   }
 
 
-  async editExpiration(_id: ObjectId, expirationString: string){
+  async editExpiration(_id: ObjectId, expirationString?: string) {
+    // Check if expirationString is provided
+    if (!expirationString) {
+      return { msg: "No expiration date provided. No updates made." };
+    }
+    
     const [month, day, year] = expirationString.split("/").map(Number);
     const expireAt = new Date(year, month - 1, day);
-    const updateDoc = { expireAt }; // The object structure should match the ExpiringDoc
-  
-    // Now call partialUpdateOne with the correct object format
+    const ttlSeconds = Math.floor((expireAt.getTime() - Date.now()) / 1000);
+    if (ttlSeconds <= 0) {
+      throw new Error("Expiration date must be in the future.");
+    }
+
+    const updateDoc = { expireAt };
     await this.expirings.partialUpdateOne({ _id }, updateDoc);
-  
-    return { msg: "Listing successfully created!: ",  };
+    return { msg: "Expiration date successfully updated!" };
   }
    
   async getAllExpired(){

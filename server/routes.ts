@@ -21,7 +21,7 @@ class Routes {
 
   private initializeCronJobs() {
     // cron job to runs every day at midnight
-    cron.schedule("59 23 * * *", async () => {
+    cron.schedule("30 23 * * *", async () => {
       this.handleListingsExpired();
       this.handleRequestsExpired();
     });
@@ -156,10 +156,11 @@ class Routes {
   }
 
   @Router.patch("/listings/:id")
-  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number) {
+  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number, expireDate?: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     await Listing.assertAuthorIsUser(oid, user);
+    await Listing_Expiring.editExpiration(oid, expireDate);
     return await Listing.editlisting(oid, name, meetup_location, image, quantity);
   }
 
