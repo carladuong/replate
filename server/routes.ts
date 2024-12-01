@@ -4,7 +4,10 @@ import { z } from "zod";
 import { Authing, Listing, Requesting, Sessioning, Expiring } from "./app";
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
+import {NotFoundError } from "./concepts/errors";
+
 import Responses from "./responses";
+
 
 /**
  * Web server routes for the app. Implements synchronizations between concepts.
@@ -12,9 +15,47 @@ import Responses from "./responses";
 class Routes {
   // Synchronize the concepts from `app.ts`.
 
+  constructor() {
+    this.initializeCronJobs();
+  }
+
+  private initializeCronJobs() {
+    // cron job to runs every day at midnight
+    cron.schedule("59 23 * * *", async () => {
+      this.handleExpired()
+    });
+  }
+
+  async handleExpired(){
+    const expiredDocs= await Expiring.getAllExpired();
+    if (!expiredDocs) {
+      return { msg: "No expired documents to process." };
+    }
+
+    for (const doc of expiredDocs){
+      const item_oid= new ObjectId(doc.item)
+      const exp_oid= new ObjectId(doc._id);
+
+      // Check if the item belongs to Listings
+      const listing = await Listing.getListingById(item_oid);
+      if (listing) {
+        await Listing.delete(item_oid);
+        Expiring.delete(exp_oid);      
+      }
+  
+      // Check if the item belongs to Requests
+      const request = await Requesting.getRequestById(item_oid);
+      if (request) {
+        await Requesting.delete(item_oid);
+        Expiring.delete(exp_oid);
+      }
+    }
+  }
+
   /* 
   Sessioning
   */
+
   @Router.get("/session")
   async getSessionUser(session: SessionDoc) {
     const user = Sessioning.getUser(session);
@@ -94,10 +135,15 @@ class Routes {
   }
 
   @Router.post("/listings")
-  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number) {
+  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, expireDate: string) {
     //change img back to File
     const user = Sessioning.getUser(session);
     const created = await Listing.addListing(user, name, meetup_location, image, quantity);
+
+    if (created.listing) {
+      const create_expireObj= await Expiring.allocate(created.listing._id, expireDate);
+    }
+    
     return { msg: created.msg, listing: await Responses.listing(created.listing) };
   }
 
@@ -147,26 +193,14 @@ class Routes {
   @Router.post("/requests")
   async addRequest(session: SessionDoc, name: string, quantity: number, needBy: string, image?: string, description?: string) {
     const user = Sessioning.getUser(session);
-    const needByDate = new Date(needBy);
     const created = await Requesting.add(user, name, quantity, image, description);
-    //call expiring to set needBy date as expiration date of the resource
-    return { msg: created };
+    //expiration date of the resource
+    if (created.request) {
+      const create_needBy= await Expiring.allocate(created.request._id, needBy);
+    }
+      return { msg: created  };
   }
 
-  //handles editing and hiding request by author (we also use hide request in a synchronization when offer is accepted etc)
-  //set hideSwitch to true for "hide" button in the requesting front end
-  @Router.patch("/requests/:id")
-  async updateRequest(session: SessionDoc, id: string, name?: string, quantity?: number, image?: string, description?: string, hideSwitch?: boolean) {
-    const user = Sessioning.getUser(session);
-    const oid = new ObjectId(id);
-    if (hideSwitch) {
-      await Requesting.assertAuthor(oid, user);
-      await Requesting.hideSwitch(oid);
-    } else {
-      await Requesting.edit(user, oid, name, quantity, image, description);
-    }
-    return await Requesting.getRequestById(oid);
-  }
 
   @Router.delete("/requests/:id")
   async deleteRequest(session: SessionDoc, id: string) {

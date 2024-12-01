@@ -19,26 +19,7 @@ export default class ExpiringConcept {
    */
   constructor(collectionName: string) {
     this.expirings = new DocCollection<ExpiringDoc>(collectionName);
-    this.expirings.collection.createIndex({ expireAt: 1 }, { expireAfterSeconds: 0 });
   }
-
-  // async allocate(itemId: ObjectId, expirationString: string) {
-  //   const [month, day, year] = expirationString.split("/").map(Number);
-  //   const expirationDate = new Date(year, month - 1, day);
-  
-  //   const expiringDoc= {
-  //     item: itemId, 
-  //     expireAt: expirationDate
-  //   };
-  
-  //   const ttlSeconds = Math.floor((expirationDate.getTime() - Date.now()) / 1000);
-  //   if (ttlSeconds <= 0) {
-  //     throw new Error("Expiration date must be in the future.");
-  //   }
-  
-  //   await this.expirings.createOneWithExpiration(expiringDoc, expirationDate);
-  //   return { msg: "Expiration Created:" + expirationDate};
-  // }
 
 
   async allocate(itemId: ObjectId, expirationString: string) {
@@ -66,8 +47,15 @@ export default class ExpiringConcept {
     return { msg: "Listing successfully created!: ",  };
   }
    
-  async systemExpire(item: ObjectId){
-    return { msg: "Listing successfully created!: ",  };
+  async getAllExpired(){
+    const expireAt = new Date(); //today
+    return await this.expirings.readMany({ expireAt });
+
+  }
+
+  async delete(_id: ObjectId) {
+    await this.expirings.deleteOne({ _id });
+    return { msg: "Listing deleted successfully!" };
   }
 }
 

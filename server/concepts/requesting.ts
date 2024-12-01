@@ -27,7 +27,8 @@ export default class RequestingConcept {
   async add(requester: ObjectId, name: string, quantity: number, image?: string, description?: string) {
     const hide = false;
     const _id = await this.requests.createOne({ requester, name, quantity, hide, image, description });
-    return { msg: "Request successfully created!", post: await this.requests.readOne({ _id }) };
+    const request= await this.requests.readOne({ _id }) 
+    return { msg: "Request successfully created!", request};
   }
 
   async edit(requester: ObjectId, _id: ObjectId, name?: string, quantity?: number, image?: string, description?: string) {
