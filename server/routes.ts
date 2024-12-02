@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 
 import { z } from "zod";
-import { Authing, Claiming, Listing, Requesting, Sessioning } from "./app";
+import { Authing, Claiming, Listing, Offering, Requesting, Sessioning } from "./app";
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
@@ -195,12 +195,12 @@ class Routes {
     let claims;
     if (listingId) {
       const listingIdObj = new ObjectId(listingId);
-      claims = Claiming.getClaimsByListing(listingIdObj);
+      claims = await Claiming.getClaimsByListing(listingIdObj);
     } else if (claimer) {
       const claimerIdObj = new ObjectId(claimer);
-      claims = Claiming.getClaimsByClaimer(claimerIdObj);
+      claims = await Claiming.getClaimsByClaimer(claimerIdObj);
     } else {
-      claims = Claiming.getAllClaims();
+      claims = await Claiming.getAllClaims();
     }
     return claims;
   }
@@ -208,7 +208,7 @@ class Routes {
   @Router.get("/claims/:id")
   async getClaim(claimId: string) {
     const oid = new ObjectId(claimId);
-    return Claiming.getClaimById(oid);
+    return await Claiming.getClaimById(oid);
   }
 
   @Router.delete("/claims/:id")
@@ -226,30 +226,34 @@ class Routes {
     //set accepted to false
     //get request and check it exist
     //check user not author
-    //Offering.offer(user, oid, image, location, message)
+    await Offering.offer(user, oid, image, location, message);
   }
 
   @Router.get("/offers")
   async getOffers(requestId?: string, offerer?: string) {
     if (requestId) {
-      //return offers made on request
+      const oid = new ObjectId(requestId);
+      return await Offering.getOfferByItem(oid);
     } else if (offerer) {
-      //return offers made by the user including accepted and not accepted
+      const oid = new ObjectId(offerer);
+      return await Offering.getOfferByOfferer(oid);
     } else {
-      //return all offers
+      return await Offering.getAllOffers();
     }
   }
 
   @Router.get("/offers/:id")
   async getOffer(offerId: string) {
     const oid = new ObjectId(offerId);
-    //return Offering.getOfferById(oid)
+    return await Offering.getOfferById(oid);
   }
 
   @Router.patch("/offers/hide") //can we select one param in route?
   async acceptOffer(session: SessionDoc, offerId: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(offerId);
+    const offer = await Offering.getOfferById(oid);
+    await Offering.accept(oid);
     //get offer check it exists
     //Offering.accept(offerId) will  hide the offer and
     //get request of the offer
@@ -260,17 +264,18 @@ class Routes {
   async editOffer(session: SessionDoc, offerId: string, image?: string, location?: string, message?: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(offerId);
-    //get offer check it exists
-    //Offering.edit(offer, item, IMG, message)
+    const offer = await Offering.getOfferById(oid);
+    await Offering.editOffer(oid, image, location, message);
   }
 
   @Router.delete("/offers/:id")
   async deleteOffer(session: SessionDoc, offerId: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(offerId);
-    //get offer check if exists
-    //Offering.checkIfAuthor(user, offer)
-    //Offering.remove(offer)
+    const offer = await Offering.getOfferById(oid);
+    if (await Offering.checkAuthor(oid, user)) {
+      await Offering.removeOffer(oid);
+    }
   }
 
   @Router.post("/reviews")
