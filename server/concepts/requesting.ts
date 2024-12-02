@@ -2,10 +2,11 @@ import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
 
-export interface UserDoc extends BaseDoc {
+export interface RequestDoc extends BaseDoc {
   requester: ObjectId;
   name: string;
   quantity: number;
+  //needBy: string;
   hide: boolean;
   image?: string;
   description?: string;
@@ -15,13 +16,13 @@ export interface UserDoc extends BaseDoc {
  * concept: Requesting
  */
 export default class RequestingConcept {
-  public readonly requests: DocCollection<UserDoc>;
+  public readonly requests: DocCollection<RequestDoc>;
 
   /**
    * Make an instance of Requesting.
    */
   constructor(collectionName: string) {
-    this.requests = new DocCollection<UserDoc>(collectionName);
+    this.requests = new DocCollection<RequestDoc>(collectionName);
   }
 
   async add(requester: ObjectId, name: string, quantity: number, image?: string, description?: string) {
@@ -33,7 +34,7 @@ export default class RequestingConcept {
   async edit(requester: ObjectId, _id: ObjectId, name?: string, quantity?: number, image?: string, description?: string) {
     await this.assertAuthor(_id, requester);
     await this.requests.partialUpdateOne({ _id }, { name, quantity, image, description });
-    return { msg: "Post successfully updated!" };
+    return { msg: "Request successfully updated!" };
   }
 
   async delete(_id: ObjectId) {

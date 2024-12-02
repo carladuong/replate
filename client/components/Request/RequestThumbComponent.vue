@@ -31,7 +31,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <div v-if="request" class="request-thumbnail" @click="openRequest">
+  <div v-if="request" class="thumbnail" @click="openRequest">
     <img :src="imageSrc" class="produce-image" />
     <p>{{ request.name }}</p>
   </div>

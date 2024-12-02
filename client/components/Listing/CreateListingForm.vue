@@ -1,37 +1,23 @@
 <script setup lang="ts">
+import { fetchy } from "@/utils/fetchy"; // Ensure this is set up to handle your API requests
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { fetchy } from "@/utils/fetchy"; // Ensure this is set up to handle your API requests
 
 // Form fields
 const name = ref("");
 const meetupLocation = ref("");
-// const image = ref<File | null>(null);
+const imageUrl = ref("");
 const quantity = ref<number | null>(null);
 
 // Use Vue Router
 const router = useRouter();
 
-// Handle image upload
-// const handleImageUpload = (event: Event) => {
-//   const target = event.target as HTMLInputElement;
-//   if (target.files && target.files.length > 0) {
-//     image.value = target.files[0];
-//   }
-// };
-
 // Create a new listing
 const createListing = async () => {
-  if (!name.value || !meetupLocation.value || !quantity.value) {
+  if (!name.value || !meetupLocation.value || !quantity.value || !imageUrl.value) {
     alert("All fields are required.");
     return;
   }
-
-  // Convert image to base64 string
-  //   const reader = new FileReader();
-  //   reader.readAsDataURL(image.value);
-  //   reader.onload = async () => {
-  //     const imageBase64 = reader.result as string;
 
   try {
     // Make API call to create a listing
@@ -39,7 +25,7 @@ const createListing = async () => {
       body: {
         name: name.value,
         meetup_location: meetupLocation.value,
-        //image: imageBase64,
+        image: imageUrl.value, // Include the image URL
         quantity: quantity.value,
       },
     });
@@ -48,7 +34,7 @@ const createListing = async () => {
       // Reset form fields
       name.value = "";
       meetupLocation.value = "";
-      //image.value = null;
+      imageUrl.value = ""; // Reset the image URL
       quantity.value = null;
       // Navigate back to the home view
       await router.push({ name: "Home" });
@@ -74,10 +60,10 @@ const createListing = async () => {
         <label for="meetupLocation">Meetup Location</label>
         <input id="meetupLocation" type="text" v-model="meetupLocation" placeholder="Meetup Location" required />
       </div>
-      <!-- <div class="pure-control-group">
-        <label for="image">Image</label>
-        <input id="image" type="file" @change="handleImageUpload" required />
-      </div> -->
+      <div class="pure-control-group">
+        <label for="imageUrl">Image URL</label>
+        <input id="imageUrl" type="text" v-model="imageUrl" placeholder="Enter image URL" />
+      </div>
       <div class="pure-control-group">
         <label for="quantity">Quantity</label>
         <input id="quantity" type="number" v-model="quantity" placeholder="Quantity" required />
