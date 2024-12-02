@@ -18,7 +18,7 @@ const startEditing = () => {
 <template>
   <div class="listing-item">
     <div>
-      <img v-if="item.image" :src="item.image" alt="Listing Image" class="listing-image" />
+      <img v-if="item.imageUrl" :src="item.imageUrl" alt="Listing Image" class="listing-image" />
       <p><strong>Name:</strong> {{ props.item.name }}</p>
       <p><strong>Quantity:</strong> {{ props.item.quantity }}</p>
       <p><strong>Meetup Location:</strong> {{ props.item.meetup_location }}</p>
