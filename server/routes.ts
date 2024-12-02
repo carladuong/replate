@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 
 import { z } from "zod";
-import { Authing, Listing, Requesting, Sessioning } from "./app";
+import { Authing, Claiming, Listing, Requesting, Sessioning } from "./app";
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
@@ -175,14 +175,14 @@ class Routes {
   }
 
   /*
-  Claming
+  Claiming
   */
   @Router.post("/claims")
   async claim(session: SessionDoc, listingId: string, quantity: number) {
     const user = Sessioning.getUser(session);
     //Reporting.checkIfUserReported(claimer)
-    //Claiming.claim(claimer, item, quantity)
     const oid = new ObjectId(listingId);
+    await Claiming.claim(user, quantity, oid);
     //Listing.getListingById(oid)
     //get curr_quantity and calc new_quantity
     //await Listing.editlisting(quantity=new_quantity)
@@ -192,11 +192,13 @@ class Routes {
   async getClaims(listingId?: string, claimer?: string) {
     let claims;
     if (listingId) {
-      //get all claims for that listing
+      const listingIdObj = new ObjectId(listingId);
+      claims = Claiming.getClaimsByListing(listingIdObj);
     } else if (claimer) {
-      //get all claims authored by that claimer
+      const claimerIdObj = new ObjectId(claimer);
+      claims = Claiming.getClaimsByClaimer(claimerIdObj);
     } else {
-      //get all claims
+      claims = Claiming.getAllClaims();
     }
     return claims;
   }
@@ -204,14 +206,14 @@ class Routes {
   @Router.get("/claims/:id")
   async getClaim(claimId: string) {
     const oid = new ObjectId(claimId);
-    // return Claiming/getClaimById(oid)
+    return Claiming.getClaimById(oid);
   }
 
   @Router.delete("/claims/:id")
   async unclaimItem(session: SessionDoc, claimId: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(claimId);
-    //Claiming.unclaim(item)
+    await Claiming.unclaim(oid);
     //Listing edit quantity
   }
 
