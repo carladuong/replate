@@ -2,13 +2,16 @@ import { storeToRefs } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 
 import { useUserStore } from "@/stores/user";
+import CreateListingView from "../views/CreateListingView.vue";
 import CreateRequestView from "../views/CreateRequestView.vue";
+import CreateReviewView from "../views/CreateReviewView.vue";
 import HomeView from "../views/HomeView.vue";
+import ListingView from "../views/ListingView.vue";
 import LoginView from "../views/LoginView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
+import ProfileView from "../views/ProfileView.vue";
 import RequestView from "../views/RequestView.vue";
 import SettingView from "../views/SettingView.vue";
-import CreateListingView from "../views/CreateListingView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -18,17 +21,30 @@ const router = createRouter({
       name: "Home",
       component: HomeView,
     },
+
     {
-      path: "/create-listing",
-      name: "CreateListing",
-      component: CreateListingView,
-      meta: { requiresAuth: true },
+      path: "/users/:id/",
+      name: "Profile View",
+      component: ProfileView,
     },
 
     {
       path: "/setting",
       name: "Settings",
       component: SettingView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/listings/:id/",
+      name: "Listing Item",
+      component: ListingView,
+      meta: { requiresAuth: true },
+    },
+
+    {
+      path: "/create-listing",
+      name: "Create Listing",
+      component: CreateListingView,
       meta: { requiresAuth: true },
     },
 
@@ -42,6 +58,12 @@ const router = createRouter({
       path: "/createRequest",
       name: "Create Request",
       component: CreateRequestView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/createReview/:id",
+      name: "Create Review",
+      component: CreateReviewView,
       meta: { requiresAuth: true },
     },
     {

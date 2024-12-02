@@ -5,94 +5,98 @@ import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { computed, onBeforeMount, ref } from "vue";
 
-const props = defineProps(["requestId"]);
+const props = defineProps(["listingId"]);
 
 const { currentUsername } = storeToRefs(useUserStore());
 const isEditing = ref(false);
-const request = ref<Record<string, string> | null>(null);
+const listing = ref<Record<string, string> | null>(null);
 
 const editedName = ref("");
 const editedQuantity = ref("");
+const editedMeetupLocation = ref("");
 const editedDescription = ref("");
 const editedImage = ref("");
 
-const imageSrc = computed(() => (isEditing.value ? editedImage.value || "@/assets/images/no-image.jpg" : request.value?.image || "@/assets/images/no-image.jpg"));
+const imageSrc = computed(() => (isEditing.value ? editedImage.value || "@/assets/images/no-image.jpg" : listing.value?.image || "@/assets/images/no-image.jpg"));
 
 const startEditing = () => {
   isEditing.value = true;
 };
 
 const cancelEditing = () => {
-  if (!request.value) {
-    console.warn("Request is null, cannot cancel editing.");
+  if (!listing.value) {
+    console.warn("Listing is null, cannot cancel editing.");
     return;
   }
   isEditing.value = false;
-  editedName.value = request.value.name;
-  editedQuantity.value = request.value.quantity;
-  editedDescription.value = request.value.description;
-  editedImage.value = request.value.image;
+  editedName.value = listing.value.name;
+  editedQuantity.value = listing.value.quantity;
+  editedMeetupLocation.value = listing.value.meetup_location;
+  editedDescription.value = listing.value.description;
+  editedImage.value = listing.value.image;
 };
 
 const saveChanges = async () => {
-  if (!request.value) {
-    console.error("Request is null, cannot save.");
+  if (!listing.value) {
+    console.error("Listing is null, cannot save.");
     return;
   }
   try {
-    await fetchy(`/api/requests/${request.value._id}`, "PATCH", {
+    await fetchy(`/api/requests/${listing.value._id}`, "PATCH", {
       body: {
         name: editedName.value,
         quantity: editedQuantity.value,
+        meetup_location: editedMeetupLocation.value,
         image: editedImage.value,
         description: editedDescription.value,
         //pickupNumber: props.request.pickupNumber,
       },
     });
     isEditing.value = false;
-    await getRequest(props.requestId.value);
+    await getListing(props.listingId.value);
   } catch (error) {
     console.error("Failed to save changes:", error);
   }
 };
 
-async function getRequest(requestId: string) {
+async function getListing(listingId: string) {
   try {
-    const requestResult = await fetchy(`/api/requests/${requestId}`, "GET");
-    request.value = requestResult;
+    const listingResult = await fetchy(`/api/listings/${listingId}`, "GET");
+    listing.value = listingResult;
     //refs for placeholders when editing
-    editedName.value = requestResult.name;
-    editedQuantity.value = requestResult.quantity;
-    editedDescription.value = requestResult.description || "";
-    editedImage.value = requestResult.image || "";
+    editedName.value = listingResult.name;
+    editedQuantity.value = listingResult.quantity;
+    editedMeetupLocation.value = listingResult.meetup_location || "";
+    editedDescription.value = listingResult.description || "";
+    editedImage.value = listingResult.image || "";
   } catch (_) {
-    console.error("Failed to fetch request details.");
+    console.error("Failed to fetch listing details.");
   }
 }
 
 onBeforeMount(async () => {
-  await getRequest(props.requestId);
+  await getListing(props.listingId);
 });
 </script>
 
 <template>
-  <h1>Request</h1>
-  <div v-if="request" class="request-item">
+  <h1>Listing</h1>
+  <div v-if="listing" class="listing-item">
     <div class="image-column">
       <img :src="imageSrc" class="item-image" />
     </div>
     <div class="info-column">
       <!-- Content -->
       <div>
-        <!-- Requester -->
-        <UserComponent :userId="request.requester" />
+        <!-- listing author -->
+        <UserComponent :userId="listing.author" />
         <!-- Item Name -->
         <p><strong>Item:</strong></p>
         <div v-if="isEditing">
           <input v-model="editedName" placeholder="Item Name" />
         </div>
         <div v-else>
-          {{ request.name }}
+          {{ listing.name }}
         </div>
 
         <!-- Quantity -->
@@ -101,7 +105,7 @@ onBeforeMount(async () => {
           <input v-model="editedQuantity" type="number" placeholder="Quantity" />
         </div>
         <div v-else>
-          {{ request.quantity }}
+          {{ listing.quantity }}
         </div>
 
         <!-- Description -->
@@ -110,16 +114,16 @@ onBeforeMount(async () => {
           <textarea v-model="editedDescription" placeholder="Description"></textarea>
         </div>
         <div v-else>
-          {{ request.description }}
+          {{ listing.description }}
         </div>
 
         <!-- Buttons -->
         <div>
           <button v-if="isEditing" @click="saveChanges">Save</button>
           <button v-if="isEditing" @click="cancelEditing">Cancel</button>
-          <button v-else-if="request.requester === currentUsername" @click="startEditing">Edit</button>
-          <!-- also need to check is reqeust is satisfied (hide==true), in which case no offer option -->
-          <button v-else>Offer</button>
+          <button v-else-if="listing.author === currentUsername" @click="startEditing">Edit</button>
+          <!-- also need to check is lisitng is claimed (hide==true), in which case no claim option -->
+          <button v-else>Claim</button>
         </div>
       </div>
     </div>
@@ -133,7 +137,7 @@ onBeforeMount(async () => {
 h1 {
   text-align: center;
 }
-.request-item {
+.listing-item {
   display: flex;
   gap: 20px;
 }

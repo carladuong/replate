@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 
 import { z } from "zod";
-import { Authing, Claiming, Listing, Offering, Requesting, Sessioning } from "./app";
+import { Authing, Claiming, Listing, Offering, Requesting, Reviewing, Sessioning } from "./app";
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
@@ -12,7 +12,7 @@ import Responses from "./responses";
 class Routes {
   // Synchronize the concepts from `app.ts`.
 
-  /* 
+  /*  
   Sessioning
   */
   @Router.get("/session")
@@ -133,24 +133,24 @@ class Routes {
     } else {
       requests = await Requesting.getRequestsOngoing();
     }
-    return requests;
+    return Responses.requests(requests);
   }
 
   @Router.get("/requests/:id")
   async getRequest(id: string) {
     const oid = new ObjectId(id);
-    return await Requesting.getRequestById(oid);
+    return Responses.request(await Requesting.getRequestById(oid));
   }
 
   //add needed by
   // add synchronization with tagging
   @Router.post("/requests")
-  async addRequest(session: SessionDoc, name: string, quantity: number, needBy: string, image?: string, description?: string) {
+  async addRequest(session: SessionDoc, name: string, quantity: number, image?: string, description?: string) {
     const user = Sessioning.getUser(session);
-    const needByDate = new Date(needBy);
+    //const needByDate = new Date(needBy);
     const created = await Requesting.add(user, name, quantity, image, description);
     //call expiring to set needBy date as expiration date of the resource
-    return { msg: created };
+    return { msg: created.msg, request: await Responses.request(created.post) };
   }
 
   //handles editing and hiding request by author (we also use hide request in a synchronization when offer is accepted etc)
@@ -177,7 +177,7 @@ class Routes {
   }
 
   /*
-  Claiming
+  Claming
   */
   @Router.post("/claims")
   async claim(session: SessionDoc, listingId: string, quantity: number) {
@@ -215,15 +215,19 @@ class Routes {
   async unclaimItem(session: SessionDoc, claimId: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(claimId);
+    //assert user is claimer
     await Claiming.unclaim(oid);
     //Listing edit quantity
   }
+
+  /*
+  Offering
+  */
 
   @Router.post("/offers")
   async offer(session: SessionDoc, requestId: string, image: string, location: string, message: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(requestId);
-    //set accepted to false
     //get request and check it exist
     //check user not author
     await Offering.offer(user, oid, image, location, message);
@@ -245,10 +249,10 @@ class Routes {
   @Router.get("/offers/:id")
   async getOffer(offerId: string) {
     const oid = new ObjectId(offerId);
-    return await Offering.getOfferById(oid);
+    return Offering.getOfferById(oid);
   }
 
-  @Router.patch("/offers/hide") //can we select one param in route?
+  @Router.patch("/offers/hide")
   async acceptOffer(session: SessionDoc, offerId: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(offerId);
@@ -264,7 +268,7 @@ class Routes {
   async editOffer(session: SessionDoc, offerId: string, image?: string, location?: string, message?: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(offerId);
-    const offer = await Offering.getOfferById(oid);
+    const offer = await Offering.getOfferById(oid); //check if exists and user is offerer
     await Offering.editOffer(oid, image, location, message);
   }
 
@@ -279,40 +283,60 @@ class Routes {
   }
 
   @Router.post("/reviews")
-  async review(session: SessionDoc, offerId: string, rating: number, message?: string) {
+  async review(session: SessionDoc, subjectId: string, rating: number, message?: string) {
     const user = Sessioning.getUser(session);
-    const oid = new ObjectId(offerId);
+    const oid = new ObjectId(subjectId);
     //Claiming.checkIfClaimed(user, oid)
-    //Reviewing.addReview(user, oid, rating, message)
+    const created = await Reviewing.add(user, oid, rating, message);
+    return { msg: created };
   }
 
   @Router.patch("/reviews/:id")
   async editReview(session: SessionDoc, reviewId: string, rating?: number, message?: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(reviewId);
-    //Reviewing.checkIfReviewAuthor(user, oid)
-    //Reviewing.editReview(user, oid, rating, message)
+    return await Reviewing.edit(user, oid, rating, message);
   }
 
   @Router.delete("/reviews/:id")
   async deleteReview(session: SessionDoc, reviewId: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(reviewId);
-    //Reviewing.checkIfReviewAuthor(user, oid)
-    //Reviewing.delete(user, oid)
+    return await Reviewing.delete(user, oid);
   }
 
   @Router.get("/reviews")
-  async getReviews(userId?: string) {
-    const oid = new ObjectId(userId);
-    //return reviews on the user
-    //otherwise return all reviews
+  async getReviews(subjectId?: string) {
+    let reviews;
+    //get reviews on the user
+    if (subjectId) {
+      const oid = new ObjectId(subjectId);
+      reviews = await Reviewing.getReviewsOfSubject(oid);
+    } else {
+      //otherwise get all reviews
+      reviews = await Reviewing.getReviews();
+    }
+    return reviews;
   }
 
   @Router.get("/reviews/:id")
   async getReview(id: string) {
     const oid = new ObjectId(id);
-    //return await Reviewing.getReviewById(oid)
+    return await Reviewing.getReviewById(oid);
+  }
+
+  @Router.get("/reviews/average")
+  async getAverageRating(subjectId: string) {
+    console.log(subjectId);
+    const oid = new ObjectId(subjectId);
+    const reviews = await Reviewing.getReviewsOfSubject(oid);
+
+    if (reviews.length > 0) {
+      const ratings = reviews.map((review) => review.rating);
+      return ratings.reduce((a, b) => a + b) / ratings.length;
+    } else {
+      return 0; // No reviews, return 0
+    }
   }
 
   @Router.post("/reports")

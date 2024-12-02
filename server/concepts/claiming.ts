@@ -28,24 +28,24 @@ export default class ClaimingConcept {
 
   async unclaim(claimId: ObjectId) {
     if (!this.checkIfClaimed(claimId)) {
-        throw new ObjectNotClaimedError();
+      throw new ObjectNotClaimedError();
     }
-    await this.claims.deleteOne({ claimId});
+    await this.claims.deleteOne({ claimId });
     return { msg: "Successfully unclaimed item!" };
   }
 
   async deleteAllClaimsOnItem(itemId: ObjectId) {
     if (!this.checkIfClaimed(itemId)) {
-        throw new ObjectNotClaimedError();
+      throw new ObjectNotClaimedError();
     }
-    await this.claims.deleteMany({item: itemId});
+    await this.claims.deleteMany({ item: itemId });
     return { msg: "Successfully deleted claims on item!" };
   }
 
   async checkIfClaimed(item: ObjectId) {
     const claim = await this.claims.readOne({ item: item });
     if (claim) {
-        return true;
+      return true;
     }
     return false;
   }
@@ -53,14 +53,14 @@ export default class ClaimingConcept {
   async getClaimById(claimId: ObjectId) {
     const claim = await this.claims.readOne({ _id: claimId });
     if (claim) {
-        return claim;
+      return claim;
     }
     throw new NotAllowedError("Claim does not exist.");
   }
 
   async getClaimsByListing(listingId: ObjectId) {
     if (!this.checkIfClaimed(listingId)) {
-        throw new ObjectNotClaimedError();
+      throw new ObjectNotClaimedError();
     }
     return await this.claims.readMany({ item: listingId });
   }
@@ -75,7 +75,7 @@ export default class ClaimingConcept {
 }
 
 export class ObjectNotClaimedError extends NotAllowedError {
-    constructor() {
-      super("Item has not been claimed!");
-    }
+  constructor() {
+    super("Item has not been claimed!");
   }
+}

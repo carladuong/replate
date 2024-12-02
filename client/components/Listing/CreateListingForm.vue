@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { fetchy } from "@/utils/fetchy"; // Ensure this is set up to handle your API requests
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { fetchy } from "@/utils/fetchy"; // Ensure this is set up to handle your API requests
 
 // Form fields
 const name = ref("");
@@ -12,26 +12,12 @@ const quantity = ref<number | null>(null);
 // Use Vue Router
 const router = useRouter();
 
-// Handle image upload
-// const handleImageUpload = (event: Event) => {
-//   const target = event.target as HTMLInputElement;
-//   if (target.files && target.files.length > 0) {
-//     image.value = target.files[0];
-//   }
-// };
-
 // Create a new listing
 const createListing = async () => {
   if (!name.value || !meetupLocation.value || !quantity.value || !imageUrl.value) {
     alert("All fields are required.");
     return;
   }
-
-  // Convert image to base64 string
-  //   const reader = new FileReader();
-  //   reader.readAsDataURL(image.value);
-  //   reader.onload = async () => {
-  //     const imageBase64 = reader.result as string;
 
   try {
     // Make API call to create a listing

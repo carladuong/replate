@@ -5,6 +5,10 @@ import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
 import RequestThumbComponent from "./RequestThumbComponent.vue";
 
+const props = defineProps<{
+  username?: string; // Optional
+}>();
+
 const { isLoggedIn } = storeToRefs(useUserStore());
 const loaded = ref(false);
 let requests = ref<Array<Record<string, string>>>([]);
@@ -12,7 +16,11 @@ let requests = ref<Array<Record<string, string>>>([]);
 async function getRequests() {
   let results;
   try {
-    results = await fetchy("/api/requests", "GET");
+    if (props.username) {
+      results = await fetchy("/api/requests", "GET", { query: { requester: props.username } });
+    } else {
+      results = await fetchy("/api/requests", "GET");
+    }
   } catch (_) {
     return;
   }
@@ -26,7 +34,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <section class="requests" v-if="loaded && requests.length !== 0">
+  <section class="thumb-container" v-if="loaded && requests.length !== 0">
     <article class="thumb" v-for="request in requests" :key="request._id">
       <RequestThumbComponent :requestId="request._id" />
     </article>
@@ -35,17 +43,4 @@ onBeforeMount(async () => {
   <p v-else>Loading...</p>
 </template>
 
-<style scoped>
-.requests {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Adjusts the number of columns */
-  gap: 20px; /* Space between items */
-  padding: 20px; /* Add some padding to the grid container */
-}
-
-.thumb {
-  border: 1px solid #ddd;
-  padding: 2em;
-  overflow: hidden;
-}
-</style>
+<style scoped></style>

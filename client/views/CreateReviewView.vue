@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import CreateRequestForm from "@/components/Request/CreateRequestForm.vue";
+import CreateReviewForm from "@/components/Review/CreateReviewForm.vue";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 
@@ -10,7 +10,7 @@ const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
   <main>
     <section>
       <h1>Request a Food</h1>
-      <CreateRequestForm />
+      <CreateReviewForm :userId="$route.params.id" />
     </section>
   </main>
 </template>

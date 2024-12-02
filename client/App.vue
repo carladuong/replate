@@ -26,12 +26,6 @@ onBeforeMount(async () => {
     await router.push("/login");
   }
 });
-
-const navigateToCreateListing = () => {
-  router.push({ name: "CreateListing" }).catch((error) => {
-    console.error("Failed to navigate:", error);
-  });
-};
 </script>
 
 <template>
@@ -48,6 +42,9 @@ const navigateToCreateListing = () => {
           <RouterLink :to="{ name: 'Home' }" :class="{ underline: currentRouteName == 'Home' }"> Home </RouterLink>
         </li>
         <li v-if="isLoggedIn">
+          <RouterLink :to="{ name: 'Create Listing' }" :class="{ underline: currentRouteName == 'CreateListing' }"> Create Listing </RouterLink>
+        </li>
+        <li v-if="isLoggedIn">
           <RouterLink :to="{ name: 'Create Request' }" :class="{ underline: currentRouteName == 'Create Request' }"> Create Request </RouterLink>
         </li>
         <li v-if="isLoggedIn">
@@ -55,10 +52,6 @@ const navigateToCreateListing = () => {
         </li>
         <li v-else>
           <RouterLink :to="{ name: 'Login' }" :class="{ underline: currentRouteName == 'Login' }"> Login </RouterLink>
-        </li>
-
-        <li v-if="isLoggedIn">
-          <button @click="navigateToCreateListing" class="pure-button pure-button-primary">Create New Listing</button>
         </li>
       </ul>
     </nav>
