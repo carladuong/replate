@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 
 import { z } from "zod";
-import { Authing, Listing, Requesting, Reviewing, Sessioning } from "./app";
+import { Authing, Claiming, Listing, Offering, Requesting, Reviewing, Sessioning } from "./app";
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
@@ -12,7 +12,7 @@ import Responses from "./responses";
 class Routes {
   // Synchronize the concepts from `app.ts`.
 
-  /* 
+  /*  
   Sessioning
   */
   @Router.get("/session")
@@ -183,8 +183,8 @@ class Routes {
   async claim(session: SessionDoc, listingId: string, quantity: number) {
     const user = Sessioning.getUser(session);
     //Reporting.checkIfUserReported(claimer)
-    //Claiming.claim(claimer, item, quantity)
     const oid = new ObjectId(listingId);
+    await Claiming.claim(user, quantity, oid);
     //Listing.getListingById(oid)
     //get curr_quantity and calc new_quantity
     //await Listing.editlisting(quantity=new_quantity)
@@ -194,11 +194,13 @@ class Routes {
   async getClaims(listingId?: string, claimer?: string) {
     let claims;
     if (listingId) {
-      //get all claims for that listing
+      const listingIdObj = new ObjectId(listingId);
+      claims = await Claiming.getClaimsByListing(listingIdObj);
     } else if (claimer) {
-      //get all claims authored by that claimer
+      const claimerIdObj = new ObjectId(claimer);
+      claims = await Claiming.getClaimsByClaimer(claimerIdObj);
     } else {
-      //get all claims
+      claims = await Claiming.getAllClaims();
     }
     return claims;
   }
@@ -206,48 +208,56 @@ class Routes {
   @Router.get("/claims/:id")
   async getClaim(claimId: string) {
     const oid = new ObjectId(claimId);
-    // return Claiming/getClaimById(oid)
+    return await Claiming.getClaimById(oid);
   }
 
   @Router.delete("/claims/:id")
   async unclaimItem(session: SessionDoc, claimId: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(claimId);
-    //Claiming.unclaim(item)
+    //assert user is claimer
+    await Claiming.unclaim(oid);
     //Listing edit quantity
   }
+
+  /*
+  Offering
+  */
 
   @Router.post("/offers")
   async offer(session: SessionDoc, requestId: string, image: string, location: string, message: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(requestId);
-    //set accepted to false
     //get request and check it exist
     //check user not author
-    //Offering.offer(user, oid, image, location, message)
+    await Offering.offer(user, oid, image, location, message);
   }
 
   @Router.get("/offers")
   async getOffers(requestId?: string, offerer?: string) {
     if (requestId) {
-      //return offers made on request
+      const oid = new ObjectId(requestId);
+      return await Offering.getOfferByItem(oid);
     } else if (offerer) {
-      //return offers made by the user including accepted and not accepted
+      const oid = new ObjectId(offerer);
+      return await Offering.getOfferByOfferer(oid);
     } else {
-      //return all offers
+      return await Offering.getAllOffers();
     }
   }
 
   @Router.get("/offers/:id")
   async getOffer(offerId: string) {
     const oid = new ObjectId(offerId);
-    //return Offering.getOfferById(oid)
+    return Offering.getOfferById(oid);
   }
 
-  @Router.patch("/offers/hide") //can we select one param in route?
+  @Router.patch("/offers/hide")
   async acceptOffer(session: SessionDoc, offerId: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(offerId);
+    const offer = await Offering.getOfferById(oid);
+    await Offering.accept(oid);
     //get offer check it exists
     //Offering.accept(offerId) will  hide the offer and
     //get request of the offer
@@ -258,17 +268,18 @@ class Routes {
   async editOffer(session: SessionDoc, offerId: string, image?: string, location?: string, message?: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(offerId);
-    //get offer check it exists
-    //Offering.edit(offer, item, IMG, message)
+    const offer = await Offering.getOfferById(oid); //check if exists and user is offerer
+    await Offering.editOffer(oid, image, location, message);
   }
 
   @Router.delete("/offers/:id")
   async deleteOffer(session: SessionDoc, offerId: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(offerId);
-    //get offer check if exists
-    //Offering.checkIfAuthor(user, offer)
-    //Offering.remove(offer)
+    const offer = await Offering.getOfferById(oid);
+    if (await Offering.checkAuthor(oid, user)) {
+      await Offering.removeOffer(oid);
+    }
   }
 
   @Router.post("/reviews")
