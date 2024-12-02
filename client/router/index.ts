@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import CreateListingView from "../views/CreateListingView.vue";
 import CreateRequestView from "../views/CreateRequestView.vue";
+import CreateReviewView from "../views/CreateReviewView.vue";
 import HomeView from "../views/HomeView.vue";
 import ListingView from "../views/ListingView.vue";
 import LoginView from "../views/LoginView.vue";
@@ -59,7 +60,12 @@ const router = createRouter({
       component: CreateRequestView,
       meta: { requiresAuth: true },
     },
-
+    {
+      path: "/createReview/:id",
+      name: "Create Review",
+      component: CreateReviewView,
+      meta: { requiresAuth: true },
+    },
     {
       path: "/login",
       name: "Login",

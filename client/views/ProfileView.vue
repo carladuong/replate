@@ -18,3 +18,8 @@ const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
     <RequestListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" />
   </main>
 </template>
+<style scoped>
+h1 {
+  text-align: center;
+}
+</style>
