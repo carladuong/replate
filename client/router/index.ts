@@ -11,6 +11,7 @@ import LoginView from "../views/LoginView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import RequestView from "../views/RequestView.vue";
+import ReviewsView from "../views/ReviewsView.vue";
 import SettingView from "../views/SettingView.vue";
 
 const router = createRouter({
@@ -58,6 +59,12 @@ const router = createRouter({
       path: "/createRequest",
       name: "Create Request",
       component: CreateRequestView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/reviews/:id",
+      name: "Reviews",
+      component: ReviewsView,
       meta: { requiresAuth: true },
     },
     {

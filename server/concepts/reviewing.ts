@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
 
-export interface UserDoc extends BaseDoc {
+export interface ReviewDoc extends BaseDoc {
   reviewer: ObjectId;
   subject: ObjectId; //user
   rating: number;
@@ -13,13 +13,13 @@ export interface UserDoc extends BaseDoc {
  * concept: Reviewing
  */
 export default class ReviewingConcept {
-  public readonly reviews: DocCollection<UserDoc>;
+  public readonly reviews: DocCollection<ReviewDoc>;
 
   /**
    * Make an instance of Reviewing.
    */
   constructor(collectionName: string) {
-    this.reviews = new DocCollection<UserDoc>(collectionName);
+    this.reviews = new DocCollection<ReviewDoc>(collectionName);
   }
 
   async getReviewById(_id: ObjectId) {
