@@ -18,12 +18,11 @@ const createReview = async () => {
       },
     });
     if (response.msg) {
-      alert("Review created successfully!");
       // Reset form fields
       rating.value = 0;
       message.value = "";
-      // Navigate back to the home view
-      await router.push({ name: "Home" });
+      // Navigate to user's reviews
+      await router.push(`/reviews/${props.userId}`);
     } else {
       throw new Error("Failed to create the review.");
     }

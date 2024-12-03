@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import router from "@/router";
+import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
+import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
 import ReviewComponent from "./ReviewComponent.vue";
+
+const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 
 const props = defineProps(["userId"]);
 const reviews = ref<Array<Record<string, string>>>([]);
@@ -17,6 +22,11 @@ async function getReviews() {
   }
   reviews.value = reviewResults;
 }
+
+function openReviewForm() {
+  void router.push(`/createReview/${props.userId}`);
+}
+
 onBeforeMount(async () => {
   await getReviews();
   loaded.value = true;
@@ -32,6 +42,7 @@ onBeforeMount(async () => {
   </section>
   <p v-else-if="loaded">No reviews found</p>
   <p v-else>Loading...</p>
+  <button v-if="currentUsername !== props.userId" @click="openReviewForm">Review</button>
 </template>
 <style scoped>
 .reviews-container article {
