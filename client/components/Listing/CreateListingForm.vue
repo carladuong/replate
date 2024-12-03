@@ -2,19 +2,22 @@
 import { fetchy } from "@/utils/fetchy"; // Ensure this is set up to handle your API requests
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import TaggingComponent from "@/components/Tagging/TaggingComponent.vue";
 
 // Form fields
 const name = ref("");
 const meetupLocation = ref("");
 const imageUrl = ref("");
 const quantity = ref<number | null>(null);
+const description = ref("");
+const tags = ref<string[]>([]); // Add tags field
 
 // Use Vue Router
 const router = useRouter();
 
 // Create a new listing
 const createListing = async () => {
-  if (!name.value || !meetupLocation.value || !quantity.value || !imageUrl.value) {
+  if (!name.value || !meetupLocation.value || !quantity.value || !imageUrl.value || !description.value) {
     alert("All fields are required.");
     return;
   }
@@ -25,8 +28,10 @@ const createListing = async () => {
       body: {
         name: name.value,
         meetup_location: meetupLocation.value,
-        image: imageUrl.value, // Include the image URL
+        image: imageUrl.value,
         quantity: quantity.value,
+        description: description.value,
+        tags: tags.value, // Include tags in the request
       },
     });
     if (response.msg) {
@@ -34,8 +39,10 @@ const createListing = async () => {
       // Reset form fields
       name.value = "";
       meetupLocation.value = "";
-      imageUrl.value = ""; // Reset the image URL
+      imageUrl.value = "";
       quantity.value = null;
+      description.value = "";
+      tags.value = []; // Reset tags
       // Navigate back to the home view
       await router.push({ name: "Home" });
     } else {
@@ -62,11 +69,19 @@ const createListing = async () => {
       </div>
       <div class="pure-control-group">
         <label for="imageUrl">Image URL</label>
-        <input id="imageUrl" type="text" v-model="imageUrl" placeholder="Enter image URL" />
+        <input id="imageUrl" type="text" v-model="imageUrl" placeholder="Image URL" required />
       </div>
       <div class="pure-control-group">
         <label for="quantity">Quantity</label>
         <input id="quantity" type="number" v-model="quantity" placeholder="Quantity" required />
+      </div>
+      <div class="pure-control-group">
+        <label for="description">Description</label>
+        <textarea id="description" v-model="description" placeholder="Description" required></textarea>
+      </div>
+      <div class="pure-control-group">
+        <label for="tags">Categories and Dietary Restrictions</label>
+        <TaggingComponent v-model:tags="tags" />
       </div>
       <button type="submit" class="pure-button pure-button-primary">Create Listing</button>
     </fieldset>

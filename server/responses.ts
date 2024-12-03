@@ -1,6 +1,7 @@
 import { Authing } from "./app";
 import { ListingDoc } from "./concepts/listing";
 import { RequestDoc } from "./concepts/requesting";
+import { TaggingDoc } from "./concepts/tagging";
 
 /**
  * This class does useful conversions for the frontend.
@@ -42,5 +43,13 @@ export default class Responses {
   static async requests(requests: RequestDoc[]) {
     const requesters = await Authing.idsToUsernames(requests.map((request) => request.requester));
     return requests.map((request, i) => ({ ...request, requester: requesters[i] }));
+  }
+
+  static async tag(tag: TaggingDoc) {
+    return {
+      _id: tag._id,
+      name: tag.name,
+      taggedItems: tag.taggedItems,
+    };
   }
 }

@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 
 import { z } from "zod";
-import { Authing, Claiming, Listing, Offering, Requesting, Reviewing, Sessioning } from "./app";
+import { Authing, Claiming, Listing, Offering, Requesting, Reviewing, Sessioning, Tagging } from "./app";
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
@@ -94,19 +94,19 @@ class Routes {
   }
 
   @Router.post("/listings")
-  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number) {
+  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, description: string, tags: string[]) {
     //change img back to File
     const user = Sessioning.getUser(session);
-    const created = await Listing.addListing(user, name, meetup_location, image, quantity);
+    const created = await Listing.addListing(user, name, meetup_location, image, quantity, description, tags);
     return { msg: created.msg, listing: await Responses.listing(created.listing) };
   }
 
   @Router.patch("/listings/:id")
-  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number) {
+  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string, tags?: string[]) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     await Listing.assertAuthorIsUser(oid, user);
-    return await Listing.editlisting(oid, name, meetup_location, image, quantity);
+    return await Listing.editlisting(oid, name, meetup_location, image, quantity, description, tags);
   }
 
   @Router.delete("/listings/:id")
@@ -338,7 +338,6 @@ class Routes {
       return 0; // No reviews, return 0
     }
   }
-
   @Router.post("/reports")
   async report(session: SessionDoc, reportedId: string, message?: string) {
     const user = Sessioning.getUser(session);
@@ -347,8 +346,30 @@ class Routes {
     //Reporting.checkIfUserReported(user, reported, messsage)
     //Reporting.report(reporter, reported)
   }
-}
 
+  //tagging
+  @Router.post("/tags")
+  async createTag(session: SessionDoc, names: string | string[]) {
+    Sessioning.getUser(session); // Ensure the user is logged in
+    const created = await Tagging.createTag(names);
+    return { msg: created.msg, tags: await Promise.all(created.tags.map(tag => Responses.tag(tag))) };
+  }
+
+  @Router.post("/tags/:name/items")
+  async tagItem(session: SessionDoc, name: string, itemId: string) {
+    Sessioning.getUser(session); // Ensure the user is logged in
+    const item = new ObjectId(itemId);
+    const tagged = await Tagging.tagItem(item, name);
+    return { msg: tagged.msg };
+  }
+
+  @Router.get("/tags/:name/items")
+  async getItemsWithTag(name: string) {
+    const items = await Tagging.getItemsWithTag(name);
+    return { items };
+  }
+
+}
 /** The web app. */
 export const app = new Routes();
 

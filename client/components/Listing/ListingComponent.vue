@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import UserComponent from "@/components/Profile/UserComponent.vue";
+import TaggingComponent from "@/components/Tagging/TaggingComponent.vue";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
@@ -9,13 +10,14 @@ const props = defineProps(["listingId"]);
 
 const { currentUsername } = storeToRefs(useUserStore());
 const isEditing = ref(false);
-const listing = ref<Record<string, string> | null>(null);
+const listing = ref<Record<string, any> | null>(null);
 
 const editedName = ref("");
-const editedQuantity = ref("");
+const editedQuantity = ref<number | null>(null);
 const editedMeetupLocation = ref("");
 const editedDescription = ref("");
 const editedImage = ref("");
+const editedTags = ref<string[]>([]);
 
 const imageSrc = computed(() => (isEditing.value ? editedImage.value || "@/assets/images/no-image.jpg" : listing.value?.image || "@/assets/images/no-image.jpg"));
 
@@ -34,6 +36,7 @@ const cancelEditing = () => {
   editedMeetupLocation.value = listing.value.meetup_location;
   editedDescription.value = listing.value.description;
   editedImage.value = listing.value.image;
+  editedTags.value = listing.value.tags;
 };
 
 const saveChanges = async () => {
@@ -42,20 +45,30 @@ const saveChanges = async () => {
     return;
   }
   try {
-    await fetchy(`/api/requests/${listing.value._id}`, "PATCH", {
-      body: {
+    const response = await fetch(`/api/listings/${listing.value._id}`, {
+      method: "PATCH",
+      body: JSON.stringify({
         name: editedName.value,
         quantity: editedQuantity.value,
         meetup_location: editedMeetupLocation.value,
         image: editedImage.value,
         description: editedDescription.value,
-        //pickupNumber: props.request.pickupNumber,
+        tags: editedTags.value,
+      }),
+      headers: {
+        "Content-Type": "application/json",
       },
     });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Failed to save changes: ${errorData.message}`);
+    }
+    const updatedListing = await response.json();
+    listing.value = updatedListing; // Update the local state with the new data
     isEditing.value = false;
-    await getListing(props.listingId.value);
   } catch (error) {
     console.error("Failed to save changes:", error);
+    isEditing.value = false; // Ensure editing mode is exited even if there is an error
   }
 };
 
@@ -63,12 +76,13 @@ async function getListing(listingId: string) {
   try {
     const listingResult = await fetchy(`/api/listings/${listingId}`, "GET");
     listing.value = listingResult;
-    //refs for placeholders when editing
+    // Refs for placeholders when editing
     editedName.value = listingResult.name;
     editedQuantity.value = listingResult.quantity;
     editedMeetupLocation.value = listingResult.meetup_location || "";
     editedDescription.value = listingResult.description || "";
     editedImage.value = listingResult.image || "";
+    editedTags.value = listingResult.tags || [];
   } catch (_) {
     console.error("Failed to fetch listing details.");
   }
@@ -88,7 +102,7 @@ onBeforeMount(async () => {
     <div class="info-column">
       <!-- Content -->
       <div>
-        <!-- listing author -->
+        <!-- Listing author -->
         <UserComponent :userId="listing.author" />
         <!-- Item Name -->
         <p><strong>Item:</strong></p>
@@ -108,6 +122,15 @@ onBeforeMount(async () => {
           {{ listing.quantity }}
         </div>
 
+        <!-- Meetup Location -->
+        <p><strong>Meetup Location:</strong></p>
+        <div v-if="isEditing">
+          <input v-model="editedMeetupLocation" placeholder="Meetup Location" />
+        </div>
+        <div v-else>
+          {{ listing.meetup_location }}
+        </div>
+
         <!-- Description -->
         <p><strong>Description:</strong></p>
         <div v-if="isEditing">
@@ -117,12 +140,23 @@ onBeforeMount(async () => {
           {{ listing.description }}
         </div>
 
+        <!-- Tags -->
+        <p><strong>Tags:</strong></p>
+        <div v-if="isEditing">
+          <TaggingComponent v-model:tags="editedTags" />
+        </div>
+        <div v-else>
+          <span v-for="tag in listing.tags" :key="tag" class="tag">
+            {{ tag }}
+          </span>
+        </div>
+
         <!-- Buttons -->
-        <div>
+        <div class="buttons">
           <button v-if="isEditing" @click="saveChanges">Save</button>
           <button v-if="isEditing" @click="cancelEditing">Cancel</button>
           <button v-else-if="listing.author === currentUsername" @click="startEditing">Edit</button>
-          <!-- also need to check is lisitng is claimed (hide==true), in which case no claim option -->
+          <!-- also need to check if listing is claimed (hide==true), in which case no claim option -->
           <button v-else>Claim</button>
         </div>
       </div>
@@ -144,6 +178,7 @@ h1 {
 
 button {
   margin-right: 0.5em;
+  margin-bottom: 0.5em;
 }
 .image-column {
   flex: 1;
@@ -163,5 +198,16 @@ button {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.tag {
+  background-color: #e0e0e0;
+  border-radius: 1em;
+  padding: 0.5em;
+  margin-right: 0.5em;
+}
+
+.buttons {
+  margin-top: 20px; /* Add margin to create space between tags and buttons */
 }
 </style>
