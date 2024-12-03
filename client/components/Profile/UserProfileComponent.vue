@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import router from "@/router";
+import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
+import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
 
+const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 const props = defineProps(["userId"]);
 
 const rating = ref(0);
@@ -49,6 +52,8 @@ function handleMenuOption(option: string) {
     void router.push(`/createReview/${user.value._id.toString()}`);
   } else if (option === "report") {
     console.log("Report selected");
+  } else if (option === "edit") {
+    void router.push("/setting");
   } else if (option === "cancel") {
     console.log("Cancel selected");
   }
@@ -99,8 +104,10 @@ onBeforeMount(async () => {
     <!-- Menu Overlay -->
     <div v-if="menuVisible" class="menu-overlay" @click="toggleMenu">
       <div class="menu" @click.stop>
-        <button @click="handleMenuOption('review')">Review</button>
-        <button @click="handleMenuOption('report')">Report</button>
+        <button v-if="currentUsername !== userId" @click="handleMenuOption('review')">Review</button>
+        <button v-if="currentUsername !== userId" @click="handleMenuOption('report')">Report</button>
+        <!-- Only if user's profile -->
+        <button v-if="currentUsername === userId" @click="handleMenuOption('edit')">Edit Profile</button>
         <button @click="handleMenuOption('cancel')">Cancel</button>
       </div>
     </div>
