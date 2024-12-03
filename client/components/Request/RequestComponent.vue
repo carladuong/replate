@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import UserComponent from "@/components/Profile/UserComponent.vue";
+import router from "@/router";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
@@ -70,6 +71,10 @@ async function getRequest(requestId: string) {
   }
 }
 
+function goToOfferPage() {
+  void router.push(`/makeOffer/${props.requestId}`);
+}
+
 onBeforeMount(async () => {
   await getRequest(props.requestId);
 });
@@ -119,7 +124,7 @@ onBeforeMount(async () => {
           <button v-if="isEditing" @click="cancelEditing">Cancel</button>
           <button v-else-if="request.requester === currentUsername" @click="startEditing">Edit</button>
           <!-- also need to check is reqeust is satisfied (hide==true), in which case no offer option -->
-          <button v-else>Offer</button>
+          <button v-else @click="goToOfferPage">Offer</button>
         </div>
       </div>
     </div>
