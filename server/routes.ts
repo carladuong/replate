@@ -225,12 +225,13 @@ class Routes {
   */
 
   @Router.post("/offers")
-  async offer(session: SessionDoc, requestId: string, image: string, location: string, message: string) {
+  async offer(session: SessionDoc, requestId: string, location: string, image?: string, message?: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(requestId);
     //get request and check it exist
     //check user not author
-    await Offering.offer(user, oid, image, location, message);
+    await Offering.offer(user, oid, location, image, message);
+    return {msg: "Offer sent!"};
   }
 
   @Router.get("/offers")
