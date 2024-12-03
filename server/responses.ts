@@ -1,7 +1,7 @@
 import { Authing } from "./app";
 import { ListingDoc } from "./concepts/listing";
 import { RequestDoc } from "./concepts/requesting";
-
+import { ReviewDoc } from "./concepts/reviewing";
 /**
  * This class does useful conversions for the frontend.
  * For example, it converts a {@link ListingDoc} into a more readable format for the frontend.
@@ -29,6 +29,17 @@ export default class Responses {
   }
 
   /**
+   * Convert ReviewtDoc into more readable format for the frontend by converting the author id into a username.
+   */
+  static async review(review: ReviewDoc | null) {
+    if (!review) {
+      return review;
+    }
+    const requester = await Authing.getUserById(review.reviewer);
+    return { ...review, reviewer: requester.username };
+  }
+
+  /**
    * Same as {@link listing} but for an array of ListingDoc for improved performance.
    */
   static async listings(listings: ListingDoc[]) {
@@ -42,5 +53,13 @@ export default class Responses {
   static async requests(requests: RequestDoc[]) {
     const requesters = await Authing.idsToUsernames(requests.map((request) => request.requester));
     return requests.map((request, i) => ({ ...request, requester: requesters[i] }));
+  }
+
+  /**
+   * Same as {@link review} but for an array of ReviewDoc for improved performance.
+   */
+  static async reviews(reviews: ReviewDoc[]) {
+    const reviewers = await Authing.idsToUsernames(reviews.map((review) => review.reviewer));
+    return reviews.map((review, i) => ({ ...review, reviewer: reviewers[i] }));
   }
 }

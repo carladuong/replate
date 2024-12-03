@@ -288,7 +288,7 @@ class Routes {
     const oid = new ObjectId(subjectId);
     //Claiming.checkIfClaimed(user, oid)
     const created = await Reviewing.add(user, oid, rating, message);
-    return { msg: created };
+    return { msg: created.msg, review: Responses.review(created.post) };
   }
 
   @Router.patch("/reviews/:id")
@@ -316,13 +316,13 @@ class Routes {
       //otherwise get all reviews
       reviews = await Reviewing.getReviews();
     }
-    return reviews;
+    return Responses.reviews(reviews);
   }
 
   @Router.get("/reviews/:id")
   async getReview(id: string) {
     const oid = new ObjectId(id);
-    return await Reviewing.getReviewById(oid);
+    return Responses.review(await Reviewing.getReviewById(oid));
   }
 
   @Router.get("/reviews/average")
