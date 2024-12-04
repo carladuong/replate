@@ -95,19 +95,19 @@ class Routes {
   }
 
   @Router.post("/listings")
-  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, description: string) {
+  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, description: string, tag: string[]) {
     //change img back to File
     const user = Sessioning.getUser(session);
-    const created = await Listing.addListing(user, name, meetup_location, image, quantity, description);
+    const created = await Listing.addListing(user, name, meetup_location, image, quantity, description, tag);
     return { msg: created.msg, listing: await Responses.listing(created.listing) };
   }
 
   @Router.patch("/listings/:id")
-  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string) {
+  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string, tag?: string[]) { 
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     await Listing.assertAuthorIsUser(oid, user);
-    return await Listing.editlisting(oid, name, meetup_location, image, quantity, description);
+    return await Listing.editlisting(oid, name, meetup_location, image, quantity, description, tag);
   }
 
   @Router.delete("/listings/:id")

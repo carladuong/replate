@@ -3,7 +3,8 @@ import UserComponent from "@/components/Profile/UserComponent.vue";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
-import { computed, onBeforeMount, ref } from "vue";
+import { computed, defineProps, onBeforeMount, ref } from "vue";
+import TaggingComponent from "../Tagging/TaggingComponent.vue";
 
 const props = defineProps<{
   listingId: string;
@@ -18,6 +19,7 @@ const editedQuantity = ref("");
 const editedMeetupLocation = ref("");
 const editedDescription = ref("");
 const editedImage = ref("");
+const editedTags = ref<string[]>([]);
 
 const imageSrc = computed(() => (isEditing.value ? editedImage.value || "@/assets/images/no-image.jpg" : listing.value?.image || "@/assets/images/no-image.jpg"));
 
@@ -28,6 +30,7 @@ const startEditing = () => {
     editedMeetupLocation.value = listing.value.meetup_location;
     editedDescription.value = listing.value.description;
     editedImage.value = listing.value.image;
+    editedTags.value = Array.isArray(listing.value.tags) ? listing.value.tags : [];
   }
   isEditing.value = true;
 };
@@ -43,6 +46,7 @@ const cancelEditing = () => {
   editedMeetupLocation.value = listing.value.meetup_location;
   editedDescription.value = listing.value.description;
   editedImage.value = listing.value.image;
+  editedTags.value = Array.isArray(listing.value.tags) ? listing.value.tags : [];
 };
 
 async function getListing(listingId: string) {
@@ -72,6 +76,7 @@ const saveChanges = async () => {
         meetup_location: editedMeetupLocation.value,
         image: editedImage.value,
         description: editedDescription.value,
+        tags: editedTags.value,
         //pickupNumber: props.request.pickupNumber,
       },
     });
@@ -126,6 +131,11 @@ onBeforeMount(async () => {
           {{ listing.description }}
         </div>
 
+        <!-- Tags Editing -->
+        <label for="tags"><strong>Categories:</strong></label>
+        <div v-if="isEditing">
+          <TaggingComponent v-model:tags="editedTags" />
+        </div>
         <!-- Buttons -->
         <div>
           <button v-if="isEditing" @click="saveChanges">Save</button>

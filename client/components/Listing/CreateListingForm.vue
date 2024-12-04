@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import TaggingComponent from "@/components/Tagging/TaggingComponent.vue";
 import { fetchy } from "@/utils/fetchy"; // Ensure this is set up to handle your API requests
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import TaggingComponent from "@/components/Tagging/TaggingComponent.vue";
 
 // Form fields
 const name = ref("");
