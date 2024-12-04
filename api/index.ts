@@ -4,6 +4,12 @@ import express from "express";
 import session from "express-session";
 import logger from "morgan";
 import * as path from "path";
+import cron from "node-cron";
+import { Authing, Listing, Requesting, Sessioning, Request_Expiring, Listing_Expiring } from "../server/app";  
+import { ObjectId } from "mongodb";
+ 
+
+
 
 // The following line sets up the environment variables before everything else.
 dotenv.config();
@@ -49,5 +55,57 @@ void connectDb().then(() => {
     console.log("Started listening on port", PORT);
   });
 });
+
+cron.schedule("* * * * *", async () => {
+  console.log("Running scheduled tasks...");
+  await handleListingsExpired();
+  await handleRequestsExpired();
+});
+
+// do expiring under this 
+//keep things async 
+//import the concepts 
+// change it to also allow people to specify the minutes at which postings expire 
+// so that that simplifies the testing 
+
+
+// Function to handle expired listings
+async function handleListingsExpired() {
+  const expiredDocs = await Listing_Expiring.getAllExpired();
+  if (!expiredDocs || expiredDocs.length === 0) {
+    console.log("No expired listings to process.");
+    return;
+  }
+
+  for (const doc of expiredDocs) {
+    const itemOid = new ObjectId(doc.item);
+    const listingExp = await Listing_Expiring.getExpireByItem(itemOid);
+    if (listingExp) {
+      await Listing_Expiring.delete(listingExp._id);
+      await Listing.delete(itemOid);
+    }
+  }
+  console.log("Processed expired listings.");
+}
+
+// Function to handle expired requests
+async function handleRequestsExpired() {
+  const expiredDocs = await Request_Expiring.getAllExpired();
+  if (!expiredDocs || expiredDocs.length === 0) {
+    console.log("No expired requests to process.");
+    return;
+  }
+
+  for (const doc of expiredDocs) {
+    const itemOid = new ObjectId(doc.item);
+    const requestExp = await Request_Expiring.getExpireByItem(itemOid);
+    if (requestExp) {
+      await Request_Expiring.delete(requestExp._id);
+      await Requesting.delete(itemOid);
+    }
+  }
+  console.log("Processed expired requests.");
+}
+
 
 export default app;
