@@ -2,11 +2,11 @@
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
-import { onBeforeMount, ref, computed } from "vue";
+import { computed, onBeforeMount, ref } from "vue";
 import ListingThumbComponent from "./ListingThumbComponent.vue";
 
 const props = defineProps<{
-  searchTerm: string;
+  searchTerm?: string;
   username?: string;
 }>();
 
