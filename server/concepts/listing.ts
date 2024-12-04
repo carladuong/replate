@@ -1,18 +1,17 @@
 import { ObjectId } from "mongodb";
+
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
-import TaggingConcept from "./tagging"; // Import TaggingConcept
 
 export interface ListingDoc extends BaseDoc {
   author: ObjectId;
   name: string;
   meetup_location: string;
-  image: string;
+  image: string; //change back to File after testing with backend
   quantity: number;
   remaining: number;
   hidden: boolean;
   description: string;
-  tags: string[];
 }
 
 /**
@@ -20,29 +19,21 @@ export interface ListingDoc extends BaseDoc {
  */
 export default class ListingConcept {
   public readonly listings: DocCollection<ListingDoc>;
-  private readonly tagging: TaggingConcept;
 
   /**
    * Make an instance of Listing.
    */
-  constructor(collectionName: string, tagging: TaggingConcept) {
+  constructor(collectionName: string) {
     this.listings = new DocCollection<ListingDoc>(collectionName);
-    this.tagging = tagging;
   }
 
-  async addListing(author: ObjectId, name: string, meetup_location: string, image: string, quantity: number, description: string, tags: string[]) {
-    const remaining = quantity;
+  async addListing(author: ObjectId, name: string, meetup_location: string, image: string, quantity: number, description: string) {
+    const remaining = quantity; //quantity remaining is set to quantity because it is the same when the listing is just created, no user input in that field
     const hidden = false;
-    const _id = await this.listings.createOne({ author, name, meetup_location, image, quantity, remaining, hidden, description, tags });
+    const _id = await this.listings.createOne({ author, name, meetup_location, image, quantity, remaining, hidden, description });
     const listing = await this.listings.readOne({ _id });
-
-    // Associate tags with the listing
-    for (const tag of tags) {
-      await this.tagging.tagItem(_id, tag);
-    }
-
-    console.log("Incoming data:", { author, name, meetup_location, image, quantity, description, tags });
-    return { msg: "Listing successfully created!", listing };
+    console.log("Incoming data:", { author, name, meetup_location, image, quantity, description });
+    return { msg: "Listing successfully created!: ", listing };
   }
 
   async delete(_id: ObjectId) {
@@ -50,29 +41,18 @@ export default class ListingConcept {
     return { msg: "Listing deleted successfully!" };
   }
 
-  async editlisting(_id: ObjectId, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string, tags?: string[]) {
-    const updateData: Partial<ListingDoc> = { name, meetup_location, image, quantity, description, tags };
-    const filteredUpdateData = Object.fromEntries(Object.entries(updateData).filter(([_, value]) => value !== undefined));
-    await this.listings.partialUpdateOne({ _id }, filteredUpdateData);
+  async editlisting(_id: ObjectId, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string) {
+    // Create an object with the provided values
+    const updateData: Partial<ListingDoc> = { name, meetup_location, image, quantity, description };
 
-    // // Update tags
-    // if (tags) {
-    //   const listing = await this.listings.readOne({ _id });
-    //   if (listing) {
-    //     // Remove old tags
-    //     for (const tag of listing.tags) {
-    //       await this.tagging.removeItemFromTag(_id, tag);
-    //     }
-    //     // Add new tags
-    //     for (const tag of tags) {
-    //       await this.tagging.tagItem(_id, tag);
-    //     }
-    //   }
-    // }
+    // Filter out properties that are undefined
+    const filteredUpdateData = Object.fromEntries(Object.entries(updateData).filter(([value]) => value !== undefined));
+
+    // Pass only the filtered update data to the partial update
+    await this.listings.partialUpdateOne({ _id }, filteredUpdateData);
 
     return { msg: "Listing successfully updated!" };
   }
-
   async getListingById(_id: ObjectId) {
     const listing = await this.listings.readOne({ _id });
     if (!listing) {
@@ -80,7 +60,6 @@ export default class ListingConcept {
     }
     return listing;
   }
-
   async getAllListings() {
     return await this.listings.readMany({}, { sort: { _id: -1 } });
   }
@@ -106,5 +85,14 @@ export default class ListingConcept {
     if (listing.author.toString() !== user.toString()) {
       throw new ListingAuthorNotMatchError(user, _id);
     }
+  }
+}
+
+export class ListingAuthorNotMatchError extends NotAllowedError {
+  constructor(
+    public readonly author: ObjectId,
+    public readonly _id: ObjectId,
+  ) {
+    super("{0} is not the author of listing {1}!", author, _id);
   }
 }

@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 
 import { z } from "zod";
-import { Authing, Claiming, Listing, Offering, Requesting, Reviewing, Sessioning, Tagging } from "./app";
+import { Authing, Claiming, Listing, Offering, Requesting, Reviewing, Sessioning, Reporting } from "./app";
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
@@ -94,19 +94,19 @@ class Routes {
   }
 
   @Router.post("/listings")
-  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, description: string, tags: string[]) {
+  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, description: string) {
     //change img back to File
     const user = Sessioning.getUser(session);
-    const created = await Listing.addListing(user, name, meetup_location, image, quantity, description, tags);
+    const created = await Listing.addListing(user, name, meetup_location, image, quantity, description);
     return { msg: created.msg, listing: await Responses.listing(created.listing) };
   }
 
   @Router.patch("/listings/:id")
-  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string, tags?: string[]) {
+  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     await Listing.assertAuthorIsUser(oid, user);
-    return await Listing.editlisting(oid, name, meetup_location, image, quantity, description, tags);
+    return await Listing.editlisting(oid, name, meetup_location, image, quantity, description);
   }
 
   @Router.delete("/listings/:id")
@@ -182,7 +182,7 @@ class Routes {
   @Router.post("/claims")
   async claim(session: SessionDoc, listingId: string, quantity: number) {
     const user = Sessioning.getUser(session);
-    //Reporting.checkIfUserReported(claimer)
+    Reporting.checkIfUserReported(claimer)
     const oid = new ObjectId(listingId);
     await Claiming.claim(user, quantity, oid);
     //Listing.getListingById(oid)
@@ -340,33 +340,32 @@ class Routes {
   }
   @Router.post("/reports")
   async report(session: SessionDoc, reportedId: string, message?: string) {
+    // Retrieve the reporting user from the session
     const user = Sessioning.getUser(session);
-    const oid = new ObjectId(reportedId);
-    const reported = Authing.getUserById(oid);
-    //Reporting.checkIfUserReported(user, reported, messsage)
-    //Reporting.report(reporter, reported)
-  }
 
-  //tagging
-  @Router.post("/tags")
-  async createTag(session: SessionDoc, names: string | string[]) {
-    Sessioning.getUser(session); // Ensure the user is logged in
-    const created = await Tagging.createTag(names);
-    return { msg: created.msg, tags: await Promise.all(created.tags.map(tag => Responses.tag(tag))) };
-  }
+    // Validate and convert reportedId to ObjectId
+    let oid: ObjectId;
+    try {
+      oid = new ObjectId(reportedId);
+    } catch (error) {
+      throw new NotAllowedError("Invalid reportedId format.");
+    }
 
-  @Router.post("/tags/:name/items")
-  async tagItem(session: SessionDoc, name: string, itemId: string) {
-    Sessioning.getUser(session); // Ensure the user is logged in
-    const item = new ObjectId(itemId);
-    const tagged = await Tagging.tagItem(item, name);
-    return { msg: tagged.msg };
-  }
+    // Fetch the reported entity to ensure it exists
+    const reported = await Authing.getUserById(oid);
+    if (!reported) {
+      throw new NotFoundError(`Entity with ID ${reportedId} does not exist.`);
+    }
 
-  @Router.get("/tags/:name/items")
-  async getItemsWithTag(name: string) {
-    const items = await Tagging.getItemsWithTag(name);
-    return { items };
+    // Create the report
+    const reportResult = await Reporting.report(user._id, oid, message);
+
+    // Return the response to the client
+    return {
+      msg: reportResult.msg,
+      isReported: reportResult.isReported,
+      report: Responses.report(reportResult.report),
+    };
   }
 
 }
