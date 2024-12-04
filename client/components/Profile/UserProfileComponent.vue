@@ -15,6 +15,18 @@ const listingsNumber = ref(0);
 const user = ref<Record<string, string> | null>(null);
 const loaded = ref(false);
 const menuVisible = ref(false);
+// const isUserReported = ref<boolean>(false);
+// const numberOfReports = ref<number>(0);
+
+// const getUserReportInfo = async () => {
+//   try {
+//     const reports = (await fetchy("/api/reports", "GET", { query: { reportedId: props.userId } })) as { _id: string }[];
+//     numberOfReports.value = reports.length;
+//     isUserReported.value = reports.length > 0;
+//   } catch (e) {
+//     console.error("Error fetching user reports:", e);
+//   }
+// };
 
 async function getUserInfo() {
   let reviews;
@@ -52,6 +64,10 @@ function handleMenuOption(option: string) {
     void router.push(`/createReview/${user.value._id.toString()}`);
   } else if (option === "report") {
     console.log("Report selected");
+    void router.push({
+      name: "Report", // Ensure this route name exists in your router configuration
+      params: { reportedId: user.value ? user.value._id.toString() : "" },
+    });
   } else if (option === "edit") {
     void router.push("/setting");
   } else if (option === "cancel") {
@@ -89,7 +105,12 @@ onBeforeMount(async () => {
         </div>
       </div>
 
+      <!-- Display Report message 
+      <div v-if="isUserReported" class="error-message">
+        <p>This user has been reported {{ numberOfReports }} times.</p>
+      </div> -->
       <!-- Requests and Listings -->
+
       <div class="user-stats">
         <text>
           <strong>{{ listingsNumber }}</strong> listings
@@ -230,5 +251,11 @@ onBeforeMount(async () => {
 
 .menu button:hover {
   background: #f0f0f0;
+}
+
+.error-message {
+  color: red;
+  margin-top: 5px;
+  font-weight: bold;
 }
 </style>
