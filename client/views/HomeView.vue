@@ -3,44 +3,79 @@ import ListingListComponent from "@/components/Listing/ListingListComponent.vue"
 import RequestListComponent from "@/components/Request/RequestListComponent.vue";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
+import { ref } from "vue";
 
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
+
+const searchTerm = ref("");
 </script>
 
 <template>
   <main>
-    <h1>Home Page</h1>
+    <div class="control-bar">
+      <input type="text" v-model="searchTerm" placeholder="Search items" />
+    </div>
     <section>
       <h1 v-if="!isLoggedIn">Please login!</h1>
     </section>
     <h2>Listings</h2>
-    <ListingListComponent />
+    <ListingListComponent :searchTerm="searchTerm" />
     <h2>Requests</h2>
-    <RequestListComponent />
+    <RequestListComponent :searchTerm="searchTerm" />
   </main>
 </template>
 <style>
 .thumb-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Adjusts the number of columns */
-  gap: 20px; /* Space between items */
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, 1fr); /* Two rows */
+  gap: 20px;
+  overflow-x: auto; /* Enable horizontal scrolling */
+  overflow-y: hidden; /* Prevent vertical scrolling */
+  padding: 10px;
+  scroll-behavior: smooth;
+  align-items: center;
 }
+
+.thumb-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.thumb-container::-webkit-scrollbar-thumb {
+  background-color: #ccc; /* Customize scrollbar color */
+  border-radius: 4px; /* Rounded scrollbar */
+}
+
+.thumb-container::-webkit-scrollbar-track {
+  background-color: #f5f5f5; /* Scrollbar track color */
+}
+
 .thumbnail img {
   width: 100px;
   height: 100px;
   object-fit: contain;
 }
-.thumb {
-  border: 1px solid #ddd;
-  padding: 5px;
+
+.thumbnail {
+  width: 120px;
+  height: 120px;
   text-align: center;
+  padding: 1em;
+  border-radius: 4px;
+  border: 1px solid #ddd;
 }
 </style>
 <style scoped>
-h1 {
-  text-align: center;
+.control-bar {
+  padding: 1em;
 }
-
+.control-bar input[type="text"] {
+  flex: 1;
+  padding: 0.5em;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  width: 100%;
+}
 .modal {
   position: fixed;
   top: 0;
