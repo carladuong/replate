@@ -52,6 +52,10 @@ function handleMenuOption(option: string) {
     void router.push(`/createReview/${user.value._id.toString()}`);
   } else if (option === "report") {
     console.log("Report selected");
+    void router.push({
+      name: "Report", // Ensure this route name exists in your router configuration
+      params: { reportedId: user.value ? user.value._id.toString() : "" },
+    });
   } else if (option === "edit") {
     void router.push("/setting");
   } else if (option === "cancel") {

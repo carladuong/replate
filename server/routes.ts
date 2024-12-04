@@ -1,8 +1,9 @@
 import { ObjectId } from "mongodb";
 
 import { z } from "zod";
-import { Authing, Claiming, Listing, Offering, Requesting, Reviewing, Sessioning, Reporting } from "./app";
+import { Authing, Claiming, Listing, Offering, Reporting, Requesting, Reviewing, Sessioning } from "./app";
 import { SessionDoc } from "./concepts/sessioning";
+import { NotAllowedError, NotFoundError } from './concepts/errors';
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
 
@@ -182,7 +183,7 @@ class Routes {
   @Router.post("/claims")
   async claim(session: SessionDoc, listingId: string, quantity: number) {
     const user = Sessioning.getUser(session);
-    Reporting.checkIfUserReported(claimer)
+    // Reporting.checkIfUserReported(claimer)
     const oid = new ObjectId(listingId);
     await Claiming.claim(user, quantity, oid);
     //Listing.getListingById(oid)
@@ -231,7 +232,7 @@ class Routes {
     //get request and check it exist
     //check user not author
     await Offering.offer(user, oid, location, image, message);
-    return {msg: "Offer sent!"};
+    return { msg: "Offer sent!" };
   }
 
   @Router.get("/offers")
@@ -359,16 +360,22 @@ class Routes {
     }
 
     // Create the report
-    const reportResult = await Reporting.report(user._id, oid, message);
-
-    // Return the response to the client
-    return {
-      msg: reportResult.msg,
-      isReported: reportResult.isReported,
-      report: Responses.report(reportResult.report),
-    };
+    const reportResult = await Reporting.report(user, oid, message);
+    return { msg: reportResult.msg, report: reportResult.report };
+  };
   }
 
+  // @Router.post("/reports")
+  // async report(session: SessionDoc, reportedId: string, message?: string) {
+  //   const user = Sessioning.getUser(session);
+  //   const oid = new ObjectId(reportedId);
+  //   const created = await Reporting.report(user, oid, message);
+  //   const numberOfReports = await Reporting.getNumberOfReports(oid);
+  //   // const checkIfuserReported = await Reporting.checkIfUserReported(oid);
+  //   console.log("User is reported" + numberOfReports);
+
+  //   return { msg: created.msg, report: created.report };
+  // }
 }
 /** The web app. */
 export const app = new Routes();
