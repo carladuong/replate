@@ -33,6 +33,6 @@ onBeforeMount(async () => {
 <template>
   <div v-if="listing" class="thumbnail" @click="openListing">
     <img :src="imageSrc" class="produce-image" />
-    <p>{{ listing.name }}</p>
+    <span>{{ listing.name }}</span>
   </div>
 </template>
