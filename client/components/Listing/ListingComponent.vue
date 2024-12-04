@@ -5,7 +5,9 @@ import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { computed, onBeforeMount, ref } from "vue";
 
-const props = defineProps(["listingId"]);
+const props = defineProps<{
+  listingId: string;
+}>();
 
 const { currentUsername } = storeToRefs(useUserStore());
 const isEditing = ref(false);
@@ -20,6 +22,13 @@ const editedImage = ref("");
 const imageSrc = computed(() => (isEditing.value ? editedImage.value || "@/assets/images/no-image.jpg" : listing.value?.image || "@/assets/images/no-image.jpg"));
 
 const startEditing = () => {
+  if (listing.value) {
+    editedName.value = listing.value.name;
+    editedQuantity.value = listing.value.quantity;
+    editedMeetupLocation.value = listing.value.meetup_location;
+    editedDescription.value = listing.value.description;
+    editedImage.value = listing.value.image;
+  }
   isEditing.value = true;
 };
 
@@ -36,13 +45,27 @@ const cancelEditing = () => {
   editedImage.value = listing.value.image;
 };
 
+async function getListing(listingId: string) {
+  try {
+    const listingResult = await fetchy(`/api/listings/${listingId}`, "GET");
+    listing.value = listingResult;
+    //refs for placeholders when editing
+    // editedName.value = listingResult.name;
+    // editedQuantity.value = listingResult.quantity;
+    // editedMeetupLocation.value = listingResult.meetup_location || "";
+    // editedDescription.value = listingResult.description || "";
+    // editedImage.value = listingResult.image || "";
+  } catch (_) {
+    console.error("Failed to fetch listing details.");
+  }
+}
 const saveChanges = async () => {
   if (!listing.value) {
     console.error("Listing is null, cannot save.");
     return;
   }
   try {
-    await fetchy(`/api/requests/${listing.value._id}`, "PATCH", {
+    await fetchy(`/api/listings/${listing.value._id}`, "PATCH", {
       body: {
         name: editedName.value,
         quantity: editedQuantity.value,
@@ -53,26 +76,12 @@ const saveChanges = async () => {
       },
     });
     isEditing.value = false;
-    await getListing(props.listingId.value);
+    await getListing(props.listingId);
+    console.log("Changes saved successfully.");
   } catch (error) {
     console.error("Failed to save changes:", error);
   }
 };
-
-async function getListing(listingId: string) {
-  try {
-    const listingResult = await fetchy(`/api/listings/${listingId}`, "GET");
-    listing.value = listingResult;
-    //refs for placeholders when editing
-    editedName.value = listingResult.name;
-    editedQuantity.value = listingResult.quantity;
-    editedMeetupLocation.value = listingResult.meetup_location || "";
-    editedDescription.value = listingResult.description || "";
-    editedImage.value = listingResult.image || "";
-  } catch (_) {
-    console.error("Failed to fetch listing details.");
-  }
-}
 
 onBeforeMount(async () => {
   await getListing(props.listingId);
