@@ -2,8 +2,8 @@ import { ObjectId } from "mongodb";
 
 import { z } from "zod";
 import { Authing, Claiming, Listing, Offering, Reporting, Requesting, Reviewing, Sessioning } from "./app";
+import { NotAllowedError, NotFoundError } from "./concepts/errors";
 import { SessionDoc } from "./concepts/sessioning";
-import { NotAllowedError, NotFoundError } from './concepts/errors';
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
 
@@ -362,7 +362,15 @@ class Routes {
     // Create the report
     const reportResult = await Reporting.report(user, oid, message);
     return { msg: reportResult.msg, report: reportResult.report };
-  };
+  }
+
+  @Router.get("/reports")
+  async getNumberOfReports(session: SessionDoc, reportedId: string) {
+    const oid = new ObjectId(reportedId);
+    const countReports = await Reporting.getNumberOfReports(oid);
+    console.log("Number of reports: " + countReports);
+    const isUserReported = await Reporting.checkIfUserReported(oid);
+    return { message: `User has been reported: ${isUserReported}`, "numberOfReports:": countReports };
   }
 
   // @Router.post("/reports")
