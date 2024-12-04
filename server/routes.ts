@@ -225,12 +225,13 @@ class Routes {
   */
 
   @Router.post("/offers")
-  async offer(session: SessionDoc, requestId: string, image: string, location: string, message: string) {
+  async offer(session: SessionDoc, requestId: string, location: string, image?: string, message?: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(requestId);
     //get request and check it exist
     //check user not author
-    await Offering.offer(user, oid, image, location, message);
+    await Offering.offer(user, oid, location, image, message);
+    return {msg: "Offer sent!"};
   }
 
   @Router.get("/offers")
@@ -288,7 +289,7 @@ class Routes {
     const oid = new ObjectId(subjectId);
     //Claiming.checkIfClaimed(user, oid)
     const created = await Reviewing.add(user, oid, rating, message);
-    return { msg: created };
+    return { msg: created.msg, review: Responses.review(created.post) };
   }
 
   @Router.patch("/reviews/:id")
@@ -316,13 +317,13 @@ class Routes {
       //otherwise get all reviews
       reviews = await Reviewing.getReviews();
     }
-    return reviews;
+    return Responses.reviews(reviews);
   }
 
   @Router.get("/reviews/:id")
   async getReview(id: string) {
     const oid = new ObjectId(id);
-    return await Reviewing.getReviewById(oid);
+    return Responses.review(await Reviewing.getReviewById(oid));
   }
 
   @Router.get("/reviews/average")

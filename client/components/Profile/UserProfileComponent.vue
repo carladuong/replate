@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import router from "@/router";
+import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
+import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
 
+const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 const props = defineProps(["userId"]);
 
 const rating = ref(0);
+const reviewNumber = ref(0);
+const requestsNumber = ref(0);
+const listingsNumber = ref(0);
 const user = ref<Record<string, string> | null>(null);
 const loaded = ref(false);
 const menuVisible = ref(false);
@@ -29,7 +35,8 @@ async function getUserInfo() {
 
   if (reviews && reviews.length > 0) {
     const ratings = reviews.map((review) => review.rating);
-    rating.value = ratings.reduce((a, b) => a + b) / ratings.length;
+    reviewNumber.value = ratings.length;
+    rating.value = ratings.reduce((a, b) => a + b) / reviewNumber.value;
   } else {
     rating.value = 0;
   }
@@ -45,8 +52,16 @@ function handleMenuOption(option: string) {
     void router.push(`/createReview/${user.value._id.toString()}`);
   } else if (option === "report") {
     console.log("Report selected");
+  } else if (option === "edit") {
+    void router.push("/setting");
   } else if (option === "cancel") {
     console.log("Cancel selected");
+  }
+}
+
+function openReviews() {
+  if (user.value) {
+    void router.push(`/reviews/${user.value._id.toString()}`);
   }
 }
 
@@ -62,15 +77,37 @@ onBeforeMount(async () => {
       <img v-if="user.avatar" :src="user.avatar" alt="Circle Avatar" />
       <div v-else class="empty-avatar"></div>
     </div>
-    <p class="username">{{ props.userId }}</p>
-    <p>Rating {{ rating }}</p>
-    <button @click="toggleMenu">...</button>
+    <!-- User Details -->
+    <div class="user-details">
+      <div class="user-info">
+        <text class="username">{{ user.username }}</text>
+
+        <!-- Star Rating -->
+        <div class="rating" @click="openReviews">
+          <span v-for="star in 5" :key="star" class="star" :class="{ filled: star <= rating }"> ★ </span>
+          <span class="rating-text">({{ reviewNumber }}) Read reviews</span>
+        </div>
+      </div>
+
+      <!-- Requests and Listings -->
+      <div class="user-stats">
+        <text>
+          <strong>{{ listingsNumber }}</strong> listings
+        </text>
+        <text>
+          <strong>{{ requestsNumber }}</strong> requests
+        </text>
+      </div>
+    </div>
+    <button class="more" @click="toggleMenu">...</button>
 
     <!-- Menu Overlay -->
     <div v-if="menuVisible" class="menu-overlay" @click="toggleMenu">
       <div class="menu" @click.stop>
-        <button @click="handleMenuOption('review')">Review</button>
-        <button @click="handleMenuOption('report')">Report</button>
+        <button v-if="currentUsername !== userId" @click="handleMenuOption('review')">Review</button>
+        <button v-if="currentUsername !== userId" @click="handleMenuOption('report')">Report</button>
+        <!-- Only if user's profile -->
+        <button v-if="currentUsername === userId" @click="handleMenuOption('edit')">Edit Profile</button>
         <button @click="handleMenuOption('cancel')">Cancel</button>
       </div>
     </div>
@@ -86,14 +123,52 @@ onBeforeMount(async () => {
 
 <style scoped>
 .user-container {
-  padding: 10px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  padding: 10px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.user-details {
+  flex: 1;
+  margin-left: 15px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 3em;
 }
 
 .username {
   font-size: 16px;
   font-weight: 500;
+}
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.star {
+  font-size: 16px;
+  color: #e0e0e0;
+}
+
+.star.filled {
+  color: #ffc107;
+}
+.rating-text {
+  font-size: 14px;
+  color: #757575;
+}
+.user-stats {
+  font-size: 14px;
+  margin-top: 1em;
+  gap: 3em;
+  display: flex;
 }
 
 .user-avatar {

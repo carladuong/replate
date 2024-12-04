@@ -2,10 +2,11 @@
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, ref, computed } from "vue";
 import ListingThumbComponent from "./ListingThumbComponent.vue";
 
 const props = defineProps<{
+  searchTerm: string;
   username?: string;
 }>();
 
@@ -27,6 +28,11 @@ async function getListings() {
   listings.value = results;
 }
 
+const filteredListings = computed(() => {
+  const searchTerm = props.searchTerm?.toLowerCase() || "";
+  return listings.value.filter((listing) => listing && listing.name.toLowerCase().includes(searchTerm));
+});
+
 onBeforeMount(async () => {
   await getListings();
   loaded.value = true;
@@ -35,7 +41,7 @@ onBeforeMount(async () => {
 
 <template>
   <section class="thumb-container" v-if="loaded && listings.length !== 0">
-    <article class="thumb" v-for="listing in listings" :key="listing._id">
+    <article class="thumb" v-for="listing in filteredListings" :key="listing._id">
       <ListingThumbComponent :listingId="listing._id" />
     </article>
   </section>

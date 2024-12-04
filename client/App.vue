@@ -2,16 +2,21 @@
 import { useToastStore } from "@/stores/toast";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import { computed, onBeforeMount } from "vue";
+import { computed, onBeforeMount, ref } from "vue";
 import { RouterLink, RouterView, useRoute, useRouter } from "vue-router";
 
 const currentRoute = useRoute();
 const currentRouteName = computed(() => currentRoute.name);
 const userStore = useUserStore();
-const { isLoggedIn } = storeToRefs(userStore);
+const { isLoggedIn, currentUsername } = storeToRefs(userStore);
 const { toast } = storeToRefs(useToastStore());
 const router = useRouter();
 
+const isModalOpen = ref(false);
+
+function toggleModal() {
+  isModalOpen.value = !isModalOpen.value;
+}
 // Make sure to update the session before mounting the app in case the user is already logged in
 
 onBeforeMount(async () => {
@@ -41,17 +46,23 @@ onBeforeMount(async () => {
         <li>
           <RouterLink :to="{ name: 'Home' }" :class="{ underline: currentRouteName == 'Home' }"> Home </RouterLink>
         </li>
-        <li v-if="isLoggedIn">
-          <RouterLink :to="{ name: 'Create Listing' }" :class="{ underline: currentRouteName == 'CreateListing' }"> Create Listing </RouterLink>
+        <li v-if="isLoggedIn && isModalOpen">
+          <RouterLink :to="{ name: 'Create Listing' }" class="modal-link">Create Listing</RouterLink>
+        </li>
+        <li>
+          <RouterLink v-if="isLoggedIn && isModalOpen" :to="{ name: 'Create Request' }" class="modal-link">Create Request</RouterLink>
         </li>
         <li v-if="isLoggedIn">
-          <RouterLink :to="{ name: 'Create Request' }" :class="{ underline: currentRouteName == 'Create Request' }"> Create Request </RouterLink>
+          <a href="#" @click.prevent="toggleModal" class="{ underline: isModalOpen }"> Add </a>
         </li>
         <li v-if="isLoggedIn">
           <RouterLink :to="{ name: 'Settings' }" :class="{ underline: currentRouteName == 'Settings' }"> Settings </RouterLink>
         </li>
         <li v-else>
           <RouterLink :to="{ name: 'Login' }" :class="{ underline: currentRouteName == 'Login' }"> Login </RouterLink>
+        </li>
+        <li v-if="isLoggedIn">
+          <RouterLink :to="{ name: 'Profile View', params: { id: currentUsername } }" :class="{ underline: currentRouteName === 'My Profile' }"> My Profile </RouterLink>
         </li>
       </ul>
     </nav>

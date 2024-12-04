@@ -8,9 +8,11 @@ import CreateReviewView from "../views/CreateReviewView.vue";
 import HomeView from "../views/HomeView.vue";
 import ListingView from "../views/ListingView.vue";
 import LoginView from "../views/LoginView.vue";
+import MakeOfferView from "../views/MakeOfferView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import RequestView from "../views/RequestView.vue";
+import ReviewsView from "../views/ReviewsView.vue";
 import SettingView from "../views/SettingView.vue";
 
 const router = createRouter({
@@ -61,9 +63,21 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: "/reviews/:id",
+      name: "Reviews",
+      component: ReviewsView,
+      meta: { requiresAuth: true },
+    },
+    {
       path: "/createReview/:id",
       name: "Create Review",
       component: CreateReviewView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/makeOffer/:id",
+      name: "Make Offer",
+      component: MakeOfferView,
       meta: { requiresAuth: true },
     },
     {
