@@ -6,7 +6,6 @@ export interface RequestDoc extends BaseDoc {
   requester: ObjectId;
   name: string;
   quantity: number;
-  //needBy: string;
   hidden: boolean;
   image?: string;
   description?: string;
@@ -28,8 +27,8 @@ export default class RequestingConcept {
   async add(requester: ObjectId, name: string, quantity: number, image?: string, description?: string) {
     const hidden = false;
     const _id = await this.requests.createOne({ requester, name, quantity, hidden, image, description });
-    const request= await this.requests.readOne({ _id }) 
-    return { msg: "Request successfully created!", request};
+    const request = await this.requests.readOne({ _id });
+    return { msg: "Request successfully created!", request };
   }
 
   async edit(requester: ObjectId, _id: ObjectId, name?: string, quantity?: number, image?: string, description?: string) {
@@ -57,14 +56,11 @@ export default class RequestingConcept {
   async getRequestById(_id: ObjectId) {
     const request = await this.requests.readOne({ _id });
     if (!request) {
-      throw new NotFoundError(`Listing ${_id} does not exist!`);
+      throw new NotFoundError(`Request ${_id} does not exist!`);
     }
 
     return request;
   }
-
-
-
 
   async getRequests() {
     return await this.requests.readMany({}, { sort: { _id: -1 } });

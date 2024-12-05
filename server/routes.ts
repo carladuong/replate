@@ -95,22 +95,23 @@ class Routes {
   }
 
   @Router.post("/listings")
-  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, expireDate: string, expireTime24hrs: string, description: string, tags: string[]) {
+  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, expireDate: string, description: string, tags: string[]) {
     const user = Sessioning.getUser(session);
     const created = await Listing.addListing(user, name, meetup_location, image, quantity, description, tags);
 
     if (created.listing) {
-      const create_expireObj = await Listing_Expiring.allocate(created.listing._id, expireDate, expireTime24hrs);
+      const create_expireObj = await Listing_Expiring.allocate(created.listing._id, expireDate, "00:00");
       return { msg: created.msg, listing: await Responses.listing(created.listing) };
     }
   }
 
   @Router.patch("/listings/:id")
-  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string, tags?: string[]) {
+  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number, expireDate?: string, description?: string, tags?: string[]) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     await Listing.assertAuthorIsUser(oid, user);
     const updatedListing = await Listing.editlisting(oid, name, meetup_location, image, quantity, description, tags);
+    //update Expiring date for oid
     return updatedListing;
   }
 
@@ -195,10 +196,13 @@ class Routes {
     const user = Sessioning.getUser(session);
     // Reporting.checkIfUserReported(claimer)
     const oid = new ObjectId(listingId);
-    await Claiming.claim(user, quantity, oid);
+    const created = await Claiming.claim(user, quantity, oid);
     //Listing.getListingById(oid)
     //get curr_quantity and calc new_quantity
     //await Listing.editlisting(quantity=new_quantity)
+    if (created.claim) {
+      return { msg: created.msg, claim: await Responses.claim(created.claim) };
+    }
   }
 
   @Router.get("/claims")
@@ -213,20 +217,18 @@ class Routes {
     } else {
       claims = await Claiming.getAllClaims();
     }
-    return claims;
+    return Responses.claims(claims);
   }
 
   @Router.get("/claims/:id")
   async getClaim(claimId: string) {
     const oid = new ObjectId(claimId);
-    return await Claiming.getClaimById(oid);
+    return Responses.claim(await Claiming.getClaimById(oid));
   }
 
   @Router.delete("/claims/:id")
   async unclaimItem(session: SessionDoc, claimId: string) {
-    const user = Sessioning.getUser(session);
     const oid = new ObjectId(claimId);
-    //assert user is claimer
     await Claiming.unclaim(oid);
     //Listing edit quantity
   }
@@ -241,27 +243,27 @@ class Routes {
     const oid = new ObjectId(requestId);
     //get request and check it exist
     //check user not author
-    await Offering.offer(user, oid, location, image, message);
-    return { msg: "Offer sent!" };
+    const created = await Offering.offer(user, oid, location, image, message);
+    return { msg: created.msg, offer: Responses.offer(created.offer) };
   }
 
   @Router.get("/offers")
   async getOffers(requestId?: string, offerer?: string) {
     if (requestId) {
       const oid = new ObjectId(requestId);
-      return await Offering.getOfferByItem(oid);
+      return Responses.offers(await Offering.getOfferByItem(oid));
     } else if (offerer) {
       const oid = new ObjectId(offerer);
-      return await Offering.getOfferByOfferer(oid);
+      return Responses.offers(await Offering.getOfferByOfferer(oid));
     } else {
-      return await Offering.getAllOffers();
+      return Responses.offers(await Offering.getAllOffers());
     }
   }
 
   @Router.get("/offers/:id")
   async getOffer(offerId: string) {
     const oid = new ObjectId(offerId);
-    return Offering.getOfferById(oid);
+    return Responses.offer(await Offering.getOfferById(oid));
   }
 
   @Router.patch("/offers/hide")
@@ -270,7 +272,7 @@ class Routes {
     const oid = new ObjectId(offerId);
     const offer = await Offering.getOfferById(oid);
     await Offering.accept(oid);
-    //get offer check it exists
+    //get offer check it exists and user is not author
     //Offering.accept(offerId) will  hide the offer and
     //get request of the offer
     //Requesting.hideSwitch(item)
@@ -359,7 +361,7 @@ class Routes {
     let oid: ObjectId;
     try {
       oid = new ObjectId(reportedId);
-    } catch (error) {
+    } catch (_) {
       throw new NotAllowedError("Invalid reportedId format.");
     }
 
@@ -381,6 +383,21 @@ class Routes {
     console.log("Number of reports: " + countReports);
     const isUserReported = await Reporting.checkIfUserReported(oid);
     return { message: `User has been reported: ${isUserReported}`, "numberOfReports:": countReports };
+  }
+
+  @Router.get("expirations/:id")
+  async getExpirationOfItem(itemId: string) {
+    const oid = new ObjectId(itemId);
+    return await Listing_Expiring.getExpire(oid);
+  }
+
+  @Router.patch("expirations/:id")
+  async editExpirationDate(session: SessionDoc, id: string, expireDate: string) {
+    const oid = new ObjectId(id);
+    const user = Sessioning.getUser(session);
+
+    //await Listing.assertAuthorIsUser(expire.item, user);
+    await Listing_Expiring.editExpiration(oid, expireDate, "00:00");
   }
 }
 

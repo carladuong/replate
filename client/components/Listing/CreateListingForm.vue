@@ -9,6 +9,7 @@ const name = ref("");
 const meetupLocation = ref("");
 const imageUrl = ref("");
 const quantity = ref<number | null>(null);
+const expireDate = ref("");
 const description = ref("");
 const tags = ref<string[]>([]); // Add tags field
 
@@ -30,6 +31,7 @@ const createListing = async () => {
         meetup_location: meetupLocation.value,
         image: imageUrl.value,
         quantity: quantity.value,
+        expireDate: expireDate.value,
         description: description.value,
         tags: tags.value, // Include tags in the request
       },
@@ -41,6 +43,7 @@ const createListing = async () => {
       meetupLocation.value = "";
       imageUrl.value = "";
       quantity.value = null;
+      expireDate.value = "";
       description.value = "";
       tags.value = []; // Reset tags
       // Navigate back to the home view
@@ -74,6 +77,10 @@ const createListing = async () => {
       <div class="pure-control-group">
         <label for="quantity">Quantity</label>
         <input id="quantity" type="number" v-model="quantity" placeholder="Quantity" required />
+      </div>
+      <div class="pure-control-group">
+        <label for="expireDate">Expire Date</label>
+        <input id="expireDate" type="string" v-model="expireDate" placeholder="mm/dd/yyyy" required />
       </div>
       <div class="pure-control-group">
         <label for="description">Description</label>
