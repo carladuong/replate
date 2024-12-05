@@ -3,7 +3,8 @@ import UserComponent from "@/components/Profile/UserComponent.vue";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
-import { computed, onBeforeMount, ref } from "vue";
+import { computed, defineProps, onBeforeMount, ref } from "vue";
+import TaggingComponent from "../Tagging/TaggingComponent.vue";
 
 const props = defineProps(["listingId"]);
 
@@ -16,16 +17,18 @@ const editedQuantity = ref("");
 const editedMeetupLocation = ref("");
 const editedDescription = ref("");
 const editedImage = ref("");
+const editedTags = ref<string[]>([]);
 
 const imageSrc = computed(() => (isEditing.value ? editedImage.value || "@/assets/images/no-image.jpg" : listing.value?.image || "@/assets/images/no-image.jpg"));
 
 const startEditing = () => {
   if (listing.value) {
     editedName.value = listing.value.name;
-    editedQuantity.value = listing.value.quantity;
     editedMeetupLocation.value = listing.value.meetup_location;
+    editedQuantity.value = listing.value.quantity;
     editedDescription.value = listing.value.description;
     editedImage.value = listing.value.image;
+    editedTags.value = Array.isArray(listing.value.tags) ? listing.value.tags : [];
   }
   isEditing.value = true;
 };
@@ -37,10 +40,11 @@ const cancelEditing = () => {
   }
   isEditing.value = false;
   editedName.value = listing.value.name;
-  editedQuantity.value = listing.value.quantity;
   editedMeetupLocation.value = listing.value.meetup_location;
+  editedQuantity.value = listing.value.quantity;
   editedDescription.value = listing.value.description;
   editedImage.value = listing.value.image;
+  editedTags.value = Array.isArray(listing.value.tags) ? listing.value.tags : [];
 };
 
 async function getListing(listingId: string) {
@@ -58,6 +62,7 @@ async function getListing(listingId: string) {
   }
 }
 const saveChanges = async () => {
+  console.log("saving tags", editedTags.value);
   if (!listing.value) {
     console.error("Listing is null, cannot save.");
     return;
@@ -66,15 +71,16 @@ const saveChanges = async () => {
     await fetchy(`/api/listings/${listing.value._id}`, "PATCH", {
       body: {
         name: editedName.value,
-        quantity: editedQuantity.value,
         meetup_location: editedMeetupLocation.value,
+        quantity: editedQuantity.value,
         image: editedImage.value,
         description: editedDescription.value,
-        //pickupNumber: props.request.pickupNumber,
+        tags: editedTags.value,
       },
     });
     isEditing.value = false;
     await getListing(props.listingId);
+    console.log("meet up location", editedMeetupLocation.value);
     console.log("Changes saved successfully.");
   } catch (error) {
     console.error("Failed to save changes:", error);
@@ -115,6 +121,16 @@ onBeforeMount(async () => {
           {{ listing.quantity }}
         </div>
 
+        <!-- Meetup Location -->
+        <p>
+          <strong> <span style="font-size: 25px">&#128205;</span> Meetup Location:</strong>
+        </p>
+        <div v-if="isEditing">
+          <input v-model="editedMeetupLocation" placeholder="Meetup Location" />
+        </div>
+        <div v-else>
+          {{ listing.meetup_location }}
+        </div>
         <!-- Description -->
         <p><strong>Description:</strong></p>
         <div v-if="isEditing">
@@ -124,6 +140,16 @@ onBeforeMount(async () => {
           {{ listing.description }}
         </div>
 
+        <!-- Tags -->
+        <!-- <p><strong>Tags:</strong></p> -->
+        <div v-if="isEditing">
+          <TaggingComponent v-model:tags="editedTags" />
+        </div>
+        <div v-else>
+          <span v-for="tag in listing.tags" :key="tag" class="tag tag-bubble tags-container">
+            {{ tag }}
+          </span>
+        </div>
         <!-- Buttons -->
         <div>
           <button v-if="isEditing" @click="saveChanges">Save</button>
@@ -146,7 +172,7 @@ h1 {
 }
 .listing-item {
   display: flex;
-  gap: 20px;
+  gap: 30px;
 }
 
 button {
@@ -170,5 +196,15 @@ button {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.tag-bubble {
+  margin-top: 2em;
+  display: inline-block;
+  gap: 0.4em;
+  background-color: #d0d0d0;
+  border-radius: 15px;
+  padding: 5px 10px;
+  margin-bottom: 0.7em;
 }
 </style>

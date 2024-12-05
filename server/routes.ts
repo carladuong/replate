@@ -2,9 +2,7 @@ import { ObjectId } from "mongodb";
 import { z } from "zod";
 
 import { Authing, Claiming, Listing, Listing_Expiring, Offering, Reporting, Request_Expiring, Requesting, Reviewing, Sessioning } from "./app";
-
 import { NotAllowedError, NotFoundError } from "./concepts/errors";
-
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
@@ -97,10 +95,9 @@ class Routes {
   }
 
   @Router.post("/listings")
-  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, expireDate: string, expireTime24hrs: string, description?: string) {
-    //change img back to File
+  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, expireDate: string, expireTime24hrs: string, description: string, tags: string[]) {
     const user = Sessioning.getUser(session);
-    const created = await Listing.addListing(user, name, meetup_location, image, quantity, description);
+    const created = await Listing.addListing(user, name, meetup_location, image, quantity, description, tags);
 
     if (created.listing) {
       const create_expireObj = await Listing_Expiring.allocate(created.listing._id, expireDate, expireTime24hrs);
@@ -109,11 +106,12 @@ class Routes {
   }
 
   @Router.patch("/listings/:id")
-  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string) {
+  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string, tags?: string[]) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     await Listing.assertAuthorIsUser(oid, user);
-    return await Listing.editlisting(oid, name, meetup_location, image, quantity, description);
+    const updatedListing = await Listing.editlisting(oid, name, meetup_location, image, quantity, description, tags);
+    return updatedListing;
   }
 
   @Router.delete("/listings/:id")
@@ -384,19 +382,8 @@ class Routes {
     const isUserReported = await Reporting.checkIfUserReported(oid);
     return { message: `User has been reported: ${isUserReported}`, "numberOfReports:": countReports };
   }
-
-  // @Router.post("/reports")
-  // async report(session: SessionDoc, reportedId: string, message?: string) {
-  //   const user = Sessioning.getUser(session);
-  //   const oid = new ObjectId(reportedId);
-  //   const created = await Reporting.report(user, oid, message);
-  //   const numberOfReports = await Reporting.getNumberOfReports(oid);
-  //   // const checkIfuserReported = await Reporting.checkIfUserReported(oid);
-  //   console.log("User is reported" + numberOfReports);
-
-  //   return { msg: created.msg, report: created.report };
-  // }
 }
+
 /** The web app. */
 export const app = new Routes();
 

@@ -2,6 +2,7 @@ import { ObjectId } from "mongodb";
 
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
+// Ensure correct import path
 
 export interface ListingDoc extends BaseDoc {
   author: ObjectId;
@@ -12,6 +13,7 @@ export interface ListingDoc extends BaseDoc {
   remaining: number;
   hidden: boolean;
   description: string;
+  tags: string[];
 }
 
 /**
@@ -27,23 +29,26 @@ export default class ListingConcept {
     this.listings = new DocCollection<ListingDoc>(collectionName);
   }
 
-  async addListing(author: ObjectId, name: string, meetup_location: string, image: string, quantity: number, description?: string) {
+  async addListing(author: ObjectId, name: string, meetup_location: string, image: string, quantity: number, description: string, tags: string[]) {
     const remaining = quantity; //quantity remaining is set to quantity because it is the same when the listing is just created, no user input in that field
     const hidden = false;
-    const _id = await this.listings.createOne({ author, name, meetup_location, image, quantity, remaining, hidden, description });
+    const _id = await this.listings.createOne({ author, name, meetup_location, image, quantity, remaining, hidden, description, tags });
     const listing = await this.listings.readOne({ _id });
-    console.log("Incoming data:", { author, name, meetup_location, image, quantity, description });
+    console.log("Incoming data:", { author, name, meetup_location, image, quantity, description, tags });
     return { msg: "Listing successfully created!: ", listing };
   }
 
+  async getListingByTag(tag: string) {
+    return await this.listings.readMany({ tags: tag });
+  }
   async delete(_id: ObjectId) {
     await this.listings.deleteOne({ _id });
     return { msg: "Listing deleted successfully!" };
   }
 
-  async editlisting(_id: ObjectId, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string) {
+  async editlisting(_id: ObjectId, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string, tags?: string[]) {
     // Create an object with the provided values
-    const updateData: Partial<ListingDoc> = { name, meetup_location, image, quantity, description };
+    const updateData: Partial<ListingDoc> = { name, meetup_location, image, quantity, description, tags };
 
     // Filter out properties that are undefined
     const filteredUpdateData = Object.fromEntries(Object.entries(updateData).filter(([value]) => value !== undefined));
@@ -58,6 +63,7 @@ export default class ListingConcept {
     if (!listing) {
       throw new NotFoundError(`Listing ${_id} does not exist!`);
     }
+
     return listing;
   }
   async getAllListings() {
