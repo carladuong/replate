@@ -1,8 +1,10 @@
 import { ObjectId } from "mongodb";
-
 import { z } from "zod";
-import { Authing, Claiming, Listing, Offering, Reporting, Requesting, Reviewing, Sessioning, Tagging } from "./app";
+
+import { Authing, Claiming, Listing, Listing_Expiring, Offering, Reporting, Request_Expiring, Requesting, Reviewing, Sessioning } from "./app";
+
 import { NotAllowedError, NotFoundError } from "./concepts/errors";
+
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
@@ -96,12 +98,15 @@ class Routes {
 
   @Router.post("/listings")
   async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, description: string, tags: string[]) {
+  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, expireDate: string, expireTime24hrs: string, description?: string) {
+    //change img back to File
     const user = Sessioning.getUser(session);
-    const created = await Listing.addListing(user, name, meetup_location, image, quantity, description, tags);
-    // for (const tag of tags) {
-    //   await Tagging.tagItem(created.listing._id, tag);
-    // }
-    return { msg: created.msg, listing: await Responses.listing(created.listing) };
+    const created = await Listing.addListing(user, name, meetup_location, image, quantity, description);
+
+    if (created.listing) {
+      const create_expireObj = await Listing_Expiring.allocate(created.listing._id, expireDate, expireTime24hrs);
+      return { msg: created.msg, listing: await Responses.listing(created.listing) };
+    }
   }
 
   @Router.patch("/listings/:id")
@@ -149,12 +154,14 @@ class Routes {
   //add needed by
   // add synchronization with tagging
   @Router.post("/requests")
-  async addRequest(session: SessionDoc, name: string, quantity: number, image?: string, description?: string) {
+  async addRequest(session: SessionDoc, name: string, quantity: number, needBy: string, expireTime24hrs: string, image?: string, description?: string) {
     const user = Sessioning.getUser(session);
-    //const needByDate = new Date(needBy);
     const created = await Requesting.add(user, name, quantity, image, description);
-    //call expiring to set needBy date as expiration date of the resource
-    return { msg: created.msg, request: await Responses.request(created.post) };
+    //expiration date of the resource
+    if (created.request) {
+      const create_needBy = await Request_Expiring.allocate(created.request._id, needBy, expireTime24hrs);
+      return { msg: created.msg, request: await Responses.request(created.request) };
+    }
   }
 
   //handles editing and hiding request by author (we also use hide request in a synchronization when offer is accepted etc)
@@ -177,6 +184,10 @@ class Routes {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     await Requesting.assertAuthor(oid, user);
+
+    const RequestExp = await Request_Expiring.getExpireByItem(oid);
+    Request_Expiring.delete(RequestExp._id);
+
     return Requesting.delete(oid);
   }
 
@@ -375,18 +386,6 @@ class Routes {
     const isUserReported = await Reporting.checkIfUserReported(oid);
     return { message: `User has been reported: ${isUserReported}`, "numberOfReports:": countReports };
   }
-
-  // @Router.post("/reports")
-  // async report(session: SessionDoc, reportedId: string, message?: string) {
-  //   const user = Sessioning.getUser(session);
-  //   const oid = new ObjectId(reportedId);
-  //   const created = await Reporting.report(user, oid, message);
-  //   const numberOfReports = await Reporting.getNumberOfReports(oid);
-  //   // const checkIfuserReported = await Reporting.checkIfUserReported(oid);
-  //   console.log("User is reported" + numberOfReports);
-
-  //   return { msg: created.msg, report: created.report };
-  // }
 }
 /** The web app. */
 export const app = new Routes();

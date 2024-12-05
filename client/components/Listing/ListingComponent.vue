@@ -6,9 +6,7 @@ import { storeToRefs } from "pinia";
 import { computed, defineProps, onBeforeMount, ref } from "vue";
 import TaggingComponent from "../Tagging/TaggingComponent.vue";
 
-const props = defineProps<{
-  listingId: string;
-}>();
+const props = defineProps(["listingId"]);
 
 const { currentUsername } = storeToRefs(useUserStore());
 const isEditing = ref(false);
