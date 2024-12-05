@@ -1,11 +1,16 @@
 import { ObjectId } from "mongodb";
-
+import cron from "node-cron";
 import { z } from "zod";
-import { Authing, Claiming, Listing, Offering, Reporting, Requesting, Reviewing, Sessioning } from "./app";
+
+import { Authing, Claiming, Listing, Offering,Reporting, Requesting, Reviewing, Sessioning, Request_Expiring, Listing_Expiring  } from "./app";
+
 import { NotAllowedError, NotFoundError } from "./concepts/errors";
+
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
+import {NotFoundError } from "./concepts/errors";
+
 
 /**
  * Web server routes for the app. Implements synchronizations between concepts.
@@ -95,11 +100,16 @@ class Routes {
   }
 
   @Router.post("/listings")
-  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, description: string) {
+  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, expireDate: string, expireTime24hrs: string) {
     //change img back to File
     const user = Sessioning.getUser(session);
-    const created = await Listing.addListing(user, name, meetup_location, image, quantity, description);
-    return { msg: created.msg, listing: await Responses.listing(created.listing) };
+    const created = await Listing.addListing(user, name, meetup_location, image, quantity);
+
+    if (created.listing) {
+      const create_expireObj= await Listing_Expiring.allocate(created.listing._id, expireDate, expireTime24hrs);
+      return { msg: created.msg, listing: await Responses.listing(created.listing) };
+    }
+
   }
 
   @Router.patch("/listings/:id")
@@ -146,12 +156,15 @@ class Routes {
   //add needed by
   // add synchronization with tagging
   @Router.post("/requests")
-  async addRequest(session: SessionDoc, name: string, quantity: number, image?: string, description?: string) {
+  async addRequest(session: SessionDoc, name: string, quantity: number, needBy: string, expireTime24hrs:string, image?: string, description?: string) {
     const user = Sessioning.getUser(session);
-    //const needByDate = new Date(needBy);
     const created = await Requesting.add(user, name, quantity, image, description);
-    //call expiring to set needBy date as expiration date of the resource
-    return { msg: created.msg, request: await Responses.request(created.post) };
+    //expiration date of the resource
+    if (created.request) {
+      const create_needBy= await Request_Expiring.allocate(created.request._id, needBy, expireTime24hrs);
+      return { msg: created.msg, request: await Responses.request(created.request) };
+    }
+    
   }
 
   //handles editing and hiding request by author (we also use hide request in a synchronization when offer is accepted etc)
@@ -174,6 +187,10 @@ class Routes {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     await Requesting.assertAuthor(oid, user);
+
+    const RequestExp = await Request_Expiring.getExpireByItem(oid);
+    Request_Expiring.delete(RequestExp._id);
+
     return Requesting.delete(oid);
   }
 
