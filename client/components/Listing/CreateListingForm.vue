@@ -64,7 +64,7 @@ const createListing = async () => {
         <input id="name" type="text" v-model="name" placeholder="Name" required />
       </div>
       <div class="pure-control-group">
-        <label for="meetupLocation">Meetup Location</label>
+        <label for="meetupLocation"> <span style="font-size: 25px">&#128205;</span>Meet Up Location</label>
         <input id="meetupLocation" type="text" v-model="meetupLocation" placeholder="Meetup Location" required />
       </div>
       <div class="pure-control-group">

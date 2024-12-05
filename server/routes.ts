@@ -98,9 +98,9 @@ class Routes {
   async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, description: string, tags: string[]) {
     const user = Sessioning.getUser(session);
     const created = await Listing.addListing(user, name, meetup_location, image, quantity, description, tags);
-    for (const tag of tags) {
-      await Tagging.tagItem(created.listing._id, tag);
-    }
+    // for (const tag of tags) {
+    //   await Tagging.tagItem(created.listing._id, tag);
+    // }
     return { msg: created.msg, listing: await Responses.listing(created.listing) };
   }
 
