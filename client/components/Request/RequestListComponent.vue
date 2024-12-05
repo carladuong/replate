@@ -6,7 +6,7 @@ import { computed, onBeforeMount, ref } from "vue";
 import RequestThumbComponent from "./RequestThumbComponent.vue";
 
 const props = defineProps<{
-  searchTerm: string;
+  searchTerm?: string;
   username?: string; // Optional
 }>();
 

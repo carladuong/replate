@@ -1,7 +1,11 @@
 import { ObjectId } from "mongodb";
 import cron from "node-cron";
 import { z } from "zod";
-import { Authing, Claiming, Listing, Offering, Requesting, Reviewing, Sessioning, Request_Expiring, Listing_Expiring  } from "./app";
+
+import { Authing, Claiming, Listing, Offering,Reporting, Requesting, Reviewing, Sessioning, Request_Expiring, Listing_Expiring  } from "./app";
+
+import { NotAllowedError, NotFoundError } from "./concepts/errors";
+
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
@@ -103,18 +107,17 @@ class Routes {
 
     if (created.listing) {
       const create_expireObj= await Listing_Expiring.allocate(created.listing._id, expireDate, expireTime24hrs);
-      return { msg: created, create_expireObj};
+      return { msg: created.msg, listing: await Responses.listing(created.listing) };
     }
-    
-    return { msg: created, };
+
   }
 
   @Router.patch("/listings/:id")
-  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number) {
+  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     await Listing.assertAuthorIsUser(oid, user);
-    return await Listing.editlisting(oid, name, meetup_location, image, quantity);
+    return await Listing.editlisting(oid, name, meetup_location, image, quantity, description);
   }
 
   @Router.delete("/listings/:id")
@@ -197,7 +200,7 @@ class Routes {
   @Router.post("/claims")
   async claim(session: SessionDoc, listingId: string, quantity: number) {
     const user = Sessioning.getUser(session);
-    //Reporting.checkIfUserReported(claimer)
+    // Reporting.checkIfUserReported(claimer)
     const oid = new ObjectId(listingId);
     await Claiming.claim(user, quantity, oid);
     //Listing.getListingById(oid)
@@ -246,7 +249,7 @@ class Routes {
     //get request and check it exist
     //check user not author
     await Offering.offer(user, oid, location, image, message);
-    return {msg: "Offer sent!"};
+    return { msg: "Offer sent!" };
   }
 
   @Router.get("/offers")
@@ -354,17 +357,51 @@ class Routes {
       return 0; // No reviews, return 0
     }
   }
-
   @Router.post("/reports")
   async report(session: SessionDoc, reportedId: string, message?: string) {
+    // Retrieve the reporting user from the session
     const user = Sessioning.getUser(session);
-    const oid = new ObjectId(reportedId);
-    const reported = Authing.getUserById(oid);
-    //Reporting.checkIfUserReported(user, reported, messsage)
-    //Reporting.report(reporter, reported)
-  }
-}
 
+    // Validate and convert reportedId to ObjectId
+    let oid: ObjectId;
+    try {
+      oid = new ObjectId(reportedId);
+    } catch (error) {
+      throw new NotAllowedError("Invalid reportedId format.");
+    }
+
+    // Fetch the reported entity to ensure it exists
+    const reported = await Authing.getUserById(oid);
+    if (!reported) {
+      throw new NotFoundError(`Entity with ID ${reportedId} does not exist.`);
+    }
+
+    // Create the report
+    const reportResult = await Reporting.report(user, oid, message);
+    return { msg: reportResult.msg, report: reportResult.report };
+  }
+
+  @Router.get("/reports")
+  async getNumberOfReports(session: SessionDoc, reportedId: string) {
+    const oid = new ObjectId(reportedId);
+    const countReports = await Reporting.getNumberOfReports(oid);
+    console.log("Number of reports: " + countReports);
+    const isUserReported = await Reporting.checkIfUserReported(oid);
+    return { message: `User has been reported: ${isUserReported}`, "numberOfReports:": countReports };
+  }
+
+  // @Router.post("/reports")
+  // async report(session: SessionDoc, reportedId: string, message?: string) {
+  //   const user = Sessioning.getUser(session);
+  //   const oid = new ObjectId(reportedId);
+  //   const created = await Reporting.report(user, oid, message);
+  //   const numberOfReports = await Reporting.getNumberOfReports(oid);
+  //   // const checkIfuserReported = await Reporting.checkIfUserReported(oid);
+  //   console.log("User is reported" + numberOfReports);
+
+  //   return { msg: created.msg, report: created.report };
+  // }
+}
 /** The web app. */
 export const app = new Routes();
 

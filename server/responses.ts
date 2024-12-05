@@ -2,6 +2,8 @@ import { Authing } from "./app";
 import { ListingDoc } from "./concepts/listing";
 import { RequestDoc } from "./concepts/requesting";
 import { ReviewDoc } from "./concepts/reviewing";
+// import { TaggingDoc } from "./concepts/tagging";
+
 /**
  * This class does useful conversions for the frontend.
  * For example, it converts a {@link ListingDoc} into a more readable format for the frontend.
@@ -61,5 +63,19 @@ export default class Responses {
   static async reviews(reviews: ReviewDoc[]) {
     const reviewers = await Authing.idsToUsernames(reviews.map((review) => review.reviewer));
     return reviews.map((review, i) => ({ ...review, reviewer: reviewers[i] }));
+  }
+
+  static report(reportResult: { _id: string; reporter: string; reported: string; message: string; createdAt: Date }) {
+    return {
+      id: reportResult._id,
+
+      reporter: reportResult.reporter,
+
+      reported: reportResult.reported,
+
+      message: reportResult.message,
+
+      createdAt: reportResult.createdAt,
+    };
   }
 }

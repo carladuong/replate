@@ -13,6 +13,7 @@ import NotFoundView from "../views/NotFoundView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import RequestView from "../views/RequestView.vue";
 import ReviewsView from "../views/ReviewsView.vue";
+import ReportView from "../views/ReportView.vue";
 import SettingView from "../views/SettingView.vue";
 
 const router = createRouter({
@@ -91,6 +92,12 @@ const router = createRouter({
           return { name: "Settings" };
         }
       },
+    },
+    {
+      path: "/report/:reportedId",
+      name: "Report",
+      component: ReportView,
+      props: true, // Allows route params to be passed as props to the component
     },
     {
       path: "/:catchAll(.*)",

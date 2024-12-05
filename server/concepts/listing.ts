@@ -11,6 +11,7 @@ export interface ListingDoc extends BaseDoc {
   quantity: number;
   remaining: number;
   hidden: boolean;
+  description: string;
 }
 
 /**
@@ -26,12 +27,12 @@ export default class ListingConcept {
     this.listings = new DocCollection<ListingDoc>(collectionName);
   }
 
-  async addListing(author: ObjectId, name: string, meetup_location: string, image: string, quantity: number) {
+  async addListing(author: ObjectId, name: string, meetup_location: string, image: string, quantity: number, description: string) {
     const remaining = quantity; //quantity remaining is set to quantity because it is the same when the listing is just created, no user input in that field
     const hidden = false;
-    const _id = await this.listings.createOne({ author, name, meetup_location, image, quantity, remaining, hidden });
+    const _id = await this.listings.createOne({ author, name, meetup_location, image, quantity, remaining, hidden, description });
     const listing = await this.listings.readOne({ _id });
-    console.log("Incoming data:", { author, name, meetup_location, image, quantity });
+    console.log("Incoming data:", { author, name, meetup_location, image, quantity, description });
     return { msg: "Listing successfully created!: ", listing };
   }
 
@@ -40,9 +41,9 @@ export default class ListingConcept {
     return { msg: "Listing deleted successfully!" };
   }
 
-  async editlisting(_id: ObjectId, name?: string, meetup_location?: string, image?: string, quantity?: number) {
+  async editlisting(_id: ObjectId, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string) {
     // Create an object with the provided values
-    const updateData: Partial<ListingDoc> = { name, meetup_location, image, quantity };
+    const updateData: Partial<ListingDoc> = { name, meetup_location, image, quantity, description };
 
     // Filter out properties that are undefined
     const filteredUpdateData = Object.fromEntries(Object.entries(updateData).filter(([value]) => value !== undefined));
