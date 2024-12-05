@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 
 import { z } from "zod";
-import { Authing, Claiming, Listing, Offering, Reporting, Requesting, Reviewing, Sessioning } from "./app";
+import { Authing, Claiming, Listing, Offering, Reporting, Requesting, Reviewing, Sessioning, Tagging } from "./app";
 import { NotAllowedError, NotFoundError } from "./concepts/errors";
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
@@ -95,19 +95,22 @@ class Routes {
   }
 
   @Router.post("/listings")
-  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, description: string, tag: string[]) {
-    //change img back to File
+  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, description: string, tags: string[]) {
     const user = Sessioning.getUser(session);
-    const created = await Listing.addListing(user, name, meetup_location, image, quantity, description, tag);
+    const created = await Listing.addListing(user, name, meetup_location, image, quantity, description, tags);
+    for (const tag of tags) {
+      await Tagging.tagItem(created.listing._id, tag);
+    }
     return { msg: created.msg, listing: await Responses.listing(created.listing) };
   }
 
   @Router.patch("/listings/:id")
-  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string, tag?: string[]) { 
+  async editlisting(session: SessionDoc, id: string, name?: string, meetup_location?: string, image?: string, quantity?: number, description?: string, tags?: string[]) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     await Listing.assertAuthorIsUser(oid, user);
-    return await Listing.editlisting(oid, name, meetup_location, image, quantity, description, tag);
+    const updatedListing = await Listing.editlisting(oid, name, meetup_location, image, quantity, description, tags);
+    return updatedListing;
   }
 
   @Router.delete("/listings/:id")

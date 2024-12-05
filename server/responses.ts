@@ -2,7 +2,7 @@ import { Authing } from "./app";
 import { ListingDoc } from "./concepts/listing";
 import { RequestDoc } from "./concepts/requesting";
 import { ReviewDoc } from "./concepts/reviewing";
-// import { TaggingDoc } from "./concepts/tagging";
+import { TaggingDoc } from "./concepts/tagging";
 
 /**
  * This class does useful conversions for the frontend.
@@ -76,6 +76,13 @@ export default class Responses {
       message: reportResult.message,
 
       createdAt: reportResult.createdAt,
+    };
+  }
+  static async tag(tag: TaggingDoc) {
+    return {
+      _id: tag._id,
+      name: tag.name,
+      taggedItems: tag.taggedItems,
     };
   }
 }

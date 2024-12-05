@@ -38,6 +38,9 @@ export default class ListingConcept {
     return { msg: "Listing successfully created!: ", listing };
   }
 
+  async getListingByTag(tag: string) {
+    return await this.listings.readMany({ tags: tag });
+  }
   async delete(_id: ObjectId) {
     await this.listings.deleteOne({ _id });
     return { msg: "Listing deleted successfully!" };

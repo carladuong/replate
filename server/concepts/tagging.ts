@@ -1,8 +1,10 @@
-import { ObjectId } from "mongodb";
-import { BaseDoc } from "../framework/doc";
-import DocCollection from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
+import DocCollection, { BaseDoc } from "../framework/doc";
+import { ObjectId } from "mongodb";
 
+/**
+ * Interface representing a Tagging document.
+ */
 export interface TaggingDoc extends BaseDoc {
   name: string;
   taggedItems: ObjectId[];
@@ -40,20 +42,6 @@ export default class TaggingConcept {
     }
 
     return { msg: "Tags successfully created!", tags: createdTags };
-  }
-
-  async getTagByName(name: string): Promise<TaggingDoc | null> {
-    return await this.tags.readOne({ name });
-  }
-
-  async getTagsByNames(names: string[]): Promise<string[]> {
-    const tags = await this.tags.readMany({ name: { $in: names } });
-
-    if (tags.length !== names.length) {
-      throw new NotFoundError("One or more tags not found.");
-    }
-
-    return tags.map((tag) => tag.name);
   }
 
   /**
@@ -101,19 +89,6 @@ export default class TaggingConcept {
     return { msg: `Item successfully removed from tag '${name}'!` };
   }
 
-  async getTagsByIds(tagIds: ObjectId[]): Promise<TaggingDoc[]> {
-    if (!Array.isArray(tagIds) || tagIds.length === 0) {
-      throw new Error("Invalid tag IDs provided.");
-    }
-
-    const tags = await this.tags.readMany({ _id: { $in: tagIds } });
-
-    if (tags.length !== tagIds.length) {
-      throw new NotFoundError("One or more tags not found.");
-    }
-
-    return tags;
-  }
   /**
    * Get all available tags
    */

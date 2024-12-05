@@ -64,6 +64,7 @@ async function getListing(listingId: string) {
   }
 }
 const saveChanges = async () => {
+  console.log("saving tags", editedTags.value);
   if (!listing.value) {
     console.error("Listing is null, cannot save.");
     return;
@@ -77,7 +78,6 @@ const saveChanges = async () => {
         image: editedImage.value,
         description: editedDescription.value,
         tags: editedTags.value,
-        //pickupNumber: props.request.pickupNumber,
       },
     });
     isEditing.value = false;
@@ -131,10 +131,15 @@ onBeforeMount(async () => {
           {{ listing.description }}
         </div>
 
-        <!-- Tags Editing -->
-        <label for="tags"><strong>Categories:</strong></label>
+        <!-- Tags -->
+        <p><strong>Tags:</strong></p>
         <div v-if="isEditing">
           <TaggingComponent v-model:tags="editedTags" />
+        </div>
+        <div v-else>
+          <span v-for="tag in listing.tags" :key="tag" class="tag">
+            {{ tag }}
+          </span>
         </div>
         <!-- Buttons -->
         <div>
