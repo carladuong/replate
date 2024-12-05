@@ -1,9 +1,10 @@
 import { Authing } from "./app";
+import { ClaimDoc } from "./concepts/claiming";
 import { ListingDoc } from "./concepts/listing";
+import { OfferDoc } from "./concepts/offering";
 import { RequestDoc } from "./concepts/requesting";
 import { ReviewDoc } from "./concepts/reviewing";
 import { TaggingDoc } from "./concepts/tagging";
-
 /**
  * This class does useful conversions for the frontend.
  * For example, it converts a {@link ListingDoc} into a more readable format for the frontend.
@@ -42,6 +43,28 @@ export default class Responses {
   }
 
   /**
+   * Convert OfferDoc into more readable format for the frontend by converting the author id into a username.
+   */
+  static async offer(offer: OfferDoc | null) {
+    if (!offer) {
+      return offer;
+    }
+    const offerer = await Authing.getUserById(offer.offerer);
+    return { ...offer, offerer: offerer.username };
+  }
+
+  /**
+   * Convert OfferDoc into more readable format for the frontend by converting the author id into a username.
+   */
+  static async claim(claim: ClaimDoc | null) {
+    if (!claim) {
+      return claim;
+    }
+    const claimer = await Authing.getUserById(claim.claimer);
+    return { ...claim, offerer: claimer.username };
+  }
+
+  /**
    * Same as {@link listing} but for an array of ListingDoc for improved performance.
    */
   static async listings(listings: ListingDoc[]) {
@@ -63,6 +86,22 @@ export default class Responses {
   static async reviews(reviews: ReviewDoc[]) {
     const reviewers = await Authing.idsToUsernames(reviews.map((review) => review.reviewer));
     return reviews.map((review, i) => ({ ...review, reviewer: reviewers[i] }));
+  }
+
+  /**
+   * Same as {@link offer} but for an array of OfferwDoc for improved performance.
+   */
+  static async offers(offers: OfferDoc[]) {
+    const offerers = await Authing.idsToUsernames(offers.map((offer) => offer.offerer));
+    return offers.map((offer, i) => ({ ...offer, offerer: offerers[i] }));
+  }
+
+  /**
+   * Same as {@link claim} but for an array of ClaimDoc for improved performance.
+   */
+  static async claims(claims: ClaimDoc[]) {
+    const claimers = await Authing.idsToUsernames(claims.map((claim) => claim.claimer));
+    return claims.map((claim, i) => ({ ...claim, claimer: claimers[i] }));
   }
 
   static report(reportResult: { _id: string; reporter: string; reported: string; message: string; createdAt: Date }) {
