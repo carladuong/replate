@@ -7,7 +7,7 @@ export interface RequestDoc extends BaseDoc {
   name: string;
   quantity: number;
   //needBy: string;
-  hide: boolean;
+  hidden: boolean;
   image?: string;
   description?: string;
 }
@@ -26,8 +26,8 @@ export default class RequestingConcept {
   }
 
   async add(requester: ObjectId, name: string, quantity: number, image?: string, description?: string) {
-    const hide = false;
-    const _id = await this.requests.createOne({ requester, name, quantity, hide, image, description });
+    const hidden = false;
+    const _id = await this.requests.createOne({ requester, name, quantity, hidden, image, description });
     const request= await this.requests.readOne({ _id }) 
     return { msg: "Request successfully created!", request};
   }
@@ -49,21 +49,30 @@ export default class RequestingConcept {
     if (!request) {
       throw new NotFoundError(`Request ${_id} does not exist!`);
     }
-    const hide = !request.hide;
-    await this.requests.partialUpdateOne({ _id }, { hide });
+    const hidden = !request.hidden;
+    await this.requests.partialUpdateOne({ _id }, { hidden });
     return { msg: "Request successfully updated!" };
   }
 
   async getRequestById(_id: ObjectId) {
-    return await this.requests.readOne({ _id });
+    const request = await this.requests.readOne({ _id });
+    if (!request) {
+      throw new NotFoundError(`Listing ${_id} does not exist!`);
+    }
+
+    return request;
   }
+
+
+
+
   async getRequests() {
     return await this.requests.readMany({}, { sort: { _id: -1 } });
   }
 
   async getRequestsOngoing() {
-    const hide = false;
-    return await this.requests.readMany({ hide }, { sort: { _id: -1 } });
+    const hidden = false;
+    return await this.requests.readMany({ hidden }, { sort: { _id: -1 } });
   }
 
   async getByRequester(requester: ObjectId) {
