@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { z } from "zod";
 
-import { Authing, Claiming, Listing, Listing_Expiring, Offering, Reporting, Request_Expiring, Requesting, Reviewing, Sessioning } from "./app";
+import { Authing, Claiming, Listing, Listing_Expiring, Offering, Reporting, Request_Expiring, Requesting, Reviewing, Sessioning, Tagging } from "./app";
 
 import { NotAllowedError, NotFoundError } from "./concepts/errors";
 
@@ -97,11 +97,9 @@ class Routes {
   }
 
   @Router.post("/listings")
-  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, description: string, tags: string[]) {
-  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, expireDate: string, expireTime24hrs: string, description?: string) {
-    //change img back to File
+  async addListing(session: SessionDoc, name: string, meetup_location: string, image: string, quantity: number, expireDate: string, expireTime24hrs: string, description: string, tags: string[]) {
     const user = Sessioning.getUser(session);
-    const created = await Listing.addListing(user, name, meetup_location, image, quantity, description);
+    const created = await Listing.addListing(user, name, meetup_location, image, quantity, description, tags);
 
     if (created.listing) {
       const create_expireObj = await Listing_Expiring.allocate(created.listing._id, expireDate, expireTime24hrs);
@@ -386,6 +384,7 @@ class Routes {
     const isUserReported = await Reporting.checkIfUserReported(oid);
     return { message: `User has been reported: ${isUserReported}`, "numberOfReports:": countReports };
   }
+}
 }
 /** The web app. */
 export const app = new Routes();
