@@ -27,7 +27,7 @@ export default class ListingConcept {
     this.listings = new DocCollection<ListingDoc>(collectionName);
   }
 
-  async addListing(author: ObjectId, name: string, meetup_location: string, image: string, quantity: number, description: string) {
+  async addListing(author: ObjectId, name: string, meetup_location: string, image: string, quantity: number, description?: string) {
     const remaining = quantity; //quantity remaining is set to quantity because it is the same when the listing is just created, no user input in that field
     const hidden = false;
     const _id = await this.listings.createOne({ author, name, meetup_location, image, quantity, remaining, hidden, description });
