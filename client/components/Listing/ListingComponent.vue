@@ -191,7 +191,7 @@ button {
 
 .tag-bubble {
   display: inline-block;
-  /* gap: 0.5em; */
+  gap: 0.4em;
   background-color: #d0d0d0;
   border-radius: 15px;
   padding: 5px 10px;
