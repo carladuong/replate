@@ -1,4 +1,4 @@
-<script setup lang="ts"></script>
+<!-- <script setup lang="ts"></script>
 
 <template>
   <div class="tagging">
@@ -12,4 +12,4 @@
       </div>
     </div>
   </div>
-</template>
+</template> -->
