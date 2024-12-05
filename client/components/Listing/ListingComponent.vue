@@ -137,7 +137,7 @@ onBeforeMount(async () => {
           <TaggingComponent v-model:tags="editedTags" />
         </div>
         <div v-else>
-          <span v-for="tag in listing.tags" :key="tag" class="tag">
+          <span v-for="tag in listing.tags" :key="tag" class="tag tag-bubble tags-container">
             {{ tag }}
           </span>
         </div>
@@ -163,7 +163,7 @@ h1 {
 }
 .listing-item {
   display: flex;
-  gap: 20px;
+  gap: 30px;
 }
 
 button {
@@ -187,5 +187,14 @@ button {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.tag-bubble {
+  display: inline-block;
+  /* gap: 0.5em; */
+  background-color: #d0d0d0;
+  border-radius: 15px;
+  padding: 5px 10px;
+  margin-bottom: 0.7em;
 }
 </style>

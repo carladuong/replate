@@ -15,18 +15,6 @@ const listingsNumber = ref(0);
 const user = ref<Record<string, string> | null>(null);
 const loaded = ref(false);
 const menuVisible = ref(false);
-// const isUserReported = ref<boolean>(false);
-// const numberOfReports = ref<number>(0);
-
-// const getUserReportInfo = async () => {
-//   try {
-//     const reports = (await fetchy("/api/reports", "GET", { query: { reportedId: props.userId } })) as { _id: string }[];
-//     numberOfReports.value = reports.length;
-//     isUserReported.value = reports.length > 0;
-//   } catch (e) {
-//     console.error("Error fetching user reports:", e);
-//   }
-// };
 
 async function getUserInfo() {
   let reviews;
