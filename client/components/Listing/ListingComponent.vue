@@ -5,9 +5,7 @@ import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { computed, onBeforeMount, ref } from "vue";
 
-const props = defineProps<{
-  listingId: string;
-}>();
+const props = defineProps(["listingId"]);
 
 const { currentUsername } = storeToRefs(useUserStore());
 const isEditing = ref(false);
