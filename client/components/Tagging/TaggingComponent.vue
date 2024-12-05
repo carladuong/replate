@@ -34,9 +34,6 @@ const toggleTag = (tag: string) => {
     </div>
   </div>
 </template>
-<template>
-  <p>under implementation</p>
-</template>
 
 <style scoped>
 .tagging-component {

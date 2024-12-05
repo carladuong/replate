@@ -1,10 +1,8 @@
 import { ObjectId } from "mongodb";
 import { z } from "zod";
 
-import { Authing, Claiming, Listing, Listing_Expiring, Offering, Reporting, Request_Expiring, Requesting, Reviewing, Sessioning, Tagging } from "./app";
-
+import { Authing, Claiming, Listing, Listing_Expiring, Offering, Reporting, Request_Expiring, Requesting, Reviewing, Sessioning } from "./app";
 import { NotAllowedError, NotFoundError } from "./concepts/errors";
-
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
@@ -385,7 +383,7 @@ class Routes {
     return { message: `User has been reported: ${isUserReported}`, "numberOfReports:": countReports };
   }
 }
-}
+
 /** The web app. */
 export const app = new Routes();
 

@@ -5,9 +5,7 @@ import RequestingConcept from "./concepts/requesting";
 import ReviewingConcept from "./concepts/reviewing";
 import SessioningConcept from "./concepts/sessioning";
 import ClaimingConcept from "./concepts/claiming";
-
 import ExpiringConcept from "./concepts/expiring";
-
 import ReportingConcept from "./concepts/reporting";
 import TaggingConcept from "./concepts/tagging";
 // The app is a composition of concepts instantiated here
