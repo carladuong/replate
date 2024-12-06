@@ -51,6 +51,7 @@ export default class OfferingConcept {
   }
 
   async getOfferById(offerId: ObjectId) {
+    console.log('in offering')
     const offer = await this.offers.readOne({ _id: offerId });
     if (offer) {
       return offer;
