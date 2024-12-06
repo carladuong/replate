@@ -40,9 +40,9 @@ class Routes {
   }
 
   @Router.post("/users")
-  async createUser(session: SessionDoc, username: string, password: string, phone: string) {
+  async createUser(session: SessionDoc, username: string, password: string) {
     Sessioning.isLoggedOut(session);
-    return await Authing.create(username, password, phone);
+    return await Authing.create(username, password);
   }
 
   @Router.patch("/users/username")
