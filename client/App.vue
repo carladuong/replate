@@ -64,6 +64,9 @@ onBeforeMount(async () => {
         <li v-if="isLoggedIn">
           <RouterLink :to="{ name: 'Profile View', params: { id: currentUsername } }" :class="{ underline: currentRouteName === 'My Profile' }"> My Profile </RouterLink>
         </li>
+        <li>
+          <RouterLink :to="{ name: 'FAQ' }" :class="{ underline: currentRouteName == 'FAQ' }"> FAQ </RouterLink>
+        </li>
       </ul>
     </nav>
     <article v-if="toast !== null" class="toast" :class="toast.style">
