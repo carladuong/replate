@@ -90,6 +90,12 @@ const createListing = async () => {
         <label for="tags">Categories and Dietary Restrictions</label>
         <TaggingComponent v-model:tags="tags" />
       </div>
+      <div class="faq-link">
+        <p>
+          Have questions?
+          <RouterLink to="/faq" class="faq-anchor">Visit our FAQ</RouterLink>
+        </p>
+      </div>
       <button type="submit" class="pure-button pure-button-primary">Create Listing</button>
     </fieldset>
   </form>
@@ -98,5 +104,15 @@ const createListing = async () => {
 <style scoped>
 .pure-control-group {
   margin-bottom: 1em;
+}
+.faq-link {
+  margin-top: 1em;
+}
+.faq-anchor {
+  color: #007bff;
+  text-decoration: none;
+}
+.faq-anchor:hover {
+  text-decoration: underline;
 }
 </style>
