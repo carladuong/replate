@@ -75,6 +75,10 @@ function goToOfferPage() {
   void router.push(`/makeOffer/${props.requestId}`);
 }
 
+function goToViewOffersPage() {
+  void router.push(`/viewOffers/${props.requestId}`)
+}
+
 onBeforeMount(async () => {
   await getRequest(props.requestId);
 });
@@ -125,6 +129,7 @@ onBeforeMount(async () => {
           <button v-else-if="request.requester === currentUsername" @click="startEditing">Edit</button>
           <!-- also need to check is reqeust is satisfied (hide==true), in which case no offer option -->
           <button v-else @click="goToOfferPage">Offer</button>
+          <button v-if="request.requester === currentUsername" @click="goToViewOffersPage">View Offers</button>
         </div>
       </div>
     </div>

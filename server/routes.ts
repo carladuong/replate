@@ -247,8 +247,10 @@ class Routes {
 
   @Router.get("/offers")
   async getOffers(requestId?: string, offerer?: string) {
+    console.log('IN ROUTES')
     if (requestId) {
       const oid = new ObjectId(requestId);
+      console.log(requestId)
       return await Offering.getOfferByItem(oid);
     } else if (offerer) {
       const oid = new ObjectId(offerer);
