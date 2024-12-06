@@ -399,6 +399,12 @@ class Routes {
     //await Listing.assertAuthorIsUser(expire.item, user);
     await Listing_Expiring.editExpiration(oid, expireDate, "00:00");
   }
+
+  @Router.get("expirations/item")
+  async getExpireOfItem(itemId: string) {
+    const oid = new ObjectId(itemId);
+    return await Listing_Expiring.getExpireByItem(oid);
+  }
 }
 
 /** The web app. */
