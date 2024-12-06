@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
-import { NotAllowedError, NotFoundError } from "./errors";
+import { NotFoundError } from "./errors";
 
 export interface ExpiringDoc extends BaseDoc {
   item: ObjectId;
@@ -48,6 +48,11 @@ export default class ExpiringConcept {
       return { msg: "No expiration date or time provided. No updates made." };
     }
 
+    const expire = this.expirings.readOne({ _id });
+    if (!expire) {
+      throw new NotFoundError(`Expiring ${_id} does not exist.`);
+    }
+
     const [month, day, year] = expirationString.split("/").map(Number);
     const [hours, minutes] = expirationTime24hrs.split(":").map(Number);
 
@@ -63,7 +68,7 @@ export default class ExpiringConcept {
     return { msg: "Expiration date and time successfully updated!" };
   }
 
-  async getAll(){
+  async getAll() {
     const expireAt = new Date(); //today
     return await this.expirings.readMany({}, { sort: { _id: -1 } });
   }
@@ -74,6 +79,19 @@ export default class ExpiringConcept {
   async getAllExpired() {
     const now = new Date();
     return await this.expirings.readMany({ expireAt: { $lte: now } });
+  }
+
+  /**
+   *
+   *Get item's expiration
+   */
+  async getExpire(_id: ObjectId) {
+    const expire = await this.expirings.readOne({ _id });
+    if (!expire) {
+      throw new NotFoundError("No expiration record found for the given item ID.");
+    }
+
+    return expire;
   }
 
   /**
@@ -96,10 +114,6 @@ export default class ExpiringConcept {
     return { msg: "Listing deleted successfully!" };
   }
 }
-
-
-
-
 
 // import { ObjectId } from "mongodb";
 
@@ -124,7 +138,6 @@ export default class ExpiringConcept {
 //     this.expirings = new DocCollection<ExpiringDoc>(collectionName);
 //   }
 
-
 //   async allocate(itemId: ObjectId, expirationString: string, expirationTime24hrs:) {
 //     const [month, day, year] = expirationString.split("/").map(Number);
 //     const expirationDate = new Date(year, month - 1, day);
@@ -133,20 +146,19 @@ export default class ExpiringConcept {
 //     // if (ttlSeconds <= 0) {
 //     //   throw new Error("Expiration date must be in the future.");
 //     // }
-  
+
 //     const _id = await this.expirings.createOne({ item: itemId, expireAt: expirationDate});
-//     const expiringObject= await this.expirings.readOne({ _id }) 
+//     const expiringObject= await this.expirings.readOne({ _id })
 
 //     return { msg: expiringObject};
 //   }
-
 
 //   async editExpiration(_id: ObjectId, expirationString?: string) {
 //     // Check if expirationString is provided
 //     if (!expirationString) {
 //       return { msg: "No expiration date provided. No updates made." };
 //     }
-    
+
 //     const [month, day, year] = expirationString.split("/").map(Number);
 //     const expireAt = new Date(year, month - 1, day);
 //     const ttlSeconds = Math.floor((expireAt.getTime() - Date.now()) / 1000);
@@ -158,7 +170,7 @@ export default class ExpiringConcept {
 //     await this.expirings.partialUpdateOne({ _id }, updateDoc);
 //     return { msg: "Expiration date successfully updated!" };
 //   }
-  
+
 //   async getAll(){
 //     const expireAt = new Date(); //today
 //     return await this.expirings.readMany({}, { sort: { _id: -1 } });
@@ -176,7 +188,7 @@ export default class ExpiringConcept {
 //     if (!expire) {
 //       throw new NotFoundError("No expiration record found for the given item ID.");
 //     }
-    
+
 //     return expire
 //   }
 
@@ -185,4 +197,3 @@ export default class ExpiringConcept {
 //     return { msg: "Listing deleted successfully!" };
 //   }
 // }
-
