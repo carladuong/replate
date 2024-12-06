@@ -16,6 +16,7 @@ import RequestView from "../views/RequestView.vue";
 import ReviewsView from "../views/ReviewsView.vue";
 import SettingView from "../views/SettingView.vue";
 import ViewOffersView from "../views/ViewOffersView.vue";
+import FaqView from "@/views/FaqView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -105,6 +106,11 @@ const router = createRouter({
           return { name: "Settings" };
         }
       },
+    },
+    {
+      path: "/faq",
+      name: "FAQ",
+      component: FaqView,
     },
     {
       path: "/report/:reportedId",

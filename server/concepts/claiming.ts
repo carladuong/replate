@@ -23,7 +23,8 @@ export default class ClaimingConcept {
 
   async claim(claimer: ObjectId, quantity: number, item: ObjectId) {
     const _id = await this.claims.createOne({ claimer, quantity, item });
-    return { msg: "Successfully claimed item!" };
+    const claim = await this.claims.readOne({ _id });
+    return { msg: "Successfully claimed item!", claim };
   }
 
   async unclaim(claimId: ObjectId) {
@@ -39,7 +40,7 @@ export default class ClaimingConcept {
       throw new ObjectNotClaimedError();
     }
     await this.claims.deleteMany({ item: itemId });
-    return { msg: "Successfully deleted claims on item!" };
+    return { msg: `Successfully deleted claims on item ${itemId}!` };
   }
 
   async checkIfClaimed(item: ObjectId) {

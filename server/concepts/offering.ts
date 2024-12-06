@@ -26,12 +26,13 @@ export default class OfferingConcept {
 
   async offer(offerer: ObjectId, item: ObjectId, location: string, imageUrl?: string, message?: string) {
     const _id = await this.offers.createOne({ offerer, item, imageUrl, location, message, accepted: false });
-    return { msg: "Successfully sent offer!" };
+    const offer = await this.offers.readOne({ _id });
+    return { msg: "Successfully sent offer!", offer: offer };
   }
 
   async accept(offerId: ObjectId) {
     await this.offers.partialUpdateOne({ _id: offerId }, { accepted: true });
-    return { msg: "Successfully accepted offer!" };
+    return { msg: `Successfully accepted offer! ${offerId}` };
   }
 
   async editOffer(offerId: ObjectId, imageUrl?: string, location?: string, message?: string) {

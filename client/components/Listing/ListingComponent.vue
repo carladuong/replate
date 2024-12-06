@@ -11,9 +11,11 @@ const props = defineProps(["listingId"]);
 const { currentUsername } = storeToRefs(useUserStore());
 const isEditing = ref(false);
 const listing = ref<Record<string, string> | null>(null);
+const expire = ref<Record<string, string> | null>(null);
 
 const editedName = ref("");
 const editedQuantity = ref("");
+const editedExpiration = ref("");
 const editedMeetupLocation = ref("");
 const editedDescription = ref("");
 const editedImage = ref("");
@@ -30,6 +32,9 @@ const startEditing = () => {
     editedImage.value = listing.value.image;
     editedTags.value = Array.isArray(listing.value.tags) ? listing.value.tags : [];
   }
+  if (expire.value) {
+    editedExpiration.value = expire.value.expireAt.toString() || "";
+  }
   isEditing.value = true;
 };
 
@@ -45,18 +50,19 @@ const cancelEditing = () => {
   editedDescription.value = listing.value.description;
   editedImage.value = listing.value.image;
   editedTags.value = Array.isArray(listing.value.tags) ? listing.value.tags : [];
+
+  if (!expire.value) {
+    console.warn("Expire is null");
+    return;
+  }
+  editedExpiration.value = expire.value.expireAt.toString() || "";
 };
 
 async function getListing(listingId: string) {
   try {
     const listingResult = await fetchy(`/api/listings/${listingId}`, "GET");
     listing.value = listingResult;
-    //refs for placeholders when editing
-    // editedName.value = listingResult.name;
-    // editedQuantity.value = listingResult.quantity;
-    // editedMeetupLocation.value = listingResult.meetup_location || "";
-    // editedDescription.value = listingResult.description || "";
-    // editedImage.value = listingResult.image || "";
+    expire.value = await fetchy(`expirations/item`, "GET", { query: { itemId: listingId } });
   } catch (_) {
     console.error("Failed to fetch listing details.");
   }
@@ -78,10 +84,10 @@ const saveChanges = async () => {
         tags: editedTags.value,
       },
     });
+    //await fetchy(`expirations/${expire.value._id}`, "PATCH", { body: { expireDate: editedExpiration.value } });
     isEditing.value = false;
-    await getListing(props.listingId);
-    console.log("meet up location", editedMeetupLocation.value);
     console.log("Changes saved successfully.");
+    await getListing(props.listingId);
   } catch (error) {
     console.error("Failed to save changes:", error);
   }
@@ -119,6 +125,15 @@ onBeforeMount(async () => {
         </div>
         <div v-else>
           {{ listing.quantity }}
+        </div>
+
+        <!-- Expiration -->
+        <p><strong>Expires:</strong></p>
+        <div v-if="isEditing">
+          <input v-model="editedExpiration" placeholder="mm/dd/yyyy" />
+        </div>
+        <div v-else-if="expire">
+          {{ expire.expireAt }}
         </div>
 
         <!-- Meetup Location -->
