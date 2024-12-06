@@ -10,7 +10,6 @@ import ListingView from "../views/ListingView.vue";
 import LoginView from "../views/LoginView.vue";
 import MakeOfferView from "../views/MakeOfferView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
-import OfferAcceptedView from "../views/OfferAcceptedView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import ReportView from "../views/ReportView.vue";
 import RequestView from "../views/RequestView.vue";
@@ -89,12 +88,12 @@ const router = createRouter({
       component: ViewOffersView,
       meta: { requiresAuth: true },
     },
-    {
-      path: "/offerAccepted/:id",
-      name: "Offer Accepted",
-      component: OfferAcceptedView,
-      meta: { requiresAuth: true },
-    },
+    // {
+    //   path: "/offerAccepted/:id",
+    //   name: "Offer Accepted",
+    //   component: OfferAcceptedView,
+    //   meta: { requiresAuth: true },
+    // },
     {
       path: "/login",
       name: "Login",
