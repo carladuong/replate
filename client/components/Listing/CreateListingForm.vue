@@ -85,7 +85,7 @@ const createListing = async () => {
 
       <!-- Add the FAQ link here -->
       <div class="faq-link">
-        <p>
+        <p class="faq-question">
           Have questions?
           <RouterLink to="/faq" class="faq-anchor">Visit our FAQ</RouterLink>
         </p>
@@ -112,5 +112,9 @@ const createListing = async () => {
 
 .faq-anchor:hover {
   text-decoration: underline;
+}
+
+.faq-question {
+  color: #555353;
 }
 </style>
