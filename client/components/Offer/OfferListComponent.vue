@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import router from "@/router";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
@@ -16,8 +17,9 @@ async function getOffers() {
     let results;
     try {
         console.log(props.requestId)
-        results = await fetchy("/api/offers", "GET", { body: {requestId: props.requestId}})
+        results = await fetchy("/api/offers", "GET", { query: {requestId: props.requestId}})
     } catch (_) {
+        console.log('failed')
         return;
     }
     offers.value = results;
@@ -33,6 +35,11 @@ async function getRequest() {
   request.value = result
 }
 
+function goBackToRequest() {
+  void router.push(`/requests/${props.requestId}`);
+}
+
+
 onBeforeMount(async () => {
   await getOffers();
   console.log(offers.value)
@@ -43,9 +50,10 @@ onBeforeMount(async () => {
 </script>
 
 <template>
+  <button @click="goBackToRequest">Back</button>
   <h1>Offers</h1>
-  <p v-if="request">You're viewing offers you've received for {{ request.name }}</p>
-  <section class="thumb-container" v-if="loaded && offers.length !== 0">
+  <p v-if="request">You're viewing offers you've received for {{ request.name }}.</p>
+  <section class="offer-container" v-if="loaded && offers.length !== 0">
     <article v-for="offer in offers" :key="offer._id">
       <OfferComponent :offerId="offer._id" />
     </article>
@@ -55,11 +63,20 @@ onBeforeMount(async () => {
 </template>
 
 <style scoped>
-article {
-  border-radius: 1em;
+
+.offer-container {
   display: flex;
   flex-direction: column;
-  gap: 0.5em;
   padding: 1em;
 }
+
+article {
+  border-radius: 1em;
+  border: 2px solid #000;
+  gap: 0.5em;
+  padding: 1em;
+  margin-bottom: 10px; /* Adds space between items */
+}
+
 </style>
+
