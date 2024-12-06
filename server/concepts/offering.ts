@@ -63,7 +63,10 @@ export default class OfferingConcept {
   }
 
   async getOfferByItem(itemId: ObjectId) {
-    return await this.offers.readMany({ item: itemId });
+    const results = await this.offers.readMany({ item: itemId }); 
+    console.log('item', itemId)
+    console.log(results)
+    return results;
   }
 
   async getAllOffers() {

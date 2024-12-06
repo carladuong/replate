@@ -33,10 +33,16 @@ class Routes {
     return await Authing.getUserByUsername(username);
   }
 
+  @Router.get("/username/:userId")
+  async getUsername(userId: string) {
+    const oid = new ObjectId(userId);
+    return await Authing.getUserById(oid);
+  }
+
   @Router.post("/users")
-  async createUser(session: SessionDoc, username: string, password: string) {
+  async createUser(session: SessionDoc, username: string, password: string, phone: string) {
     Sessioning.isLoggedOut(session);
-    return await Authing.create(username, password);
+    return await Authing.create(username, password, phone);
   }
 
   @Router.patch("/users/username")
@@ -249,6 +255,7 @@ class Routes {
 
   @Router.get("/offers")
   async getOffers(requestId?: string, offerer?: string) {
+    console.log('IN ROUTES')
     if (requestId) {
       const oid = new ObjectId(requestId);
       return Responses.offers(await Offering.getOfferByItem(oid));
@@ -260,7 +267,7 @@ class Routes {
     }
   }
 
-  @Router.get("/offers/:id")
+  @Router.get("/offers/:offerId")
   async getOffer(offerId: string) {
     const oid = new ObjectId(offerId);
     return Responses.offer(await Offering.getOfferById(oid));
@@ -271,7 +278,11 @@ class Routes {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(offerId);
     const offer = await Offering.getOfferById(oid);
+    await Requesting.hideSwitch(offer.item);
     await Offering.accept(oid);
+    await Offering.removeAllItemOffers(offer.item);
+    return {msg: 'Accepted offer!'};
+    //get offer check it exists
     //get offer check it exists and user is not author
     //Offering.accept(offerId) will  hide the offer and
     //get request of the offer
@@ -286,13 +297,13 @@ class Routes {
     await Offering.editOffer(oid, image, location, message);
   }
 
-  @Router.delete("/offers/:id")
+  @Router.delete("/offers/:offerId")
   async deleteOffer(session: SessionDoc, offerId: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(offerId);
     const offer = await Offering.getOfferById(oid);
     if (await Offering.checkAuthor(oid, user)) {
-      await Offering.removeOffer(oid);
+      return await Offering.removeOffer(oid);
     }
   }
 
