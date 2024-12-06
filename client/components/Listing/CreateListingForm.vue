@@ -61,7 +61,6 @@ const createListing = async () => {
 <template>
   <form @submit.prevent="createListing" class="pure-form pure-form-stacked">
     <fieldset>
-      <legend>Create a New Listing</legend>
       <div class="pure-control-group">
         <label for="name">Name</label>
         <input id="name" type="text" v-model="name" placeholder="Name" required />
@@ -90,6 +89,15 @@ const createListing = async () => {
         <label for="tags">Categories and Dietary Restrictions</label>
         <TaggingComponent v-model:tags="tags" />
       </div>
+
+      <!-- Add the FAQ link here -->
+      <div class="faq-link">
+        <p class="faq-question">
+          Have questions?
+          <RouterLink to="/faq" class="faq-anchor">Visit our FAQ</RouterLink>
+        </p>
+      </div>
+
       <button type="submit" class="pure-button pure-button-primary">Create Listing</button>
     </fieldset>
   </form>
@@ -98,5 +106,22 @@ const createListing = async () => {
 <style scoped>
 .pure-control-group {
   margin-bottom: 1em;
+}
+
+.faq-link {
+  margin-top: 1em;
+}
+
+.faq-anchor {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.faq-anchor:hover {
+  text-decoration: underline;
+}
+
+.faq-question {
+  color: #555353;
 }
 </style>

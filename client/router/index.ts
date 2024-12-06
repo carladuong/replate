@@ -2,6 +2,7 @@ import { storeToRefs } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 
 import { useUserStore } from "@/stores/user";
+import FaqView from "@/views/FaqView.vue";
 import CreateListingView from "../views/CreateListingView.vue";
 import CreateRequestView from "../views/CreateRequestView.vue";
 import CreateReviewView from "../views/CreateReviewView.vue";
@@ -11,11 +12,10 @@ import LoginView from "../views/LoginView.vue";
 import MakeOfferView from "../views/MakeOfferView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import ProfileView from "../views/ProfileView.vue";
+import ReportView from "../views/ReportView.vue";
 import RequestView from "../views/RequestView.vue";
 import ReviewsView from "../views/ReviewsView.vue";
-import ReportView from "../views/ReportView.vue";
 import SettingView from "../views/SettingView.vue";
-
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -74,6 +74,11 @@ const router = createRouter({
       name: "Create Review",
       component: CreateReviewView,
       meta: { requiresAuth: true },
+    },
+    {
+      path: "/faq",
+      name: "FAQ",
+      component: FaqView,
     },
     {
       path: "/makeOffer/:id",
