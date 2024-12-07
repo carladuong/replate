@@ -5,6 +5,7 @@ import { BadValuesError, NotAllowedError, NotFoundError } from "./errors";
 export interface UserDoc extends BaseDoc {
   username: string;
   password: string;
+  phone: string;
 }
 
 /**
@@ -23,9 +24,9 @@ export default class AuthenticatingConcept {
     void this.users.collection.createIndex({ username: 1 });
   }
 
-  async create(username: string, password: string) {
+  async create(username: string, password: string, phone: string) {
     await this.assertGoodCredentials(username, password);
-    const _id = await this.users.createOne({ username, password });
+    const _id = await this.users.createOne({ username, password, phone });
     return { msg: "User created successfully!", user: await this.users.readOne({ _id }) };
   }
 

@@ -5,10 +5,11 @@ import { ref } from "vue";
 
 const username = ref("");
 const password = ref("");
+const phone = ref("");
 const { createUser, loginUser, updateSession } = useUserStore();
 
 async function register() {
-  await createUser(username.value, password.value);
+  await createUser(username.value, password.value, phone.value);
   await loginUser(username.value, password.value);
   void updateSession();
   void router.push({ name: "Home" });
@@ -26,6 +27,10 @@ async function register() {
       <div class="pure-control-group">
         <label for="aligned-password">Password</label>
         <input type="password" v-model.trim="password" id="aligned-password" placeholder="Password" required />
+      </div>
+      <div class="pure-control-group">
+        <label for="phone">Phone Number</label>
+        <input v-model.trim="phone" id="phone" placeholder="Phone" required />
       </div>
       <div class="pure-controls">
         <button type="submit" class="pure-button pure-button-primary">Register</button>

@@ -40,9 +40,9 @@ class Routes {
   }
 
   @Router.post("/users")
-  async createUser(session: SessionDoc, username: string, password: string) {
+  async createUser(session: SessionDoc, username: string, password: string, phone: string) {
     Sessioning.isLoggedOut(session);
-    return await Authing.create(username, password);
+    return await Authing.create(username, password, phone);
   }
 
   @Router.patch("/users/username")
@@ -255,22 +255,23 @@ class Routes {
 
   @Router.get("/offers")
   async getOffers(requestId?: string, offerer?: string) {
-    console.log('IN ROUTES')
     if (requestId) {
       const oid = new ObjectId(requestId);
-      return Responses.offers(await Offering.getOfferByItem(oid));
+      return await Responses.offers(await Offering.getOfferByItem(oid));
     } else if (offerer) {
       const oid = new ObjectId(offerer);
-      return Responses.offers(await Offering.getOfferByOfferer(oid));
+      return await Responses.offers(await Offering.getOfferByOfferer(oid));
     } else {
-      return Responses.offers(await Offering.getAllOffers());
+      return await Responses.offers(await Offering.getAllOffers());
     }
   }
 
   @Router.get("/offers/:offerId")
   async getOffer(offerId: string) {
+    console.log('in routes')
     const oid = new ObjectId(offerId);
-    return Responses.offer(await Offering.getOfferById(oid));
+    const offer = await Offering.getOfferById(oid);
+    return offer;
   }
 
   @Router.patch("/offers/hide")
@@ -280,7 +281,7 @@ class Routes {
     const offer = await Offering.getOfferById(oid);
     await Requesting.hideSwitch(offer.item);
     await Offering.accept(oid);
-    await Offering.removeAllItemOffers(offer.item);
+    // await Offering.removeAllItemOffers(offer.item);
     return {msg: 'Accepted offer!'};
     //get offer check it exists
     //get offer check it exists and user is not author

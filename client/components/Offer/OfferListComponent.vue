@@ -75,7 +75,7 @@ article {
   border: 2px solid #000;
   gap: 0.5em;
   padding: 1em;
-  margin-bottom: 10px; /* Adds space between items */
+  margin-bottom: 10px;
 }
 
 </style>

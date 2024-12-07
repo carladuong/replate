@@ -2,6 +2,7 @@ import { storeToRefs } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 
 import { useUserStore } from "@/stores/user";
+import FaqView from "@/views/FaqView.vue";
 import CreateListingView from "../views/CreateListingView.vue";
 import CreateRequestView from "../views/CreateRequestView.vue";
 import CreateReviewView from "../views/CreateReviewView.vue";
@@ -10,13 +11,13 @@ import ListingView from "../views/ListingView.vue";
 import LoginView from "../views/LoginView.vue";
 import MakeOfferView from "../views/MakeOfferView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
+import OfferAcceptedView from "../views/OfferAcceptedView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import ReportView from "../views/ReportView.vue";
 import RequestView from "../views/RequestView.vue";
 import ReviewsView from "../views/ReviewsView.vue";
 import SettingView from "../views/SettingView.vue";
 import ViewOffersView from "../views/ViewOffersView.vue";
-import FaqView from "@/views/FaqView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -89,12 +90,12 @@ const router = createRouter({
       component: ViewOffersView,
       meta: { requiresAuth: true },
     },
-    // {
-    //   path: "/offerAccepted/:id",
-    //   name: "Offer Accepted",
-    //   component: OfferAcceptedView,
-    //   meta: { requiresAuth: true },
-    // },
+    {
+      path: "/offerAccepted/:id",
+      name: "Offer Accepted",
+      component: OfferAcceptedView,
+      meta: { requiresAuth: true },
+    },
     {
       path: "/login",
       name: "Login",

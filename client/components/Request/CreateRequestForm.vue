@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import router from "@/router";
 import { ref } from "vue";
 import { fetchy } from "../../utils/fetchy";
 
@@ -31,6 +32,7 @@ const createRequest = async (name: string, quantity: number, needBy: string, ima
   } catch (_) {
     return;
   }
+  void router.push("/");
   emit("refreshPosts");
   emptyForm();
 };
@@ -46,7 +48,7 @@ const emptyForm = () => {
 
 <template>
   <form @submit.prevent="createRequest(name, quantity, needBy, image, description)">
-    <label for="name"> Name </label>
+    <label for="name"> What are you looking for? </label>
     <input id="name" type="text" v-model="name" placeholder="Apples" required />
 
     <label for="quantity"> Quantity </label>
