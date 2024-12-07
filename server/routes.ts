@@ -257,12 +257,12 @@ class Routes {
   async getOffers(requestId?: string, offerer?: string) {
     if (requestId) {
       const oid = new ObjectId(requestId);
-      return Responses.offers(await Offering.getOfferByItem(oid));
+      return await Responses.offers(await Offering.getOfferByItem(oid));
     } else if (offerer) {
       const oid = new ObjectId(offerer);
-      return Responses.offers(await Offering.getOfferByOfferer(oid));
+      return await Responses.offers(await Offering.getOfferByOfferer(oid));
     } else {
-      return Responses.offers(await Offering.getAllOffers());
+      return await Responses.offers(await Offering.getAllOffers());
     }
   }
 
@@ -270,7 +270,8 @@ class Routes {
   async getOffer(offerId: string) {
     console.log('in routes')
     const oid = new ObjectId(offerId);
-    return Responses.offer(await Offering.getOfferById(oid));
+    const offer = await Offering.getOfferById(oid);
+    return offer;
   }
 
   @Router.patch("/offers/hide")
@@ -280,7 +281,7 @@ class Routes {
     const offer = await Offering.getOfferById(oid);
     await Requesting.hideSwitch(offer.item);
     await Offering.accept(oid);
-    await Offering.removeAllItemOffers(offer.item);
+    // await Offering.removeAllItemOffers(offer.item);
     return {msg: 'Accepted offer!'};
     //get offer check it exists
     //get offer check it exists and user is not author

@@ -46,7 +46,7 @@ const emptyForm = () => {
 
 <template>
   <form @submit.prevent="createRequest(name, quantity, needBy, image, description)">
-    <label for="name"> Name </label>
+    <label for="name"> What are you looking for? </label>
     <input id="name" type="text" v-model="name" placeholder="Apples" required />
 
     <label for="quantity"> Quantity </label>
