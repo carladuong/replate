@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import router from "@/router";
 import { ref } from "vue";
 import { fetchy } from "../../utils/fetchy";
 
@@ -31,6 +32,7 @@ const createRequest = async (name: string, quantity: number, needBy: string, ima
   } catch (_) {
     return;
   }
+  void router.push("/");
   emit("refreshPosts");
   emptyForm();
 };
