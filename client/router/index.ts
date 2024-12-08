@@ -7,6 +7,7 @@ import CreateListingView from "../views/CreateListingView.vue";
 import CreateRequestView from "../views/CreateRequestView.vue";
 import CreateReviewView from "../views/CreateReviewView.vue";
 import HomeView from "../views/HomeView.vue";
+import ListingClaimedView from "../views/ListingClaimedView.vue";
 import ListingView from "../views/ListingView.vue";
 import LoginView from "../views/LoginView.vue";
 import MakeOfferView from "../views/MakeOfferView.vue";
@@ -46,14 +47,18 @@ const router = createRouter({
       component: ListingView,
       meta: { requiresAuth: true },
     },
-
     {
       path: "/create-listing",
       name: "Create Listing",
       component: CreateListingView,
       meta: { requiresAuth: true },
     },
-
+    {
+      path: "/listingClaimed/:id",
+      name: "Listing Claimed",
+      component: ListingClaimedView,
+      meta: { requiresAuth: true },
+    },
     {
       path: "/requests/:id/",
       name: "Request Item",
