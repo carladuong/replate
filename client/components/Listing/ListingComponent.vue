@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import UserComponent from "@/components/Profile/UserComponent.vue";
+import router from "@/router";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
@@ -12,6 +13,7 @@ const { currentUsername } = storeToRefs(useUserStore());
 const isEditing = ref(false);
 const listing = ref<Record<string, string> | null>(null);
 const expire = ref<Record<string, string> | null>(null);
+const quantity = ref("0");
 
 const editedName = ref("");
 const editedQuantity = ref("");
@@ -61,6 +63,7 @@ const cancelEditing = () => {
 async function getListing(listingId: string) {
   try {
     const listingResult = await fetchy(`/api/listings/${listingId}`, "GET");
+    console.log(listingResult)
     listing.value = listingResult;
     expire.value = await fetchy(`expirations/item`, "GET", { query: { itemId: listingId } });
   } catch (_) {
@@ -92,6 +95,17 @@ const saveChanges = async () => {
     console.error("Failed to save changes:", error);
   }
 };
+
+async function claimListing(quantity: string) {
+  if (!/^\d*$/.test(quantity)) {
+    return {msg: "Please enter a positive integer."};
+  }
+  const new_quantity = parseInt(quantity);
+  const claim = await fetchy("/api/claims", "POST", {body: {listingId: props.listingId, quantity: new_quantity}});
+  if (claim.msg.startsWith("Success")) {
+    void router.push(`/listingClaimed/${props.listingId}`);
+  }
+}
 
 onBeforeMount(async () => {
   await getListing(props.listingId);
@@ -170,8 +184,11 @@ onBeforeMount(async () => {
           <button v-if="isEditing" @click="saveChanges">Save</button>
           <button v-if="isEditing" @click="cancelEditing">Cancel</button>
           <button v-else-if="listing.author === currentUsername" @click="startEditing">Edit</button>
-          <!-- also need to check is lisitng is claimed (hide==true), in which case no claim option -->
-          <button v-else>Claim</button>
+          <form v-if="listing.author !== currentUsername && !listing.hidden" @submit.prevent="claimListing(quantity)">
+            <label for="quantity">Enter the quantity you wish to claim:</label>
+            <input id="quantity" type="text" v-model="quantity" />
+            <button type="submit">Claim</button>
+          </form>
         </div>
       </div>
     </div>

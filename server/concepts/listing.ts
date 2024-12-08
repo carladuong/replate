@@ -92,6 +92,16 @@ export default class ListingConcept {
       throw new ListingAuthorNotMatchError(user, _id);
     }
   }
+
+  async hideSwitch(_id: ObjectId) {
+    const listing = await this.listings.readOne({ _id });
+    if (!listing) {
+      throw new NotFoundError(`Listing ${_id} does not exist!`);
+    }
+    const hidden = !listing.hidden;
+    await this.listings.partialUpdateOne({ _id }, { hidden });
+    return { msg: "Listing successfully updated!" };
+  }
 }
 
 export class ListingAuthorNotMatchError extends NotAllowedError {

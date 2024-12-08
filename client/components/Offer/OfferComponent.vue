@@ -26,11 +26,9 @@ async function getName() {
     try {
         if (offer) {
             const offerer = offer.value?.offerer
-            console.log('offerer', offerer)
             if (offerer) {
                 result = (await fetchy(`/api/username/${offerer}`, "GET")).username;
             } else {
-                console.log('no offer')
                 result = offerer;
             }
         }
