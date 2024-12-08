@@ -2,6 +2,7 @@ import { storeToRefs } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 
 import { useUserStore } from "@/stores/user";
+import ClaimView from "@/views/ClaimView.vue";
 import FaqView from "@/views/FaqView.vue";
 import CreateListingView from "../views/CreateListingView.vue";
 import CreateRequestView from "../views/CreateRequestView.vue";
@@ -97,6 +98,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: "/claim/:id",
+      name: "Claim",
+      component: ClaimView,
+      props: true,
+    },
+    {
       path: "/login",
       name: "Login",
       component: LoginView,
@@ -108,6 +115,7 @@ const router = createRouter({
         }
       },
     },
+
     {
       path: "/faq",
       name: "FAQ",

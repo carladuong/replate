@@ -14,15 +14,15 @@ let offers = ref<Array<Record<string, string>>>([]);
 let request = ref<Record<string, string> | null>(null);
 
 async function getOffers() {
-    let results;
-    try {
-        console.log(props.requestId)
-        results = await fetchy("/api/offers", "GET", { query: {requestId: props.requestId}})
-    } catch (_) {
-        console.log('failed')
-        return;
-    }
-    offers.value = results;
+  let results;
+  try {
+    console.log(props.requestId);
+    results = await fetchy("/api/offers", "GET", { query: { requestId: props.requestId } });
+  } catch (_) {
+    console.log("failed");
+    return;
+  }
+  offers.value = results;
 }
 
 async function getRequest() {
@@ -32,21 +32,19 @@ async function getRequest() {
   } catch (_) {
     return;
   }
-  request.value = result
+  request.value = result;
 }
 
 function goBackToRequest() {
   void router.push(`/requests/${props.requestId}`);
 }
 
-
 onBeforeMount(async () => {
   await getOffers();
-  console.log(offers.value)
+  console.log(offers.value);
   await getRequest();
   loaded.value = true;
 });
-
 </script>
 
 <template>
@@ -63,7 +61,6 @@ onBeforeMount(async () => {
 </template>
 
 <style scoped>
-
 .offer-container {
   display: flex;
   flex-direction: column;
@@ -77,6 +74,4 @@ article {
   padding: 1em;
   margin-bottom: 10px;
 }
-
 </style>
-

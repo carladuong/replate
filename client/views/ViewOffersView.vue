@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import OfferListComponent from "@/components/Offer/OfferListComponent.vue";
-
 </script>
 
 

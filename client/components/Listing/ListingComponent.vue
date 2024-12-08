@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import UserComponent from "@/components/Profile/UserComponent.vue";
+import router from "@/router";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { computed, defineProps, onBeforeMount, ref } from "vue";
+import MakeClaimForm from "../Claim/MakeClaimForm.vue";
 import TaggingComponent from "../Tagging/TaggingComponent.vue";
 
-const props = defineProps(["listingId"]);
+const props = defineProps(["listingId", "claimgId"]);
 
 const { currentUsername } = storeToRefs(useUserStore());
 const isEditing = ref(false);
 const listing = ref<Record<string, string> | null>(null);
+const isClaimed = ref(false);
+const showClaimForm = ref(false);
 const expire = ref<Record<string, string> | null>(null);
 
 const editedName = ref("");
@@ -20,6 +24,29 @@ const editedMeetupLocation = ref("");
 const editedDescription = ref("");
 const editedImage = ref("");
 const editedTags = ref<string[]>([]);
+
+// Open Claim Form
+const openClaimForm = () => {
+  showClaimForm.value = true;
+};
+
+// Close Claim Form
+const closeClaimForm = () => {
+  showClaimForm.value = false;
+};
+// Unclaim Item Function (Ensure Implementation Exists)
+const unclaimItem = async (event: MouseEvent) => {
+  const button = event.target as HTMLButtonElement;
+  const claimingId = button.dataset.claimingId;
+  try {
+    await fetchy(`/api/claims/${claimingId}`, "DELETE");
+    alert("Successfully unclaimed the item.");
+    await getListing(props.listingId);
+  } catch (error) {
+    console.error("Error unclaiming item:", error);
+    alert("There was an error unclaiming the item.");
+  }
+};
 
 const imageSrc = computed(() => (isEditing.value ? editedImage.value || "@/assets/images/no-image.jpg" : listing.value?.image || "@/assets/images/no-image.jpg"));
 
@@ -67,6 +94,10 @@ async function getListing(listingId: string) {
     console.error("Failed to fetch listing details.");
   }
 }
+const refreshListing = async () => {
+  await getListing(props.listingId);
+};
+
 const saveChanges = async () => {
   console.log("saving tags", editedTags.value);
   if (!listing.value) {
@@ -90,6 +121,15 @@ const saveChanges = async () => {
     await getListing(props.listingId);
   } catch (error) {
     console.error("Failed to save changes:", error);
+  }
+};
+
+// Navigate to View Claims (Ensure `ClaimView.vue` Route Exists)
+const goToViewClaims = async () => {
+  if (listing.value && listing.value._id) {
+    await router.push({ name: "Claim", params: { id: listing.value._id } });
+  } else {
+    console.error("Listing ID is not available.");
   }
 };
 
@@ -166,19 +206,33 @@ onBeforeMount(async () => {
           </span>
         </div>
         <!-- Buttons -->
-        <div>
+        <div class="action-buttons">
+          <!-- Save and Cancel Buttons (Editing Mode) -->
           <button v-if="isEditing" @click="saveChanges">Save</button>
           <button v-if="isEditing" @click="cancelEditing">Cancel</button>
+
+          <!-- Edit Button (Author Only) -->
           <button v-else-if="listing.author === currentUsername" @click="startEditing">Edit</button>
-          <!-- also need to check is lisitng is claimed (hide==true), in which case no claim option -->
-          <button v-else>Claim</button>
+
+          <!-- Claim Button (Not Claimed) -->
+          <button v-else-if="!isClaimed" @click="openClaimForm">Claim</button>
+
+          <!-- Unclaim Button (Already Claimed) -->
+          <button v-else @click="unclaimItem">Unclaim</button>
+
+          <!-- View Claims Button (Author Only) -->
+          <button v-if="listing.author === currentUsername" @click="goToViewClaims">View Claims</button>
         </div>
       </div>
     </div>
   </div>
+
   <div v-else>
     <p>Loading...</p>
   </div>
+
+  <!-- Make Claim Form Modal -->
+  <MakeClaimForm v-if="showClaimForm" :listingId="listingId" :maxQuantity="listing.quantity" @close="closeClaimForm" @claimMade="refreshListing" />
 </template>
 
 <style scoped>
