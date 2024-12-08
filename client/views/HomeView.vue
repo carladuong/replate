@@ -35,6 +35,7 @@ const searchTerm = ref("");
   padding: 10px;
   scroll-behavior: smooth;
   align-items: center;
+  margin: 30px;
 }
 
 .thumb-container::-webkit-scrollbar {
@@ -56,18 +57,11 @@ const searchTerm = ref("");
   object-fit: contain;
 }
 
-.thumbnail {
-  width: 120px;
-  height: 120px;
-  text-align: center;
-  padding: 1em;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
 </style>
 <style scoped>
 .control-bar {
   padding: 1em;
+  margin-bottom: 20px;
 }
 .control-bar input[type="text"] {
   flex: 1;
@@ -103,4 +97,6 @@ const searchTerm = ref("");
   max-width: 100px;
   margin-top: 10px;
 }
+
+
 </style>

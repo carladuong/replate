@@ -36,3 +36,12 @@ onBeforeMount(async () => {
     <span>{{ listing.name }}</span>
   </div>
 </template>
+
+<style scoped>
+.thumbnail {
+  background-color: #fabb7d;
+  border: 2px solid #d15c2a; 
+  border-radius: 15px;      
+  padding: 20px;
+}
+</style>
