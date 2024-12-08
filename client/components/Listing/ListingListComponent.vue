@@ -49,4 +49,5 @@ onBeforeMount(async () => {
   <p v-else>Loading...</p>
 </template>
 
-<style scoped></style>
+<style scoped>
+</style>
