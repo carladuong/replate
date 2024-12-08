@@ -1,5 +1,5 @@
 <!-- [client/components/Claim/ClaimContactInfoComponent.vue](client/components/Claim/ClaimContactInfoComponent.vue) -->
-
+<!-- 
 <template>
   <main>
     <h1>You've accepted a claim for {{ itemName }} from {{ contactUsername }}!</h1>
@@ -53,4 +53,4 @@ button {
   display: block;
   margin: 20px auto;
 }
-</style>
+</style> -->

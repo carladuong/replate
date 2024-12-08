@@ -161,10 +161,9 @@ class Routes {
     const user = Sessioning.getUser(session);
     const created = await Requesting.add(user, name, quantity, image, description);
     //expiration date of the resource
-    if (created.request) {
-      const create_needBy = await Request_Expiring.allocate(created.request._id, needBy, expireTime24hrs);
-      return { msg: created.msg, request: await Responses.request(created.request) };
-    }
+    // if (created.request) {
+    // const create_needBy = await Request_Expiring.allocate(created.request._id, needBy, expireTime24hrs);
+    return { msg: created.msg, request: await Responses.request(created.request) };
   }
 
   //handles editing and hiding request by author (we also use hide request in a synchronization when offer is accepted etc)
@@ -206,8 +205,22 @@ class Routes {
     //Listing.getListingById(oid)
     //get curr_quantity and calc new_quantity
     //await Listing.editlisting(quantity=new_quantity)
+    // const author = await Authenticating.getUserById(await Listing.getListingById(oid).author);
+
+    const listing = await Listing.getListingById(oid);
+    const author = await Authing.getUserById(listing.author);
+    console.log(`Claimed ${quantity} of ${listing.name} from ${author.username} (${author.phone})`);
+    if (!author) {
+      throw new errors_1.NotFoundError(`Author with ID ${listing.author} does not exist.`);
+    }
+
     if (created.claim) {
-      return { msg: created.msg, claim: await Responses.claim(created.claim) };
+      return {
+        msg: created.msg,
+        claim: created.claim ? await Responses.claim(created.claim) : null,
+        authorPhone: author.phone,
+        authorUsername: author?.username,
+      };
     }
   }
 
@@ -268,7 +281,7 @@ class Routes {
 
   @Router.get("/offers/:offerId")
   async getOffer(offerId: string) {
-    console.log('in routes')
+    console.log("in routes");
     const oid = new ObjectId(offerId);
     const offer = await Offering.getOfferById(oid);
     return offer;
@@ -282,7 +295,7 @@ class Routes {
     await Requesting.hideSwitch(offer.item);
     await Offering.accept(oid);
     // await Offering.removeAllItemOffers(offer.item);
-    return {msg: 'Accepted offer!'};
+    return { msg: "Accepted offer!" };
     //get offer check it exists
     //get offer check it exists and user is not author
     //Offering.accept(offerId) will  hide the offer and

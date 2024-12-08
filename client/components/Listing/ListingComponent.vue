@@ -89,7 +89,7 @@ async function getListing(listingId: string) {
   try {
     const listingResult = await fetchy(`/api/listings/${listingId}`, "GET");
     listing.value = listingResult;
-    expire.value = await fetchy(`expirations/item`, "GET", { query: { itemId: listingId } });
+    // expire.value = await fetchy(`expirations/item`, "GET", { query: { itemId: listingId } });
   } catch (_) {
     console.error("Failed to fetch listing details.");
   }
@@ -230,9 +230,8 @@ onBeforeMount(async () => {
   <div v-else>
     <p>Loading...</p>
   </div>
-
   <!-- Make Claim Form Modal -->
-  <MakeClaimForm v-if="showClaimForm" :listingId="listingId" :maxQuantity="listing.quantity" @close="closeClaimForm" @claimMade="refreshListing" />
+  <MakeClaimForm v-if="showClaimForm" :listingId="listing._id" :maxQuantity="listing.quantity" @close="closeClaimForm" @claimMade="refreshListing" />
 </template>
 
 <style scoped>
