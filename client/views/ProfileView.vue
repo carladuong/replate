@@ -33,6 +33,12 @@ const activeSection = ref("listings"); // Default to "listings"
   </main>
 </template>
 <style scoped>
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 h1 {
   text-align: center;
 }
@@ -40,7 +46,7 @@ h1 {
 .tabs {
   display: flex;
   gap: 2rem; /* Spacing between the headers */
-  margin-bottom: 1rem;
+  margin-bottom: 0px;
 }
 
 h1.active {
@@ -50,5 +56,15 @@ h1.active {
 p {
   padding-top: 2em;
   font-size: 1.2em;
+}
+
+.thumb-container {
+  width: 1000px;
+  display: grid;
+  gap: 5px;
+  padding: 10px;
+  align-items: center;
+  margin: 0px;
+  grid-template-columns: repeat(5, 1fr); /* Five equal columns */
 }
 </style>

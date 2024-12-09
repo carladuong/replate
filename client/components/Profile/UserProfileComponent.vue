@@ -234,6 +234,7 @@ onBeforeMount(async () => {
   font-size: 16px;
   cursor: pointer;
   padding: 10px;
+  color: black;
 }
 
 .menu button:hover {
@@ -244,5 +245,9 @@ onBeforeMount(async () => {
   color: red;
   margin-top: 5px;
   font-weight: bold;
+}
+
+.more {
+  margin: 20px;
 }
 </style>
