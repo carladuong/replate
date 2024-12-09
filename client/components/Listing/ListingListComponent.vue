@@ -45,7 +45,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <section class="thumb-container" v-if="loaded && listings.length !== 0">
+  <section class="thumb-container" v-if="loaded && filteredListings.length !== 0">
     <article class="thumb" v-for="listing in filteredListings" :key="listing._id">
       <ListingThumbComponent :listingId="listing._id" />
     </article>
@@ -55,5 +55,7 @@ onBeforeMount(async () => {
 </template>
 
 <style scoped>
-
+p {
+  font-size: 1em;
+}
 </style>

@@ -10,8 +10,6 @@ const props = defineProps(["userId"]);
 
 const rating = ref(0);
 const reviewNumber = ref(0);
-// const requestsNumber = ref(0);
-// const listingsNumber = ref(0);
 const user = ref<Record<string, string> | null>(null);
 const loaded = ref(false);
 const menuVisible = ref(false);
@@ -71,7 +69,7 @@ function handleMenuOption(option: string) {
   } else if (option === "report") {
     console.log("Report selected");
     void router.push({
-      name: "Report", // Ensure this route name exists in your router configuration
+      name: "Report",
       params: { reportedId: user.value ? user.value._id.toString() : "" },
     });
   } else if (option === "edit") {
@@ -132,10 +130,10 @@ onBeforeMount(async () => {
     <!-- Menu Overlay -->
     <div v-if="menuVisible" class="menu-overlay" @click="toggleMenu">
       <div class="menu" @click.stop>
-        <button v-if="currentUsername !== userId" @click="handleMenuOption('review')">Review</button>
-        <button v-if="currentUsername !== userId" @click="handleMenuOption('report')">Report</button>
+        <button v-if="currentUsername !== props.userId" @click="handleMenuOption('review')">Review</button>
+        <button v-if="currentUsername !== props.userId" @click="handleMenuOption('report')">Report</button>
         <!-- Only if user's profile -->
-        <button v-if="currentUsername === userId" @click="handleMenuOption('edit')">Edit Profile</button>
+        <button v-if="currentUsername === props.userId" @click="handleMenuOption('edit')">Edit Profile</button>
         <button @click="handleMenuOption('cancel')">Cancel</button>
       </div>
     </div>

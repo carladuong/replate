@@ -20,12 +20,16 @@ const activeSection = ref("listings"); // Default to "listings"
 
     <!-- Conditional Rendering Based on Active Section -->
     <section v-if="activeSection === 'listings'">
+      <p>Available listings</p>
       <ListingListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" />
       <p>Historic listings</p>
       <ListingListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" :historic="true" />
     </section>
     <section v-else-if="activeSection === 'requests'">
+      <p>Ongoing requests</p>
       <RequestListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" />
+      <p>Historic requests</p>
+      <RequestListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" :historic="true" />
     </section>
     <section v-else-if="activeSection === 'offers'">
       <UserOfferListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" />
