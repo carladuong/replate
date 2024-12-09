@@ -60,46 +60,41 @@ const createListing = async () => {
 
 <template>
   <form @submit.prevent="createListing" class="pure-form pure-form-stacked">
-    <label for="name">Name</label>
-    <input id="name" type="text" v-model="name" placeholder="Name" required />
+      <label for="name">Name</label>
+      <input id="name" type="text" v-model="name" placeholder="Name" required />
+    
+      <label for="meetupLocation"> <span style="font-size: 25px">&#128205;</span>Meet Up Location</label>
+      <input id="meetupLocation" type="text" v-model="meetupLocation" placeholder="Meetup Location" required />
+    
+      <label for="imageUrl">Image URL</label>
+      <input id="imageUrl" type="text" v-model="imageUrl" placeholder="Image URL" required />
+      <div v-if="imageUrl!==''" class="image-container">
+        <img :src="imageUrl" class="item-image" />
+      </div>
 
-    <label for="meetupLocation"> <span style="font-size: 25px">&#128205;</span>Meet Up Location</label>
-    <input id="meetupLocation" type="text" v-model="meetupLocation" placeholder="Meetup Location" required />
+      <label for="quantity">Quantity</label>
+      <input id="quantity" type="number" v-model="quantity" placeholder="Quantity" required />
 
-    <label for="imageUrl">Image URL</label>
-    <input id="imageUrl" type="text" v-model="imageUrl" placeholder="Image URL" required />
-    <div v-if="imageUrl !== ''" class="image-container">
-      <img :src="imageUrl" class="item-image" />
-    </div>
+      <label for="expireDate">Expire Date</label>
+      <input id="expireDate" type="string" v-model="expireDate" placeholder="mm/dd/yyyy" required />
+    
+      <label for="description">Description</label>
+      <input id="description" v-model="description" placeholder="Description" required>
 
-    <label for="meetupLocation"> <span style="font-size: 25px">&#128205;</span>Meet Up Location</label>
-    <input id="meetupLocation" type="text" v-model="meetupLocation" placeholder="Meetup Location" required />
-
-    <label for="imageUrl">Image URL</label>
-    <input id="imageUrl" type="text" v-model="imageUrl" placeholder="Image URL" required />
-
-    <label for="quantity">Quantity</label>
-    <input id="quantity" type="number" v-model="quantity" placeholder="Quantity" required />
-
-    <label for="expireDate">Expire Date</label>
-    <input id="expireDate" type="string" v-model="expireDate" placeholder="mm/dd/yyyy" required />
-
-    <label for="description">Description</label>
-    <input id="description" v-model="description" placeholder="Description" required />
-
-    <label for="tags">Categories and Dietary Restrictions</label>
-    <TaggingComponent v-model:tags="tags" />
-    <div class="faq-link">
-      <p>
-        Have questions?
-        <RouterLink to="/faq" class="faq-anchor">Visit our FAQ</RouterLink>
-      </p>
-    </div>
-    <button type="submit" class="pure-button pure-button-primary">Create Listing</button>
+      <label for="tags">Categories and Dietary Restrictions</label>
+      <TaggingComponent v-model:tags="tags" />
+      <div class="faq-link">
+        <p>
+          Have questions?
+          <RouterLink to="/faq" class="faq-anchor">Visit our FAQ</RouterLink>
+        </p>
+      </div>
+      <button type="submit" class="pure-button pure-button-primary">Create Listing</button>
   </form>
 </template>
 
 <style scoped>
+
 form {
   display: flex;
   flex-direction: column;
@@ -108,13 +103,13 @@ form {
 }
 
 input {
-  padding: 0.5em 0.6em;
-  display: inline-block;
-  border: 1px solid #ccc;
-  box-shadow: inset 0 1px 3px #ddd;
-  border-radius: 4px;
-  vertical-align: middle;
-  box-sizing: border-box;
+  padding: .5em .6em;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 3px #ddd;
+    border-radius: 4px;
+    vertical-align: middle;
+    box-sizing: border-box;
 }
 
 button {
