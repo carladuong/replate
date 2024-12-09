@@ -85,6 +85,10 @@ export default class RequestingConcept {
       throw new RequestAuthorNotMatchError(user, _id);
     }
   }
+
+  async getNumberOfRequestsByRequester(requester: ObjectId) {
+    return await this.requests.count({ requester });
+  }
 }
 
 export class RequestAuthorNotMatchError extends NotAllowedError {

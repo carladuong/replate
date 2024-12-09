@@ -10,11 +10,28 @@ const props = defineProps(["userId"]);
 
 const rating = ref(0);
 const reviewNumber = ref(0);
-const requestsNumber = ref(0);
-const listingsNumber = ref(0);
+// const requestsNumber = ref(0);
+// const listingsNumber = ref(0);
 const user = ref<Record<string, string> | null>(null);
 const loaded = ref(false);
 const menuVisible = ref(false);
+const listingsCount = ref(0);
+const offersCount = ref(0);
+const requestsCount = ref(0);
+const userId = ref(props.userId);
+
+async function getUserCounts() {
+  try {
+    console.log("Fetching user counts for useId:", userId.value); // Debug log (currenly in string format)
+    const counts = await fetchy(`/api/userCounts/${userId.value}`, "GET");
+    listingsCount.value = counts.listings;
+    console.log("Listings Count:", listingsCount);
+    requestsCount.value = counts.requests;
+  } catch (e) {
+    console.error("Failed to fetch user counts:", e);
+  }
+  console.log("Users after update:", listingsCount.value, offersCount.value, requestsCount.value);
+}
 
 async function getUserInfo() {
   let reviews;
@@ -26,8 +43,9 @@ async function getUserInfo() {
 
   if (user.value) {
     try {
-      let id = user.value._id.toString();
-      reviews = (await fetchy("/api/reviews", "GET", { query: { subjectId: id } })) as { rating: number }[];
+      userId.value = user.value._id.toString();
+      console.log("Fetching reviews for userId:", userId.value);
+      reviews = (await fetchy("/api/reviews", "GET", { query: { subjectId: userId.value } })) as { rating: number }[];
     } catch (e) {
       return e;
     }
@@ -71,6 +89,7 @@ function openReviews() {
 
 onBeforeMount(async () => {
   await getUserInfo();
+  await getUserCounts();
   loaded.value = true;
 });
 </script>
@@ -101,10 +120,10 @@ onBeforeMount(async () => {
 
       <div class="user-stats">
         <text>
-          <strong>{{ listingsNumber }}</strong> listings
+          <strong>{{ listingsCount }}</strong> listings
         </text>
         <text>
-          <strong>{{ requestsNumber }}</strong> requests
+          <strong>{{ requestsCount }}</strong> requests
         </text>
       </div>
     </div>
@@ -234,6 +253,7 @@ onBeforeMount(async () => {
   font-size: 16px;
   cursor: pointer;
   padding: 10px;
+  color: black;
 }
 
 .menu button:hover {
@@ -244,5 +264,9 @@ onBeforeMount(async () => {
   color: red;
   margin-top: 5px;
   font-weight: bold;
+}
+
+.more {
+  margin: 20px;
 }
 </style>
