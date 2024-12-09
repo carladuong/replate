@@ -34,6 +34,7 @@ onBeforeMount(async () => {
   <div v-if="listing" class="thumbnail" @click="openListing">
     <div class="image-container">
       <img :src="imageSrc" class="produce-image" />
+      <div v-if="listing.hidden" class="claimed-overlay">Claimed</div>
     </div>
     <span>{{ listing.name }}</span>
   </div>
@@ -41,9 +42,7 @@ onBeforeMount(async () => {
 
 <style scoped>
 .thumbnail {
-  /* background-color: #fabb7d; */
-  /* border: 2px solid #d15c2a;  */
-  border-radius: 15px;      
+  border-radius: 15px;
   padding: 10px;
   width: 150px;
   height: 200px;
@@ -54,6 +53,7 @@ onBeforeMount(async () => {
   height: 150px; /* Set the square height */
   overflow: hidden; /* Ensure excess image is hidden */
   margin-bottom: 15px;
+  position: relative; /* Make the container a positioned parent for the overlay */
 }
 
 .image-container img {
@@ -61,5 +61,21 @@ onBeforeMount(async () => {
   height: 100%;
   border-radius: 10px;
   object-fit: cover; /* Ensures the image fills the square without distortion */
+}
+
+.claimed-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2em;
+  font-weight: bold;
+  border-radius: 10px; /* Match the border-radius of the image */
 }
 </style>

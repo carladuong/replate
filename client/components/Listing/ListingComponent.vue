@@ -63,7 +63,7 @@ const cancelEditing = () => {
 async function getListing(listingId: string) {
   try {
     const listingResult = await fetchy(`/api/listings/${listingId}`, "GET");
-    console.log(listingResult)
+    console.log(listingResult);
     listing.value = listingResult;
     expire.value = await fetchy(`expirations/item`, "GET", { query: { itemId: listingId } });
   } catch (_) {
@@ -98,10 +98,10 @@ const saveChanges = async () => {
 
 async function claimListing(quantity: string) {
   if (!/^\d*$/.test(quantity)) {
-    return {msg: "Please enter a positive integer."};
+    return { msg: "Please enter a positive integer." };
   }
   const new_quantity = parseInt(quantity);
-  const claim = await fetchy("/api/claims", "POST", {body: {listingId: props.listingId, quantity: new_quantity}});
+  const claim = await fetchy("/api/claims", "POST", { body: { listingId: props.listingId, quantity: new_quantity } });
   if (claim.msg.startsWith("Success")) {
     void router.push(`/listingClaimed/${props.listingId}`);
   }
@@ -181,9 +181,15 @@ onBeforeMount(async () => {
         </div>
         <!-- Buttons -->
         <div>
+          <!-- Editing buttons, visible only if not claimed and the user is the author -->
           <button v-if="isEditing" @click="saveChanges">Save</button>
           <button v-if="isEditing" @click="cancelEditing">Cancel</button>
-          <button v-else-if="listing.author === currentUsername" @click="startEditing">Edit</button>
+          <button v-else-if="listing.author === currentUsername && !listing.hidden" @click="startEditing">Edit</button>
+
+          <!-- Show 'Claimed' button if the listing is hidden (claimed) -->
+          <button v-if="listing.hidden" disabled>Claimed</button>
+
+          <!-- Form for claiming the listing if it's not claimed and the user is not the author -->
           <form v-if="listing.author !== currentUsername && !listing.hidden" @submit.prevent="claimListing(quantity)">
             <label for="quantity">Enter the quantity you wish to claim:</label>
             <input id="quantity" type="text" v-model="quantity" />
@@ -244,7 +250,7 @@ form input {
   overflow: hidden; /* Ensure excess image is hidden */
   margin-bottom: 15px;
   margin-right: 100px;
-  margin-left:50px;
+  margin-left: 50px;
 }
 
 .image-column img {
@@ -273,5 +279,4 @@ form input {
   margin-bottom: 0.7em;
   margin-right: 0.75em;
 }
-
 </style>

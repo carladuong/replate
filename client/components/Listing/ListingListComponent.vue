@@ -8,6 +8,7 @@ import ListingThumbComponent from "./ListingThumbComponent.vue";
 const props = defineProps<{
   searchTerm?: string;
   username?: string;
+  historic?: boolean;
 }>();
 
 const { isLoggedIn } = storeToRefs(useUserStore());
@@ -30,7 +31,11 @@ async function getListings() {
 
 const filteredListings = computed(() => {
   const searchTerm = props.searchTerm?.toLowerCase() || "";
-  return listings.value.filter((listing) => listing && listing.name.toLowerCase().includes(searchTerm) && !listing.hidden);
+  if (props.historic) {
+    return listings.value.filter((listing) => listing && listing.name.toLowerCase().includes(searchTerm) && listing.hidden);
+  } else {
+    return listings.value.filter((listing) => listing && listing.name.toLowerCase().includes(searchTerm) && !listing.hidden);
+  }
 });
 
 onBeforeMount(async () => {
@@ -41,7 +46,7 @@ onBeforeMount(async () => {
 
 <template>
   <section class="thumb-container" v-if="loaded && listings.length !== 0">
-    <article class="thumb" v-for="listing in filteredListings" :key="listing._id" >
+    <article class="thumb" v-for="listing in filteredListings" :key="listing._id">
       <ListingThumbComponent :listingId="listing._id" />
     </article>
   </section>
@@ -49,5 +54,4 @@ onBeforeMount(async () => {
   <p v-else>Loading...</p>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
