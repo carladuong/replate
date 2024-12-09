@@ -59,6 +59,9 @@ const emptyForm = () => {
 
     <label for="image"> Image URL (optional) </label>
     <input id="image" type="text" v-model="image" />
+    <div v-if="image!==''" class="image-container">
+        <img :src="image" class="item-image" />
+    </div>
 
     <label for="description"> Description (optional) </label>
     <textarea id="description" v-model="description"></textarea>
@@ -98,5 +101,21 @@ textarea {
 button {
   background-color: #69825a;
   border-radius: 10px;
+}
+
+.image-container {
+  width: 400px; /* Set the square width */
+  height: 400px; /* Set the square height */
+  overflow: hidden; /* Ensure excess image is hidden */
+  margin-bottom: 15px;
+  margin-right: 100px;
+  margin-left: 50px;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  object-fit: cover; /* Ensures the image fills the square without distortion */
 }
 </style>
