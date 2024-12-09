@@ -96,7 +96,7 @@ class Routes {
 
   @Router.get("/listings/:id")
   async getListingByID(id: string) {
-    console.log("in listing routes");
+    //console.log("in listing routes");
     const oid = new ObjectId(id);
     const listing = await Listing.getListingById(oid);
     return Responses.listing(listing);
@@ -192,7 +192,7 @@ class Routes {
     await Requesting.assertAuthor(oid, user);
 
     const RequestExp = await Request_Expiring.getExpireByItem(oid);
-    Request_Expiring.delete(RequestExp._id);
+    await Request_Expiring.delete(RequestExp._id);
 
     return Requesting.delete(oid);
   }
@@ -216,33 +216,7 @@ class Routes {
       return { msg: created.msg, claim: await Responses.claim(created.claim) };
     } else {
       return { msg: "Attempted to claim more items than are available." };
-    const created = await Claiming.claim(user, quantity, oid);
-    //Listing.getListingById(oid)
-    //get curr_quantity and calc new_quantity
-    //await Listing.editlisting(quantity=new_quantity)
-    // const author = await Authenticating.getUserById(await Listing.getListingById(oid).author);
-
-    const listing = await Listing.getListingById(oid);
-    const author = await Authing.getUserById(listing.author);
-    console.log(`Claimed ${quantity} of ${listing.name} from ${author.username} (${author.phone})`);
-    if (!author) {
-      throw new errors_1.NotFoundError(`Author with ID ${listing.author} does not exist.`);
     }
-
-    if (created.claim) {
-      return {
-        msg: created.msg,
-        claim: created.claim ? await Responses.claim(created.claim) : null,
-        authorPhone: author.phone,
-        authorUsername: author?.username,
-      };
-    }
-  }
-
-  @Router.get("/claims/:id")
-  async getClaimsByListing(listingId: string) {
-    const oid = new ObjectId(listingId);
-    return await Claiming.getClaimsByListing(oid);
   }
 
   @Router.get("/claims")
@@ -260,11 +234,11 @@ class Routes {
     return Responses.claims(claims);
   }
 
-  // @Router.get("/claims/:id")
-  // async getClaim(claimId: string) {
-  //   const oid = new ObjectId(claimId);
-  //   return Responses.claim(await Claiming.getClaimById(oid));
-  // }
+  @Router.get("/claims/:id")
+  async getClaim(claimId: string) {
+    const oid = new ObjectId(claimId);
+    return Responses.claim(await Claiming.getClaimById(oid));
+  }
 
   @Router.delete("/claims/:id")
   async unclaimItem(session: SessionDoc, claimId: string) {
@@ -450,6 +424,18 @@ class Routes {
   async getExpireOfItem(itemId: string) {
     const oid = new ObjectId(itemId);
     return await Listing_Expiring.getExpireByItem(oid);
+  }
+
+  //routes for displaying the count in profile
+  @Router.get("/userCounts/:userId")
+  async getUserCounts(userId: string) {
+    const oid = new ObjectId(userId);
+    const listings = await Listing.getNumberOfListingsByAuthor(oid);
+    const requests = await Requesting.getNumberOfRequestsByRequester(oid);
+    // const offers = await Offering.getNumberOfOffersByOfferer(oid);
+    // const claims = await Claiming.getClaimsByClaimer(oid);
+    // const reviews = await Reviewing.getReviewsOfSubject(oid);
+    return { listings: listings, requests: requests };
   }
 }
 

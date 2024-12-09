@@ -74,6 +74,10 @@ export default class ListingConcept {
     return await this.listings.readMany({ author });
   }
 
+  async getNumberOfListingsByAuthor(author: ObjectId) {
+    return await this.listings.count({ author });
+  }
+
   async getRemainingQuantity(_id: ObjectId) {
     const listing = await this.listings.readOne({ _id });
     if (!listing) {
