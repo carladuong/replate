@@ -32,7 +32,34 @@ onBeforeMount(async () => {
 
 <template>
   <div v-if="request" class="thumbnail" @click="openRequest">
-    <img :src="imageSrc" class="produce-image" />
+    <div class="image-container">
+      <img :src="imageSrc" class="produce-image" />
+    </div>
     <span>{{ request.name }}</span>
   </div>
 </template>
+
+<style scoped>
+.thumbnail {
+  /* background-color: #fabb7d; */
+  /* border: 2px solid #d15c2a;  */
+  border-radius: 15px;      
+  padding: 10px;
+  width: 150px;
+  height: 200px;
+}
+
+.image-container {
+  width: 150px; /* Set the square width */
+  height: 150px; /* Set the square height */
+  overflow: hidden; /* Ensure excess image is hidden */
+  margin-bottom: 15px;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  object-fit: cover; /* Ensures the image fills the square without distortion */
+}
+</style>
