@@ -21,6 +21,8 @@ const activeSection = ref("listings"); // Default to "listings"
     <!-- Conditional Rendering Based on Active Section -->
     <section v-if="activeSection === 'listings'">
       <ListingListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" />
+      <p>Historic listings</p>
+      <ListingListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" :historic="true" />
     </section>
     <section v-else-if="activeSection === 'requests'">
       <RequestListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" />
@@ -31,6 +33,12 @@ const activeSection = ref("listings"); // Default to "listings"
   </main>
 </template>
 <style scoped>
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 h1 {
   text-align: center;
 }
@@ -38,10 +46,25 @@ h1 {
 .tabs {
   display: flex;
   gap: 2rem; /* Spacing between the headers */
-  margin-bottom: 1rem;
+  margin-bottom: 0px;
 }
 
 h1.active {
   border-bottom: 2px solid;
+}
+
+p {
+  padding-top: 2em;
+  font-size: 1.2em;
+}
+
+.thumb-container {
+  width: 1000px;
+  display: grid;
+  gap: 5px;
+  padding: 10px;
+  align-items: center;
+  margin: 0px;
+  grid-template-columns: repeat(5, 1fr); /* Five equal columns */
 }
 </style>

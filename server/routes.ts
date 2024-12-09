@@ -96,7 +96,7 @@ class Routes {
 
   @Router.get("/listings/:id")
   async getListingByID(id: string) {
-    console.log("in listing routes");
+    //console.log("in listing routes");
     const oid = new ObjectId(id);
     const listing = await Listing.getListingById(oid);
     return Responses.listing(listing);
@@ -192,7 +192,7 @@ class Routes {
     await Requesting.assertAuthor(oid, user);
 
     const RequestExp = await Request_Expiring.getExpireByItem(oid);
-    Request_Expiring.delete(RequestExp._id);
+    await Request_Expiring.delete(RequestExp._id);
 
     return Requesting.delete(oid);
   }

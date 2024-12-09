@@ -40,3 +40,9 @@ async function updatePassword() {
     </fieldset>
   </form>
 </template>
+
+<style scoped>
+button {
+  background-color: #69825a;
+}
+</style>
