@@ -30,7 +30,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <p>Here you can view offer you have made</p>
+  <p>Here you can view the offers you have made.</p>
   <section class="offer-container" v-if="loaded && offers.length !== 0">
     <article v-for="offer in offers" :key="offer._id">
       <OfferComponent :offerId="offer._id" @updateOffers="getOffers" />
@@ -49,7 +49,7 @@ onBeforeMount(async () => {
 
 article {
   border-radius: 1em;
-  border: 2px solid #000;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   gap: 0.5em;
   padding: 1em;
   margin-bottom: 10px;

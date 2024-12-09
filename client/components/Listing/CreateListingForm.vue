@@ -68,6 +68,15 @@ const createListing = async () => {
 
     <label for="imageUrl">Image URL</label>
     <input id="imageUrl" type="text" v-model="imageUrl" placeholder="Image URL" required />
+    <div v-if="imageUrl !== ''" class="image-container">
+      <img :src="imageUrl" class="item-image" />
+    </div>
+
+    <label for="meetupLocation"> <span style="font-size: 25px">&#128205;</span>Meet Up Location</label>
+    <input id="meetupLocation" type="text" v-model="meetupLocation" placeholder="Meetup Location" required />
+
+    <label for="imageUrl">Image URL</label>
+    <input id="imageUrl" type="text" v-model="imageUrl" placeholder="Image URL" required />
 
     <label for="quantity">Quantity</label>
     <input id="quantity" type="number" v-model="quantity" placeholder="Quantity" required />
@@ -111,5 +120,21 @@ input {
 button {
   background-color: #69825a;
   border-radius: 10px;
+}
+
+.image-container {
+  width: 400px; /* Set the square width */
+  height: 400px; /* Set the square height */
+  overflow: hidden; /* Ensure excess image is hidden */
+  margin-bottom: 15px;
+  margin-right: 100px;
+  margin-left: 50px;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  object-fit: cover; /* Ensures the image fills the square without distortion */
 }
 </style>
