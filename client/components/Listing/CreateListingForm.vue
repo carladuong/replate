@@ -60,7 +60,7 @@ const createListing = async () => {
 
 <template>
   <form @submit.prevent="createListing" class="pure-form pure-form-stacked">
-      <label for="name">Name</label>
+      <label for="name">Item Name</label>
       <input id="name" type="text" v-model="name" placeholder="Name" required />
     
       <label for="meetupLocation"> <span style="font-size: 25px">&#128205;</span>Meet Up Location</label>
