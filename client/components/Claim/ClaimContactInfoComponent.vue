@@ -1,56 +1,67 @@
-<!-- [client/components/Claim/ClaimContactInfoComponent.vue](client/components/Claim/ClaimContactInfoComponent.vue) -->
-<!-- 
+<!-- client/components/Claim/ClaimContactInfoComponent.vue -->
 <template>
-  <main>
-    <h1>You've accepted a claim for {{ itemName }} from {{ contactUsername }}!</h1>
-    <h2>Contact them at {{ contactNumber }} to arrange a pickup at {{ location }}.</h2>
-    <button @click="goHome">Back</button>
-  </main>
+  <div class="claim-info">
+    <h3>Claim Details</h3>
+    <p><strong>Username:</strong> {{ claim.claimerUsername }}</p>
+    <p><strong>Phone:</strong> {{ claim.claimerPhone }}</p>
+    <p><strong>Quantity:</strong> {{ claim.quantity }}</p>
+    <p><strong>Pickup Location:</strong> {{ claim.location }}</p>
+    <!-- Add more fields as necessary -->
+    <button @click="handleUnclaim" class="unclaim-button">Unclaim Item</button>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { fetchy } from "@/utils/fetchy";
-import { onBeforeMount, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { defineProps } from "vue";
 
-const route = useRoute();
-const router = useRouter();
+const props = defineProps<{
+  claim: {
+    _id: string;
+    claimerUsername: string;
+    claimerPhone: string;
+    quantity: number;
+    location: string;
+    // Add other relevant fields
+  };
+  listingId: string;
+  maxQuantity: number;
+}>();
 
-const claimId = route.params.claimId as string;
-const contactNumber = ref("");
-const contactUsername = ref("");
-const location = ref("");
-const itemName = ref("");
+const handleUnclaim = async () => {
+  const confirmUnclaim = confirm("Are you sure you want to unclaim this item?");
+  if (!confirmUnclaim) return;
 
-const getClaimDetails = async () => {
   try {
-    const response = await fetchy(`/api/claims/${claimId}`, "GET");
-    const claim = response.claim;
-    contactNumber.value = claim.claimerPhone; // Ensure your backend includes claimer's phone
-    contactUsername.value = claim.claimerUsername; // Ensure your backend includes claimer's username
-    location.value = claim.location; // Assuming location is part of the claim or listing
-    itemName.value = claim.itemName; // Assuming itemName is part of the claim or listing
+    await fetchy(`/api/claims/${props.claim._id}`, "DELETE");
+    alert("Successfully unclaimed the item.");
+    // Optionally, emit an event to refresh the claims list
+    // emit('claimUnclaimed');
   } catch (error) {
-    console.error("Error fetching claim details:", error);
+    console.error("Error unclaiming item:", error);
+    alert("There was an error unclaiming the item.");
   }
 };
-
-const goHome = () => {
-  void router.push("/");
-};
-
-onBeforeMount(async () => {
-  await getClaimDetails();
-});
 </script>
 
 <style scoped>
-h1,
-h2 {
-  text-align: center;
+.claim-info {
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
 }
-button {
-  display: block;
-  margin: 20px auto;
+
+.unclaim-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
 }
-</style> -->
+
+.unclaim-button:hover {
+  background-color: #da190b;
+}
+</style>

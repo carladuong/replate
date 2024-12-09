@@ -98,8 +98,8 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: "/claim/:id",
-      name: "Claim",
+      path: "/claims/:id",
+      name: "ClaimView",
       component: ClaimView,
       props: true,
     },

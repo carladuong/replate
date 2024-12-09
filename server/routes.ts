@@ -224,6 +224,12 @@ class Routes {
     }
   }
 
+  @Router.get("/claims/:id")
+  async getClaimsByListing(listingId: string) {
+    const oid = new ObjectId(listingId);
+    return await Claiming.getClaimsByListing(oid);
+  }
+
   @Router.get("/claims")
   async getClaims(listingId?: string, claimer?: string) {
     let claims;
@@ -239,11 +245,11 @@ class Routes {
     return Responses.claims(claims);
   }
 
-  @Router.get("/claims/:id")
-  async getClaim(claimId: string) {
-    const oid = new ObjectId(claimId);
-    return Responses.claim(await Claiming.getClaimById(oid));
-  }
+  // @Router.get("/claims/:id")
+  // async getClaim(claimId: string) {
+  //   const oid = new ObjectId(claimId);
+  //   return Responses.claim(await Claiming.getClaimById(oid));
+  // }
 
   @Router.delete("/claims/:id")
   async unclaimItem(session: SessionDoc, claimId: string) {

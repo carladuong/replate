@@ -127,7 +127,7 @@ const saveChanges = async () => {
 // Navigate to View Claims (Ensure `ClaimView.vue` Route Exists)
 const goToViewClaims = async () => {
   if (listing.value && listing.value._id) {
-    await router.push({ name: "Claim", params: { id: listing.value._id } });
+    await router.push({ name: "ClaimView", params: { id: listing.value._id } });
   } else {
     console.error("Listing ID is not available.");
   }
