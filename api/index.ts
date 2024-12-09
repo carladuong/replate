@@ -60,11 +60,11 @@ void connectDb().then(() => {
 
 //Expiring schedule
 
-cron.schedule("* * * * *", async () => {
-  console.log("Running scheduled tasks...");
-  await handleListingsExpired();
-  await handleRequestsExpired();
-});
+// cron.schedule("* * * * *", async () => {
+//   console.log("Running scheduled tasks...");
+//   await handleListingsExpired();
+//   await handleRequestsExpired();
+// });
 
 
 // Function to handle expired listings
