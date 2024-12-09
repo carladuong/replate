@@ -165,7 +165,7 @@ class Routes {
     const created = await Requesting.add(user, name, quantity, image, description);
     //expiration date of the resource
     if (created.request) {
-      const create_needBy = await Request_Expiring.allocate(created.request._id, needBy, expireTime24hrs);
+      const create_needBy = await Request_Expiring.allocate(created.request._id, needBy, "00:00");
       return { msg: created.msg, request: await Responses.request(created.request) };
     }
   }
