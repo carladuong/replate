@@ -4,7 +4,7 @@ import express from "express";
 import session from "express-session";
 import logger from "morgan";
 import * as path from "path";
-import cron from "node-cron";
+// import cron from "node-cron";
 import { ObjectId } from "mongodb";
 
 
@@ -60,11 +60,11 @@ void connectDb().then(() => {
 
 // Expiring schedule
 
-cron.schedule("* * * * *", async () => {
-  console.log("Running scheduled tasks...");
-  await handleListingsExpired();
-  await handleRequestsExpired();
-});
+// cron.schedule("* * * * *", async () => {
+//   console.log("Running scheduled tasks...");
+//   await handleListingsExpired();
+//   await handleRequestsExpired();
+// });
 
 
 // Function to handle expired listings
