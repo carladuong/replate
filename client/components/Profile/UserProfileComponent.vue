@@ -136,7 +136,6 @@ onBeforeMount(async () => {
   align-items: center;
   justify-content: space-between;
   padding: 10px 20px;
-  border-bottom: 1px solid #e0e0e0;
 }
 
 .user-details {
