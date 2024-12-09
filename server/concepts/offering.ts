@@ -51,7 +51,7 @@ export default class OfferingConcept {
   }
 
   async getOfferById(offerId: ObjectId) {
-    console.log('in offering')
+    console.log("in offering");
     const offer = await this.offers.readOne({ _id: offerId });
     if (offer) {
       return offer;
@@ -63,10 +63,14 @@ export default class OfferingConcept {
     return await this.offers.readMany({ offerer: offererId });
   }
 
+  async getNumberOfOffersByOfferer(offererId: ObjectId) {
+    return await this.offers.count({ offerer: offererId });
+  }
+
   async getOfferByItem(itemId: ObjectId) {
-    const results = await this.offers.readMany({ item: itemId }); 
-    console.log('item', itemId)
-    console.log(results)
+    const results = await this.offers.readMany({ item: itemId });
+    console.log("item", itemId);
+    console.log(results);
     return results;
   }
 

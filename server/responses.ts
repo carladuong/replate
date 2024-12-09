@@ -56,14 +56,19 @@ export default class Responses {
   /**
    * Convert OfferDoc into more readable format for the frontend by converting the author id into a username.
    */
+
   static async claim(claim: ClaimDoc | null) {
     if (!claim) {
       return claim;
     }
     const claimer = await Authing.getUserById(claim.claimer);
-    return { ...claim, offerer: claimer.username };
+    return {
+      ...claim,
+      claimer: claimer.username,
+      claimerPhone: claimer.phone, // Include if needed
+      // Note: Do not include authorPhone here as it's being handled separately in the route
+    };
   }
-
   /**
    * Same as {@link listing} but for an array of ListingDoc for improved performance.
    */

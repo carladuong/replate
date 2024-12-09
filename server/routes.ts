@@ -425,6 +425,18 @@ class Routes {
     const oid = new ObjectId(itemId);
     return await Listing_Expiring.getExpireByItem(oid);
   }
+
+  //routes for displaying the count in profile
+  @Router.get("/userCounts/:userId")
+  async getUserCounts(userId: string) {
+    const oid = new ObjectId(userId);
+    const listings = await Listing.getNumberOfListingsByAuthor(oid);
+    const requests = await Requesting.getNumberOfRequestsByRequester(oid);
+    // const offers = await Offering.getNumberOfOffersByOfferer(oid);
+    // const claims = await Claiming.getClaimsByClaimer(oid);
+    // const reviews = await Reviewing.getReviewsOfSubject(oid);
+    return { listings: listings, requests: requests };
+  }
 }
 
 /** The web app. */

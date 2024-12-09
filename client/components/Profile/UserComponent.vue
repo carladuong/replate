@@ -8,7 +8,6 @@ const rating = ref(0);
 const reviewNumber = ref(0);
 const user = ref<Record<string, string> | null>(null);
 const loaded = ref(false);
-
 // Compute the array for rendering stars
 const starArray = computed(() => {
   return Array.from({ length: 5 }, (_, index) => (rating.value - index > 1 ? 1 : Math.max(0, rating.value - index)));
@@ -64,6 +63,7 @@ onBeforeMount(async () => {
         </div>
         ({{ reviewNumber }})
       </div>
+      <!-- Display Counts -->
     </div>
   </div>
   <div v-else-if="loaded && !user">

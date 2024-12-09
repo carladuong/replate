@@ -75,6 +75,10 @@ export default class RequestingConcept {
     return await this.requests.readMany({ requester }, { sort: { _id: -1 } });
   }
 
+  async getNumberOfRequestsByRequester(requester: ObjectId) {
+    return await this.requests.count({ requester });
+  }
+
   //assert author
   async assertAuthor(_id: ObjectId, user: ObjectId) {
     const request = await this.requests.readOne({ _id });

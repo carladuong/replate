@@ -44,6 +44,14 @@ export default class AuthenticatingConcept {
     return this.redactPassword(user);
   }
 
+  async getUserByPhone(phone: string) {
+    const user = await this.users.readOne({ phone });
+    if (user === null) {
+      throw new NotFoundError(`User not found!`);
+    }
+    return this.redactPassword(user);
+  }
+
   async getUserByUsername(username: string) {
     const user = await this.users.readOne({ username });
     if (user === null) {
