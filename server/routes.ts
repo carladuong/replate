@@ -96,7 +96,7 @@ class Routes {
 
   @Router.get("/listings/:id")
   async getListingByID(id: string) {
-    console.log('in listing routes')
+    console.log("in listing routes");
     const oid = new ObjectId(id);
     const listing = await Listing.getListingById(oid);
     return Responses.listing(listing);
@@ -209,13 +209,13 @@ class Routes {
       const newQuantity = listing.quantity - quantity;
       const created = await Claiming.claim(user, quantity, oid);
       await Listing.editlisting(oid, listing.name, listing.meetup_location, listing.image, newQuantity);
-      console.log(listing)
+      console.log(listing);
       if (quantity === listing.quantity) {
         await Listing.hideSwitch(oid);
       }
       return { msg: created.msg, claim: await Responses.claim(created.claim) };
     } else {
-      return { msg: "Attempted to claim more items than are available."};
+      return { msg: "Attempted to claim more items than are available." };
     }
   }
 
@@ -267,7 +267,7 @@ class Routes {
       const oid = new ObjectId(requestId);
       return await Responses.offers(await Offering.getOfferByItem(oid));
     } else if (offerer) {
-      const oid = new ObjectId(offerer);
+      const oid = (await Authing.getUserByUsername(offerer))._id;
       return await Responses.offers(await Offering.getOfferByOfferer(oid));
     } else {
       return await Responses.offers(await Offering.getAllOffers());
@@ -276,7 +276,7 @@ class Routes {
 
   @Router.get("/offers/:offerId")
   async getOffer(offerId: string) {
-    console.log('in routes')
+    console.log("in routes");
     const oid = new ObjectId(offerId);
     const offer = await Offering.getOfferById(oid);
     return offer;
@@ -290,7 +290,7 @@ class Routes {
     await Requesting.hideSwitch(offer.item);
     await Offering.accept(oid);
     // await Offering.removeAllItemOffers(offer.item);
-    return {msg: 'Accepted offer!'};
+    return { msg: "Accepted offer!" };
     //get offer check it exists
     //get offer check it exists and user is not author
     //Offering.accept(offerId) will  hide the offer and
