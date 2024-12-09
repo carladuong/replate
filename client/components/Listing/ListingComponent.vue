@@ -210,7 +210,7 @@ h1 {
 button {
   margin-right: 0.5em;
 }
-.image-column {
+/* .image-column {
   flex: 1;
   max-width: 50%;
 }
@@ -220,6 +220,38 @@ button {
   height: auto;
   max-width: 300px;
   margin-bottom: 1em;
+} */
+
+form {
+  display: flex;
+  flex-direction: column;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  gap: 10px;
+}
+
+form button {
+  width: 100px;
+}
+
+form input {
+  width: 100px;
+}
+
+.image-column {
+  width: 400px; /* Set the square width */
+  height: 400px; /* Set the square height */
+  overflow: hidden; /* Ensure excess image is hidden */
+  margin-bottom: 15px;
+  margin-right: 100px;
+  margin-left:50px;
+}
+
+.image-column img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  object-fit: cover; /* Ensures the image fills the square without distortion */
 }
 
 .info-column {
@@ -234,9 +266,12 @@ button {
   margin-top: 2em;
   display: inline-block;
   gap: 0.4em;
-  background-color: #d0d0d0;
+  background-color: #d6401a;
+  color: white;
   border-radius: 15px;
   padding: 5px 10px;
   margin-bottom: 0.7em;
+  margin-right: 0.75em;
 }
+
 </style>

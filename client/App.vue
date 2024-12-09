@@ -38,7 +38,7 @@ onBeforeMount(async () => {
     <nav>
       <div class="title">
         <RouterLink :to="{ name: 'Home' }">
-          <h1>RePlate</h1>
+          <h1>🍞 RePlate </h1>
         </RouterLink>
       </div>
       <ul>
