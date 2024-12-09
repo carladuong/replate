@@ -55,7 +55,7 @@ const toggleTag = (tag: string) => {
 }
 .category-option,
 .dietary-option {
-  background-color: #d0d0d0;
+  background-color: #fabb7d;
   border-radius: 1em;
   padding: 0.5em;
   cursor: pointer;
@@ -63,11 +63,11 @@ const toggleTag = (tag: string) => {
 }
 .category-option.selected,
 .dietary-option.selected {
-  background-color: #007bff;
+  background-color: #d15c2a;
   color: white;
 }
 .category-option:hover,
 .dietary-option:hover {
-  background-color: #c0c0c0;
+  background-color: #d15c2a;
 }
 </style>

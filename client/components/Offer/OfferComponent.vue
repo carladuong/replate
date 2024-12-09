@@ -4,8 +4,10 @@ import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
+import UserComponent from "../Profile/UserComponent.vue";
 
 const props = defineProps(["offerId"]);
+const emit = defineEmits(["updateOffers"]);
 
 const { currentUsername } = storeToRefs(useUserStore());
 const offer = ref<Record<string, string> | null>(null);
@@ -26,11 +28,9 @@ async function getName() {
   try {
     if (offer.value) {
       const offerer = offer.value?.offerer;
-      console.log("offerer", offerer);
       if (offerer) {
         result = (await fetchy(`/api/username/${offerer}`, "GET")).username;
       } else {
-        console.log("no offer");
         result = offerer;
       }
     }
@@ -46,7 +46,12 @@ async function acceptOffer(oid: string) {
 }
 
 async function deleteOffer(oid: string) {
-  await fetchy(`/api/offers/${oid}`, "DELETE");
+  try {
+    await fetchy(`/api/offers/${oid}`, "DELETE");
+    emit("updateOffers");
+  } catch (error) {
+    console.error("Failed to delete offer:", error);
+  }
 }
 
 onBeforeMount(async () => {
@@ -57,11 +62,13 @@ onBeforeMount(async () => {
 
 <template>
   <div v-if="offer" class="offer">
-    <p class="offerer">{{ name }} at {{ offer.location }}</p>
-    <p class="description" v-if="offer.description">{{ offer.description }}</p>
+    <UserComponent :userId="name" />
+    <p>Meeting location: {{ offer.location }}</p>
     <img v-if="offer.imageUrl" :src="offer.imageUrl" :style="{ width: '200px' }" />
+    <p v-if="offer.message">Message: {{ offer.message }}</p>
     <div class="buttons">
-      <button @click="acceptOffer(offer._id.toString())">Accept</button>
+      <button v-if="name === currentUsername" @click="deleteOffer(offer._id.toString())">Delete</button>
+      <button v-else @click="acceptOffer(offer._id.toString())">Accept</button>
     </div>
   </div>
 </template>

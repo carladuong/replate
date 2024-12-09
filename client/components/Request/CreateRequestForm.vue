@@ -55,7 +55,7 @@ const emptyForm = () => {
     <input id="quantity" type="number" v-model="quantity" placeholder="0" min="0" step="1" required />
 
     <label for="needBy"> Need by </label>
-    <input id="needBy" type="text" v-model="needBy" placeholder="December 17, 1995 03:24:00" required />
+    <input id="needBy" type="text" v-model="needBy" placeholder="MM/DD/YYYY" required />
 
     <label for="image"> Image URL (optional) </label>
     <input id="image" type="text" v-model="image" />
@@ -63,7 +63,7 @@ const emptyForm = () => {
     <label for="description"> Description (optional) </label>
     <textarea id="description" v-model="description"></textarea>
 
-    <button type="submit" class="pure-button-primary pure-button">Post</button>
+    <button type="submit" class="pure-button-primary pure-button">Create Request</button>
   </form>
 </template>
 
@@ -71,7 +71,32 @@ const emptyForm = () => {
 form {
   display: flex;
   flex-direction: column;
-  gap: 0.5em;
+  gap: 1em;
   padding: 1em;
+}
+
+input {
+  padding: .5em .6em;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 3px #ddd;
+    border-radius: 4px;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+textarea {
+  padding: .5em .6em;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 3px #ddd;
+    border-radius: 4px;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+button {
+  background-color: #69825a;
+  border-radius: 10px;
 }
 </style>

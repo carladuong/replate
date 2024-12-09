@@ -1,20 +1,47 @@
 <script setup lang="ts">
 import ListingListComponent from "@/components/Listing/ListingListComponent.vue";
+import UserOfferListComponent from "@/components/Offer/UserOfferListComponent.vue";
 import UserProfileComponent from "@/components/Profile/UserProfileComponent.vue";
 import RequestListComponent from "@/components/Request/RequestListComponent.vue";
+import { ref } from "vue";
+
+const activeSection = ref("listings"); // Default to "listings"
 </script>
 <template>
   <main>
-    <h1>Profile</h1>
     <UserProfileComponent :userId="$route.params.id" />
-    <h2>Listings</h2>
-    <ListingListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" />
-    <h2>Requests</h2>
-    <RequestListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" />
+
+    <!-- Clickable Headers for Sections -->
+    <div class="tabs">
+      <h1 :class="{ active: activeSection === 'listings' }" @click="activeSection = 'listings'">Listings</h1>
+      <h1 :class="{ active: activeSection === 'requests' }" @click="activeSection = 'requests'">Requests</h1>
+      <h1 :class="{ active: activeSection === 'offers' }" @click="activeSection = 'offers'">Offers</h1>
+    </div>
+
+    <!-- Conditional Rendering Based on Active Section -->
+    <section v-if="activeSection === 'listings'">
+      <ListingListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" />
+    </section>
+    <section v-else-if="activeSection === 'requests'">
+      <RequestListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" />
+    </section>
+    <section v-else-if="activeSection === 'offers'">
+      <UserOfferListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" />
+    </section>
   </main>
 </template>
 <style scoped>
 h1 {
   text-align: center;
+}
+
+.tabs {
+  display: flex;
+  gap: 2rem; /* Spacing between the headers */
+  margin-bottom: 1rem;
+}
+
+h1.active {
+  border-bottom: 2px solid;
 }
 </style>

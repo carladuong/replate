@@ -60,36 +60,26 @@ const createListing = async () => {
 
 <template>
   <form @submit.prevent="createListing" class="pure-form pure-form-stacked">
-    <fieldset>
-      <legend>Create a New Listing</legend>
-      <div class="pure-control-group">
-        <label for="name">Name</label>
-        <input id="name" type="text" v-model="name" placeholder="Name" required />
-      </div>
-      <div class="pure-control-group">
-        <label for="meetupLocation"> <span style="font-size: 25px">&#128205;</span>Meet Up Location</label>
-        <input id="meetupLocation" type="text" v-model="meetupLocation" placeholder="Meetup Location" required />
-      </div>
-      <div class="pure-control-group">
-        <label for="imageUrl">Image URL</label>
-        <input id="imageUrl" type="text" v-model="imageUrl" placeholder="Image URL" required />
-      </div>
-      <div class="pure-control-group">
-        <label for="quantity">Quantity</label>
-        <input id="quantity" type="number" v-model="quantity" placeholder="Quantity" required />
-      </div>
-      <div class="pure-control-group">
-        <label for="expireDate">Expire Date</label>
-        <input id="expireDate" type="string" v-model="expireDate" placeholder="mm/dd/yyyy" required />
-      </div>
-      <div class="pure-control-group">
-        <label for="description">Description</label>
-        <textarea id="description" v-model="description" placeholder="Description" required></textarea>
-      </div>
-      <div class="pure-control-group">
-        <label for="tags">Categories and Dietary Restrictions</label>
-        <TaggingComponent v-model:tags="tags" />
-      </div>
+      <label for="name">Name</label>
+      <input id="name" type="text" v-model="name" placeholder="Name" required />
+    
+      <label for="meetupLocation"> <span style="font-size: 25px">&#128205;</span>Meet Up Location</label>
+      <input id="meetupLocation" type="text" v-model="meetupLocation" placeholder="Meetup Location" required />
+    
+      <label for="imageUrl">Image URL</label>
+      <input id="imageUrl" type="text" v-model="imageUrl" placeholder="Image URL" required />
+
+      <label for="quantity">Quantity</label>
+      <input id="quantity" type="number" v-model="quantity" placeholder="Quantity" required />
+
+      <label for="expireDate">Expire Date</label>
+      <input id="expireDate" type="string" v-model="expireDate" placeholder="mm/dd/yyyy" required />
+    
+      <label for="description">Description</label>
+      <input id="description" v-model="description" placeholder="Description" required>
+
+      <label for="tags">Categories and Dietary Restrictions</label>
+      <TaggingComponent v-model:tags="tags" />
       <div class="faq-link">
         <p>
           Have questions?
@@ -97,22 +87,30 @@ const createListing = async () => {
         </p>
       </div>
       <button type="submit" class="pure-button pure-button-primary">Create Listing</button>
-    </fieldset>
   </form>
 </template>
 
 <style scoped>
-.pure-control-group {
-  margin-bottom: 1em;
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  padding: 1em;
 }
-.faq-link {
-  margin-top: 1em;
+
+input {
+  padding: .5em .6em;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 3px #ddd;
+    border-radius: 4px;
+    vertical-align: middle;
+    box-sizing: border-box;
 }
-.faq-anchor {
-  color: #007bff;
-  text-decoration: none;
-}
-.faq-anchor:hover {
-  text-decoration: underline;
+
+button {
+  background-color: #69825a;
+  border-radius: 10px;
 }
 </style>

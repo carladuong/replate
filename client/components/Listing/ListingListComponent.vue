@@ -30,7 +30,7 @@ async function getListings() {
 
 const filteredListings = computed(() => {
   const searchTerm = props.searchTerm?.toLowerCase() || "";
-  return listings.value.filter((listing) => listing && listing.name.toLowerCase().includes(searchTerm));
+  return listings.value.filter((listing) => listing && listing.name.toLowerCase().includes(searchTerm) && !listing.hidden);
 });
 
 onBeforeMount(async () => {
@@ -41,7 +41,7 @@ onBeforeMount(async () => {
 
 <template>
   <section class="thumb-container" v-if="loaded && listings.length !== 0">
-    <article class="thumb" v-for="listing in filteredListings" :key="listing._id">
+    <article class="thumb" v-for="listing in filteredListings" :key="listing._id" >
       <ListingThumbComponent :listingId="listing._id" />
     </article>
   </section>
@@ -49,4 +49,5 @@ onBeforeMount(async () => {
   <p v-else>Loading...</p>
 </template>
 
-<style scoped></style>
+<style scoped>
+</style>

@@ -10,7 +10,4 @@ import CreateListingForm from "@/components/Listing/CreateListingForm.vue";
 </template>
 
 <style scoped>
-h1 {
-  text-align: center;
-}
 </style>

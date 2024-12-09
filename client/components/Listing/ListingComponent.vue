@@ -16,6 +16,7 @@ const listing = ref<Record<string, string> | null>(null);
 const isClaimed = ref(false);
 const showClaimForm = ref(false);
 const expire = ref<Record<string, string> | null>(null);
+const quantity = ref("0");
 
 const editedName = ref("");
 const editedQuantity = ref("");
@@ -88,6 +89,7 @@ const cancelEditing = () => {
 async function getListing(listingId: string) {
   try {
     const listingResult = await fetchy(`/api/listings/${listingId}`, "GET");
+    console.log(listingResult);
     listing.value = listingResult;
     // expire.value = await fetchy(`expirations/item`, "GET", { query: { itemId: listingId } });
   } catch (_) {
@@ -124,14 +126,16 @@ const saveChanges = async () => {
   }
 };
 
-// Navigate to View Claims (Ensure `ClaimView.vue` Route Exists)
-const goToViewClaims = async () => {
-  if (listing.value && listing.value._id) {
-    await router.push({ name: "ClaimView", params: { id: listing.value._id } });
-  } else {
-    console.error("Listing ID is not available.");
+async function claimListing(quantity: string) {
+  if (!/^\d*$/.test(quantity)) {
+    return { msg: "Please enter a positive integer." };
   }
-};
+  const new_quantity = parseInt(quantity);
+  const claim = await fetchy("/api/claims", "POST", { body: { listingId: props.listingId, quantity: new_quantity } });
+  if (claim.msg.startsWith("Success")) {
+    void router.push(`/listingClaimed/${props.listingId}`);
+  }
+}
 
 onBeforeMount(async () => {
   await getListing(props.listingId);
@@ -213,6 +217,7 @@ onBeforeMount(async () => {
 
           <!-- Edit Button (Author Only) -->
           <button v-else-if="listing.author === currentUsername" @click="startEditing">Edit</button>
+          <<<<<<< HEAD
 
           <!-- Claim Button (Not Claimed) -->
           <button v-else-if="!isClaimed" @click="openClaimForm">Claim</button>
@@ -222,6 +227,13 @@ onBeforeMount(async () => {
 
           <!-- View Claims Button (Author Only) -->
           <button v-if="listing.author === currentUsername" @click="goToViewClaims">View Claims</button>
+          =======
+          <form v-if="listing.author !== currentUsername && !listing.hidden" @submit.prevent="claimListing(quantity)">
+            <label for="quantity">Enter the quantity you wish to claim:</label>
+            <input id="quantity" type="text" v-model="quantity" />
+            <button type="submit">Claim</button>
+          </form>
+          >>>>>>> 699d423aab66fa22520d8871ceb4fbd348d5cff5
         </div>
       </div>
     </div>
@@ -246,7 +258,7 @@ h1 {
 button {
   margin-right: 0.5em;
 }
-.image-column {
+/* .image-column {
   flex: 1;
   max-width: 50%;
 }
@@ -256,6 +268,38 @@ button {
   height: auto;
   max-width: 300px;
   margin-bottom: 1em;
+} */
+
+form {
+  display: flex;
+  flex-direction: column;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  gap: 10px;
+}
+
+form button {
+  width: 100px;
+}
+
+form input {
+  width: 100px;
+}
+
+.image-column {
+  width: 400px; /* Set the square width */
+  height: 400px; /* Set the square height */
+  overflow: hidden; /* Ensure excess image is hidden */
+  margin-bottom: 15px;
+  margin-right: 100px;
+  margin-left: 50px;
+}
+
+.image-column img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  object-fit: cover; /* Ensures the image fills the square without distortion */
 }
 
 .info-column {
@@ -270,9 +314,11 @@ button {
   margin-top: 2em;
   display: inline-block;
   gap: 0.4em;
-  background-color: #d0d0d0;
+  background-color: #d6401a;
+  color: white;
   border-radius: 15px;
   padding: 5px 10px;
   margin-bottom: 0.7em;
+  margin-right: 0.75em;
 }
 </style>

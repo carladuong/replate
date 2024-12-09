@@ -38,4 +38,8 @@ h3 {
   display: flex;
   justify-content: center;
 }
+
+button {
+  background-color: #69825a
+}
 </style>

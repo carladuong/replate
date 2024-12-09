@@ -37,34 +37,33 @@ onBeforeMount(async () => {
   <header>
     <nav>
       <div class="title">
-        <img src="@/assets/images/logo.svg" />
         <RouterLink :to="{ name: 'Home' }">
-          <h1>RePlate</h1>
+          <h1>🍞 RePlate </h1>
         </RouterLink>
       </div>
       <ul>
-        <li>
+        <li class="link">
           <RouterLink :to="{ name: 'Home' }" :class="{ underline: currentRouteName == 'Home' }"> Home </RouterLink>
         </li>
-        <li v-if="isLoggedIn && isModalOpen">
+        <li class="link" v-if="isLoggedIn && isModalOpen">
           <RouterLink :to="{ name: 'Create Listing' }" class="modal-link">Create Listing</RouterLink>
         </li>
-        <li>
+        <li class="link">
           <RouterLink v-if="isLoggedIn && isModalOpen" :to="{ name: 'Create Request' }" class="modal-link">Create Request</RouterLink>
         </li>
-        <li v-if="isLoggedIn">
+        <li class="link" v-if="isLoggedIn">
           <a href="#" @click.prevent="toggleModal" class="{ underline: isModalOpen }"> Add </a>
         </li>
-        <li v-if="isLoggedIn">
+        <li class="link" v-if="isLoggedIn">
           <RouterLink :to="{ name: 'Settings' }" :class="{ underline: currentRouteName == 'Settings' }"> Settings </RouterLink>
         </li>
-        <li v-else>
+        <li class="link" v-else>
           <RouterLink :to="{ name: 'Login' }" :class="{ underline: currentRouteName == 'Login' }"> Login </RouterLink>
         </li>
-        <li v-if="isLoggedIn">
+        <li class="link" v-if="isLoggedIn">
           <RouterLink :to="{ name: 'Profile View', params: { id: currentUsername } }" :class="{ underline: currentRouteName === 'My Profile' }"> My Profile </RouterLink>
         </li>
-        <li>
+        <li class="link">
           <RouterLink :to="{ name: 'FAQ' }" :class="{ underline: currentRouteName == 'FAQ' }"> FAQ </RouterLink>
         </li>
       </ul>
@@ -73,7 +72,9 @@ onBeforeMount(async () => {
       <p>{{ toast.message }}</p>
     </article>
   </header>
-  <RouterView />
+  <div class="routerView">
+    <RouterView />
+  </div>
 </template>
 
 <style scoped>
@@ -81,14 +82,28 @@ onBeforeMount(async () => {
 
 nav {
   padding: 1em 2em;
-  background-color: lightgray;
+  background-color: #ffe8cc;
   display: flex;
   align-items: center;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
-  font-size: 2em;
+  font-size: 2.5em;
   margin: 0;
+  font-family: "Averia Serif Libre", serif;
+  font-weight: 700;
+  font-style: normal;
+  color: #A63424;
+}
+
+.link {
+  font-size: 2.5em;
+  margin: 0;
+  font-family: "Averia Serif Libre", serif;
+  font-weight: 700;
+  font-style: normal;
+  color: #A63424;
 }
 
 .title {
@@ -103,7 +118,7 @@ img {
 
 a {
   font-size: large;
-  color: black;
+  color: #A63424;
   text-decoration: none;
 }
 
@@ -118,5 +133,9 @@ ul {
 
 .underline {
   text-decoration: underline;
+}
+
+.routerView {
+  padding: 30px;
 }
 </style>

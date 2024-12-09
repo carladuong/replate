@@ -87,7 +87,7 @@ onBeforeMount(async () => {
 <template>
   <h1>Request</h1>
   <div v-if="request" class="request-item">
-    <div class="image-column">
+    <div class="image-column" v-if="imageSrc!='@/assets/images/no-image.jpg'">
       <img :src="imageSrc" class="item-image" />
     </div>
     <div class="info-column">
@@ -152,15 +152,19 @@ button {
   margin-right: 0.5em;
 }
 .image-column {
-  flex: 1;
-  max-width: 50%;
+  width: 400px; /* Set the square width */
+  height: 400px; /* Set the square height */
+  overflow: hidden; /* Ensure excess image is hidden */
+  margin-bottom: 15px;
+  margin-right: 100px;
+  margin-left:50px;
 }
 
-.item-image {
+.image-column img {
   width: 100%;
-  height: auto;
-  max-width: 300px;
-  margin-bottom: 1em;
+  height: 100%;
+  border-radius: 10px;
+  object-fit: cover; /* Ensures the image fills the square without distortion */
 }
 
 .info-column {
@@ -169,5 +173,11 @@ button {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+button {
+  margin-top: 30px;
+  width: 100px;
+  height: 30px;
 }
 </style>

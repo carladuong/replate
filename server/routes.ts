@@ -93,11 +93,14 @@ class Routes {
     }
     return Responses.listings(listings);
   }
+
   @Router.get("/listings/:id")
   async getListingByID(id: string) {
+    console.log("in listing routes");
     const oid = new ObjectId(id);
     const listing = await Listing.getListingById(oid);
     return Responses.listing(listing);
+    // return listing
   }
 
   @Router.post("/listings")
@@ -157,13 +160,14 @@ class Routes {
   //add needed by
   // add synchronization with tagging
   @Router.post("/requests")
-  async addRequest(session: SessionDoc, name: string, quantity: number, needBy: string, expireTime24hrs: string, image?: string, description?: string) {
+  async addRequest(session: SessionDoc, name: string, quantity: number, needBy: string, image?: string, description?: string) {
     const user = Sessioning.getUser(session);
     const created = await Requesting.add(user, name, quantity, image, description);
     //expiration date of the resource
-    // if (created.request) {
-    // const create_needBy = await Request_Expiring.allocate(created.request._id, needBy, expireTime24hrs);
-    return { msg: created.msg, request: await Responses.request(created.request) };
+    if (created.request) {
+      const create_needBy = await Request_Expiring.allocate(created.request._id, needBy, "00:00");
+      return { msg: created.msg, request: await Responses.request(created.request) };
+    }
   }
 
   //handles editing and hiding request by author (we also use hide request in a synchronization when offer is accepted etc)
@@ -199,8 +203,19 @@ class Routes {
   @Router.post("/claims")
   async claim(session: SessionDoc, listingId: string, quantity: number) {
     const user = Sessioning.getUser(session);
-    // Reporting.checkIfUserReported(claimer)
     const oid = new ObjectId(listingId);
+    const listing = await Listing.getListingById(oid);
+    if (quantity <= listing.quantity) {
+      const newQuantity = listing.quantity - quantity;
+      const created = await Claiming.claim(user, quantity, oid);
+      await Listing.editlisting(oid, listing.name, listing.meetup_location, listing.image, newQuantity);
+      console.log(listing);
+      if (quantity === listing.quantity) {
+        await Listing.hideSwitch(oid);
+      }
+      return { msg: created.msg, claim: await Responses.claim(created.claim) };
+    } else {
+      return { msg: "Attempted to claim more items than are available." };
     const created = await Claiming.claim(user, quantity, oid);
     //Listing.getListingById(oid)
     //get curr_quantity and calc new_quantity
@@ -278,7 +293,7 @@ class Routes {
       const oid = new ObjectId(requestId);
       return await Responses.offers(await Offering.getOfferByItem(oid));
     } else if (offerer) {
-      const oid = new ObjectId(offerer);
+      const oid = (await Authing.getUserByUsername(offerer))._id;
       return await Responses.offers(await Offering.getOfferByOfferer(oid));
     } else {
       return await Responses.offers(await Offering.getAllOffers());

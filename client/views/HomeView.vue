@@ -24,17 +24,20 @@ const searchTerm = ref("");
     <RequestListComponent :searchTerm="searchTerm" />
   </main>
 </template>
-<style>
+
+<style scoped>
+
 .thumb-container {
   display: grid;
   grid-auto-flow: column;
   grid-template-rows: repeat(2, 1fr); /* Two rows */
-  gap: 20px;
+  gap: 5px;
   overflow-x: auto; /* Enable horizontal scrolling */
   overflow-y: hidden; /* Prevent vertical scrolling */
   padding: 10px;
   scroll-behavior: smooth;
   align-items: center;
+  margin: 30px;
 }
 
 .thumb-container::-webkit-scrollbar {
@@ -42,38 +45,23 @@ const searchTerm = ref("");
 }
 
 .thumb-container::-webkit-scrollbar-thumb {
-  background-color: #ccc; /* Customize scrollbar color */
+  background-color: #d15c2a; /* Customize scrollbar color */
   border-radius: 4px; /* Rounded scrollbar */
 }
 
 .thumb-container::-webkit-scrollbar-track {
-  background-color: #f5f5f5; /* Scrollbar track color */
+  background-color: #fabb7d; /* Scrollbar track color */
 }
 
-.thumbnail img {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
-}
-
-.thumbnail {
-  width: 120px;
-  height: 120px;
-  text-align: center;
-  padding: 1em;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
-</style>
-<style scoped>
 .control-bar {
   padding: 1em;
+  margin-bottom: 20px;
 }
 .control-bar input[type="text"] {
   flex: 1;
   padding: 0.5em;
   border-radius: 4px;
-  border: 1px solid #ddd;
+  border: 1px solid #fabb7d;
   width: 100%;
 }
 .modal {
@@ -103,4 +91,6 @@ const searchTerm = ref("");
   max-width: 100px;
   margin-top: 10px;
 }
+
+
 </style>
