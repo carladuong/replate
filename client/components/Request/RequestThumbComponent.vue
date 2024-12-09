@@ -43,7 +43,7 @@ onBeforeMount(async () => {
 .thumbnail {
   /* background-color: #fabb7d; */
   /* border: 2px solid #d15c2a;  */
-  border-radius: 15px;      
+  border-radius: 15px;
   padding: 10px;
   width: 150px;
   height: 200px;

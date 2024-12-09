@@ -138,15 +138,13 @@ class Routes {
   Requesting
   */
   @Router.get("/requests")
-  async getRequests(requester?: string, include_hidden: boolean = false) {
+  async getRequests(requester?: string) {
     let requests;
     if (requester) {
       const user_id = (await Authing.getUserByUsername(requester))._id;
       requests = await Requesting.getByRequester(user_id);
-    } else if (include_hidden) {
-      requests = await Requesting.getRequests();
     } else {
-      requests = await Requesting.getRequestsOngoing();
+      requests = await Requesting.getRequests();
     }
     return Responses.requests(requests);
   }

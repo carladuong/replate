@@ -7,7 +7,8 @@ import RequestThumbComponent from "./RequestThumbComponent.vue";
 
 const props = defineProps<{
   searchTerm?: string;
-  username?: string; // Optional
+  username?: string;
+  historic?: boolean;
 }>();
 
 const { isLoggedIn } = storeToRefs(useUserStore());
@@ -35,12 +36,16 @@ onBeforeMount(async () => {
 
 const filteredRequests = computed(() => {
   const searchTerm = props.searchTerm?.toLowerCase() || "";
-  return requests.value.filter((request) => request && request.name.toLowerCase().includes(searchTerm));
+  if (props.historic) {
+    return requests.value.filter((request) => request && request.name.toLowerCase().includes(searchTerm) && request.hidden);
+  } else {
+    return requests.value.filter((request) => request && request.name.toLowerCase().includes(searchTerm) && !request.hidden);
+  }
 });
 </script>
 
 <template>
-  <section class="thumb-container" v-if="loaded && requests.length !== 0">
+  <section class="thumb-container" v-if="loaded && filteredRequests.length !== 0">
     <article class="thumb" v-for="request in filteredRequests" :key="request._id">
       <RequestThumbComponent :requestId="request._id" />
     </article>
@@ -49,4 +54,8 @@ const filteredRequests = computed(() => {
   <p v-else>Loading...</p>
 </template>
 
-<style scoped></style>
+<style scoped>
+p {
+  font-size: 1em;
+}
+</style>
