@@ -326,10 +326,11 @@ class Routes {
   }
 
   @Router.patch("/reviews/:id")
-  async editReview(session: SessionDoc, reviewId: string, rating?: number, message?: string) {
+  async editReview(session: SessionDoc, id: string, rating?: number, message?: string) {
+    console.log("Received ID:", id);
     const user = Sessioning.getUser(session);
-    const oid = new ObjectId(reviewId);
-    return await Reviewing.edit(user, oid, rating, message);
+    const oid = new ObjectId(id);
+    return await Reviewing.edit(oid, user, rating, message);
   }
 
   @Router.delete("/reviews/:id")

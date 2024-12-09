@@ -34,11 +34,12 @@ export default class ReviewingConcept {
   }
 
   async add(reviewer: ObjectId, subject: ObjectId, rating: number, message?: string) {
+    await this.assertNotSubject(reviewer, subject);
     const _id = await this.reviews.createOne({ reviewer, subject, rating, message });
     return { msg: "Review successfully created!", post: await this.reviews.readOne({ _id }) };
   }
 
-  async edit(reviewer: ObjectId, _id: ObjectId, rating?: number, message?: string) {
+  async edit(_id: ObjectId, reviewer: ObjectId, rating?: number, message?: string) {
     await this.assertAuthor(_id, reviewer);
     await this.reviews.partialUpdateOne({ _id }, { rating, message });
     return { msg: "Review successfully updated!" };
@@ -60,6 +61,12 @@ export default class ReviewingConcept {
       throw new ReviewAuthorNotMatchError(user, _id);
     }
   }
+
+  async assertNotSubject(user: ObjectId, subject: ObjectId) {
+    if (user === subject) {
+      throw new ReviewSubjectMatchError(user);
+    }
+  }
 }
 
 export class ReviewAuthorNotMatchError extends NotAllowedError {
@@ -68,5 +75,11 @@ export class ReviewAuthorNotMatchError extends NotAllowedError {
     public readonly _id: ObjectId,
   ) {
     super("{0} is not the author of review {1}!", reviewer, _id);
+  }
+}
+
+export class ReviewSubjectMatchError extends NotAllowedError {
+  constructor(public readonly reviewer: ObjectId) {
+    super("{0} can't review yourself!", reviewer);
   }
 }
