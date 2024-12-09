@@ -160,7 +160,7 @@ class Routes {
   //add needed by
   // add synchronization with tagging
   @Router.post("/requests")
-  async addRequest(session: SessionDoc, name: string, quantity: number, needBy: string, expireTime24hrs: string, image?: string, description?: string) {
+  async addRequest(session: SessionDoc, name: string, quantity: number, needBy: string, image?: string, description?: string) {
     const user = Sessioning.getUser(session);
     const created = await Requesting.add(user, name, quantity, image, description);
     //expiration date of the resource

@@ -55,7 +55,7 @@ const emptyForm = () => {
     <input id="quantity" type="number" v-model="quantity" placeholder="0" min="0" step="1" required />
 
     <label for="needBy"> Need by </label>
-    <input id="needBy" type="text" v-model="needBy" placeholder="December 17, 1995 03:24:00" required />
+    <input id="needBy" type="text" v-model="needBy" placeholder="MM/DD/YYYY" required />
 
     <label for="image"> Image URL (optional) </label>
     <input id="image" type="text" v-model="image" />
