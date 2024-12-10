@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import UserComponent from "@/components/Profile/UserComponent.vue";
+import noImage from "@/assets/images/no-image.jpg";
 import router from "@/router";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
@@ -17,7 +18,7 @@ const editedQuantity = ref("");
 const editedDescription = ref("");
 const editedImage = ref("");
 
-const imageSrc = computed(() => (isEditing.value ? editedImage.value || "@/assets/images/no-image.jpg" : request.value?.image || "@/assets/images/no-image.jpg"));
+const imageSrc = computed(() => request.value?.image || noImage);
 
 const startEditing = () => {
   isEditing.value = true;

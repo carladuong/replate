@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import noImage from "@/assets/images/no-image.jpg";
 import router from "@/router";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
@@ -10,7 +11,7 @@ const props = defineProps(["listingId"]);
 const { currentUsername } = storeToRefs(useUserStore());
 const listing = ref<Record<string, string> | null>(null);
 
-const imageSrc = computed(() => listing.value?.image || "@/assets/images/no-image.jpg");
+const imageSrc = computed(() => listing.value?.image || noImage);
 
 async function getListing() {
   try {

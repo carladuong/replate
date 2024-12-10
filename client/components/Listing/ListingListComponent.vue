@@ -50,12 +50,12 @@ onBeforeMount(async () => {
       <ListingThumbComponent :listingId="listing._id" />
     </article>
   </section>
-  <p v-else-if="loaded">No listings found</p>
+  <p class="none" v-else-if="loaded">No listings found</p>
   <p v-else>Loading...</p>
 </template>
 
 <style scoped>
-p {
-  font-size: 1em;
+.none {
+  font-size: small;
 }
 </style>
