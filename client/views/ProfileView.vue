@@ -3,6 +3,7 @@ import ListingListComponent from "@/components/Listing/ListingListComponent.vue"
 import UserOfferListComponent from "@/components/Offer/UserOfferListComponent.vue";
 import UserProfileComponent from "@/components/Profile/UserProfileComponent.vue";
 import RequestListComponent from "@/components/Request/RequestListComponent.vue";
+import UserClaimListComponent from "../components/Claiming/UserClaimListComponent.vue";
 import { ref } from "vue";
 
 const activeSection = ref("listings"); // Default to "listings"
@@ -16,6 +17,7 @@ const activeSection = ref("listings"); // Default to "listings"
       <h1 :class="{ active: activeSection === 'listings' }" @click="activeSection = 'listings'">Listings</h1>
       <h1 :class="{ active: activeSection === 'requests' }" @click="activeSection = 'requests'">Requests</h1>
       <h1 :class="{ active: activeSection === 'offers' }" @click="activeSection = 'offers'">Offers</h1>
+      <h1 :class="{ active: activeSection === 'claims' }" @click="activeSection = 'claims'">Claims</h1>
     </div>
 
     <!-- Conditional Rendering Based on Active Section -->
@@ -33,6 +35,9 @@ const activeSection = ref("listings"); // Default to "listings"
     </section>
     <section v-else-if="activeSection === 'offers'">
       <UserOfferListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" />
+    </section>
+    <section v-else-if="activeSection === 'claims'">
+      <UserClaimListComponent :username="Array.isArray($route.params.id) ? $route.params.id[0] : $route.params.id" />
     </section>
   </main>
 </template>

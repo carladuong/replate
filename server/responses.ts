@@ -61,7 +61,7 @@ export default class Responses {
       return claim;
     }
     const claimer = await Authing.getUserById(claim.claimer);
-    return { ...claim, offerer: claimer.username };
+    return { ...claim, claimer: claimer.username };
   }
 
   /**
