@@ -43,29 +43,18 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <p v-if="claims">You're viewing claims you've made.</p>
-  <p>{{ claims }}</p>
-  <section class="claim-container" v-if="loaded && listings.length !== 0">
-    <article v-for="listing in listings" :key="listing._id">
+  <p>You're viewing claims you've made.</p>
+  <section class="thumb-container" v-if="loaded && listings.length !== 0">
+    <article class="thumb" v-for="listing in listings" :key="listing._id">
       <ListingThumbComponent :listingId="listing._id" />
     </article>
   </section>
-  <p v-else-if="loaded">No claims yet.</p>
+  <p class="none" v-else-if="loaded">No claims found</p>
   <p v-else>Loading...</p>
 </template>
 
 <style scoped>
-.offer-container {
-  display: flex;
-  flex-direction: column;
-  padding: 1em;
-}
-
-article {
-  border-radius: 1em;
-  border: 2px solid #000;
-  gap: 0.5em;
-  padding: 1em;
-  margin-bottom: 10px;
+.none {
+  font-size: small;
 }
 </style>
