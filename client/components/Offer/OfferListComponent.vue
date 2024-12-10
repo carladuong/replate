@@ -50,7 +50,7 @@ onBeforeMount(async () => {
 <template>
   <button @click="goBackToRequest">Back</button>
   <h1>Offers</h1>
-  <p v-if="request">You're viewing offers you've received for {{ request.name }}.</p>
+  <p v-if="request">You're viewing offers you've received for {{ request.name }}. Once you choose to accept one offer, you will get the offerer's contact to schdule a meet-up.</p>
   <section class="offer-container" v-if="loaded && offers.length !== 0">
     <article v-for="offer in offers" :key="offer._id">
       <OfferComponent :offerId="offer._id" />
