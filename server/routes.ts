@@ -224,8 +224,9 @@ class Routes {
       const listingIdObj = new ObjectId(listingId);
       claims = await Claiming.getClaimsByListing(listingIdObj);
     } else if (claimer) {
-      const claimerIdObj = new ObjectId(claimer);
-      claims = await Claiming.getClaimsByClaimer(claimerIdObj);
+      console.log("getting claimer ", claimer);
+      const oid = (await Authing.getUserByUsername(claimer))._id;
+      claims = await Claiming.getClaimsByClaimer(oid);
     } else {
       claims = await Claiming.getAllClaims();
     }
