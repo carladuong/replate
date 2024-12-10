@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import noImage from "@/assets/images/no-image.jpg";
 import router from "@/router";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
@@ -11,7 +10,7 @@ const props = defineProps(["requestId"]);
 const { currentUsername } = storeToRefs(useUserStore());
 const request = ref<Record<string, string> | null>(null);
 
-const imageSrc = computed(() => request.value?.image || noImage);
+const imageSrc = computed(() => request.value?.image || "https://i.imgur.com/Jyns2YP.png");
 
 async function getRequest() {
   try {
