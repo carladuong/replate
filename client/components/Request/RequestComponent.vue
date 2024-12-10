@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import UserComponent from "@/components/Profile/UserComponent.vue";
+//import noImage from "@/assets/images/no-image.jpg";
 import router from "@/router";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
@@ -17,7 +18,7 @@ const editedQuantity = ref("");
 const editedDescription = ref("");
 const editedImage = ref("");
 
-const imageSrc = computed(() => (isEditing.value ? editedImage.value || "@/assets/images/no-image.jpg" : request.value?.image || "@/assets/images/no-image.jpg"));
+const imageSrc = computed(() => request.value?.image || "@/assets/images/no-image.jpg");
 
 const startEditing = () => {
   isEditing.value = true;
@@ -76,7 +77,7 @@ function goToOfferPage() {
 }
 
 function goToViewOffersPage() {
-  void router.push(`/viewOffers/${props.requestId}`)
+  void router.push(`/viewOffers/${props.requestId}`);
 }
 
 onBeforeMount(async () => {
@@ -87,7 +88,7 @@ onBeforeMount(async () => {
 <template>
   <h1>Request</h1>
   <div v-if="request" class="request-item">
-    <div class="image-column" v-if="imageSrc!='@/assets/images/no-image.jpg'">
+    <div class="image-column" v-if="imageSrc != '@/assets/images/no-image.jpg'">
       <img :src="imageSrc" class="item-image" />
     </div>
     <div class="info-column">
@@ -157,7 +158,7 @@ button {
   overflow: hidden; /* Ensure excess image is hidden */
   margin-bottom: 15px;
   margin-right: 100px;
-  margin-left:50px;
+  margin-left: 50px;
 }
 
 .image-column img {

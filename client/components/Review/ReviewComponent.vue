@@ -1,12 +1,44 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/user";
+import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import UserComponent from "../Profile/UserComponent.vue";
 
 const props = defineProps(["review"]);
 
 const { currentUsername } = storeToRefs(useUserStore());
+// State to track whether the review is being edited
+const isEditing = ref(false);
+const editedMessage = ref(props.review.message);
+
+function startEditing() {
+  isEditing.value = true;
+  editedMessage.value = props.review.message; // Set the initial value
+}
+
+function cancelEditing() {
+  isEditing.value = false;
+  editedMessage.value = props.review.message; // Revert changes
+}
+
+async function saveChanges() {
+  if (!props.review || !props.review._id) {
+    console.error("Review or Review ID is missing.");
+    return;
+  }
+  try {
+    await fetchy(`/api/reviews/${props.review._id.toString()}`, "PATCH", {
+      body: {
+        message: editedMessage.value,
+      },
+    });
+    isEditing.value = false;
+  } catch (error) {
+    console.error("Failed to save changed", error);
+    editedMessage.value = props.review.message;
+  }
+}
 
 function generateStarArray(rating: number): number[] {
   return Array.from({ length: 5 }, (_, i) => Math.max(0, Math.min(1, rating - i)));
@@ -32,10 +64,19 @@ const weeksAgo = computed(() => {
       </span>
     </span>
   </p>
-  <div v-if="props.review.message">
+  <div>
     <span class="timestamp">Written {{ weeksAgo }}</span>
-    <p class="review-message">{{ props.review.message }}</p>
+    <!-- Show editable text area or static message based on editing state -->
+    <div v-if="isEditing">
+      <textarea v-model="editedMessage" class="edit-area"></textarea>
+      <button @click="saveChanges">Save</button>
+      <button @click="cancelEditing">Cancel</button>
+    </div>
+    <p v-else class="review-message">{{ editedMessage }}</p>
   </div>
+
+  <!-- Edit button visible only if the current user is the reviewer -->
+  <button v-if="props.review.reviewer === currentUsername && !isEditing" @click="startEditing">Edit</button>
 </template>
 
 <style>
@@ -79,5 +120,11 @@ const weeksAgo = computed(() => {
 .timestamp {
   font-size: 0.8em;
   color: #777;
+}
+
+.edit-area {
+  width: 100%;
+  height: 80px;
+  margin: 5px 0;
 }
 </style>

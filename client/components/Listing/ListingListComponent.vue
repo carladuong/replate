@@ -45,15 +45,17 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <section class="thumb-container" v-if="loaded && listings.length !== 0">
+  <section class="thumb-container" v-if="loaded && filteredListings.length !== 0">
     <article class="thumb" v-for="listing in filteredListings" :key="listing._id">
       <ListingThumbComponent :listingId="listing._id" />
     </article>
   </section>
-  <p v-else-if="loaded">No listings found</p>
+  <p class="none" v-else-if="loaded">No listings found</p>
   <p v-else>Loading...</p>
 </template>
 
 <style scoped>
-
+.none {
+  font-size: small;
+}
 </style>

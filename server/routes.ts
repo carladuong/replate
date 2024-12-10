@@ -138,15 +138,13 @@ class Routes {
   Requesting
   */
   @Router.get("/requests")
-  async getRequests(requester?: string, include_hidden: boolean = false) {
+  async getRequests(requester?: string) {
     let requests;
     if (requester) {
       const user_id = (await Authing.getUserByUsername(requester))._id;
       requests = await Requesting.getByRequester(user_id);
-    } else if (include_hidden) {
-      requests = await Requesting.getRequests();
     } else {
-      requests = await Requesting.getRequestsOngoing();
+      requests = await Requesting.getRequests();
     }
     return Responses.requests(requests);
   }
@@ -326,10 +324,11 @@ class Routes {
   }
 
   @Router.patch("/reviews/:id")
-  async editReview(session: SessionDoc, reviewId: string, rating?: number, message?: string) {
+  async editReview(session: SessionDoc, id: string, rating?: number, message?: string) {
+    console.log("Received ID:", id);
     const user = Sessioning.getUser(session);
-    const oid = new ObjectId(reviewId);
-    return await Reviewing.edit(user, oid, rating, message);
+    const oid = new ObjectId(id);
+    return await Reviewing.edit(oid, user, rating, message);
   }
 
   @Router.delete("/reviews/:id")
@@ -424,6 +423,18 @@ class Routes {
   async getExpireOfItem(itemId: string) {
     const oid = new ObjectId(itemId);
     return await Listing_Expiring.getExpireByItem(oid);
+  }
+
+  //routes for displaying the count in profile
+  @Router.get("/userCounts/:userId")
+  async getUserCounts(userId: string) {
+    const oid = new ObjectId(userId);
+    const listings = await Listing.getNumberOfListingsByAuthor(oid);
+    const requests = await Requesting.getNumberOfRequestsByRequester(oid);
+    // const offers = await Offering.getNumberOfOffersByOfferer(oid);
+    // const claims = await Claiming.getClaimsByClaimer(oid);
+    // const reviews = await Reviewing.getReviewsOfSubject(oid);
+    return { listings: listings, requests: requests };
   }
 }
 

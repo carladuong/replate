@@ -10,11 +10,26 @@ const props = defineProps(["userId"]);
 
 const rating = ref(0);
 const reviewNumber = ref(0);
-const requestsNumber = ref(0);
-const listingsNumber = ref(0);
 const user = ref<Record<string, string> | null>(null);
 const loaded = ref(false);
 const menuVisible = ref(false);
+const listingsCount = ref(0);
+const offersCount = ref(0);
+const requestsCount = ref(0);
+const userId = ref(props.userId);
+
+async function getUserCounts() {
+  try {
+    console.log("Fetching user counts for useId:", userId.value); // Debug log (currenly in string format)
+    const counts = await fetchy(`/api/userCounts/${userId.value}`, "GET");
+    listingsCount.value = counts.listings;
+    console.log("Listings Count:", listingsCount);
+    requestsCount.value = counts.requests;
+  } catch (e) {
+    console.error("Failed to fetch user counts:", e);
+  }
+  console.log("Users after update:", listingsCount.value, offersCount.value, requestsCount.value);
+}
 
 async function getUserInfo() {
   let reviews;
@@ -26,8 +41,9 @@ async function getUserInfo() {
 
   if (user.value) {
     try {
-      let id = user.value._id.toString();
-      reviews = (await fetchy("/api/reviews", "GET", { query: { subjectId: id } })) as { rating: number }[];
+      userId.value = user.value._id.toString();
+      console.log("Fetching reviews for userId:", userId.value);
+      reviews = (await fetchy("/api/reviews", "GET", { query: { subjectId: userId.value } })) as { rating: number }[];
     } catch (e) {
       return e;
     }
@@ -53,7 +69,7 @@ function handleMenuOption(option: string) {
   } else if (option === "report") {
     console.log("Report selected");
     void router.push({
-      name: "Report", // Ensure this route name exists in your router configuration
+      name: "Report",
       params: { reportedId: user.value ? user.value._id.toString() : "" },
     });
   } else if (option === "edit") {
@@ -71,6 +87,7 @@ function openReviews() {
 
 onBeforeMount(async () => {
   await getUserInfo();
+  await getUserCounts();
   loaded.value = true;
 });
 </script>
@@ -101,10 +118,10 @@ onBeforeMount(async () => {
 
       <div class="user-stats">
         <text>
-          <strong>{{ listingsNumber }}</strong> listings
+          <strong>{{ listingsCount }}</strong> listings
         </text>
         <text>
-          <strong>{{ requestsNumber }}</strong> requests
+          <strong>{{ requestsCount }}</strong> requests
         </text>
       </div>
     </div>
@@ -113,10 +130,10 @@ onBeforeMount(async () => {
     <!-- Menu Overlay -->
     <div v-if="menuVisible" class="menu-overlay" @click="toggleMenu">
       <div class="menu" @click.stop>
-        <button v-if="currentUsername !== userId" @click="handleMenuOption('review')">Review</button>
-        <button v-if="currentUsername !== userId" @click="handleMenuOption('report')">Report</button>
+        <button v-if="currentUsername !== props.userId" @click="handleMenuOption('review')">Review</button>
+        <button v-if="currentUsername !== props.userId" @click="handleMenuOption('report')">Report</button>
         <!-- Only if user's profile -->
-        <button v-if="currentUsername === userId" @click="handleMenuOption('edit')">Edit Profile</button>
+        <button v-if="currentUsername === props.userId" @click="handleMenuOption('edit')">Edit Profile</button>
         <button @click="handleMenuOption('cancel')">Cancel</button>
       </div>
     </div>

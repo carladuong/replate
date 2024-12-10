@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import noImage from "@/assets/images/no-image.jpg";
 import router from "@/router";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
@@ -10,7 +11,7 @@ const props = defineProps(["listingId"]);
 const { currentUsername } = storeToRefs(useUserStore());
 const listing = ref<Record<string, string> | null>(null);
 
-const imageSrc = computed(() => listing.value?.image || "@/assets/images/no-image.jpg");
+const imageSrc = computed(() => listing.value?.image || noImage);
 
 async function getListing() {
   try {
@@ -33,7 +34,7 @@ onBeforeMount(async () => {
 <template>
   <div v-if="listing" class="thumbnail" @click="openListing">
     <div class="image-container">
-      <img :src="imageSrc" class="produce-image" />
+      <img :src="imageSrc" />
       <div v-if="listing.hidden" class="claimed-overlay">Claimed</div>
     </div>
     <span>{{ listing.name }}</span>

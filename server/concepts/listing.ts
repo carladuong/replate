@@ -102,6 +102,9 @@ export default class ListingConcept {
     await this.listings.partialUpdateOne({ _id }, { hidden });
     return { msg: "Listing successfully updated!" };
   }
+  async getNumberOfListingsByAuthor(author: ObjectId) {
+    return await this.listings.count({ author });
+  }
 }
 
 export class ListingAuthorNotMatchError extends NotAllowedError {
