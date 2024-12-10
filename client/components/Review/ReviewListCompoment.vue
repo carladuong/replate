@@ -42,7 +42,9 @@ onBeforeMount(async () => {
   </section>
   <p v-else-if="loaded">No reviews found</p>
   <p v-else>Loading...</p>
-  <button v-if="currentUsername !== props.userId" @click="openReviewForm">Review</button>
+  <div class="button-container" v-if="currentUsername !== props.userId">
+    <button class="reviewButton" @click="openReviewForm">Review</button>
+  </div>
 </template>
 <style scoped>
 .reviews-container article {
@@ -55,5 +57,17 @@ onBeforeMount(async () => {
 .reviews-container article:last-of-type {
   border-bottom: none;
   margin-bottom: 0;
+}
+.reviewButton {
+  display: block; /* Ensures it's treated as a block element for centering */
+  margin: 0 auto; /* Horizontally center the button */
+  padding: 10px 20px; /* Adjust padding for a larger button */
+  font-size: 16px; /* Increase font size */
+}
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 </style>

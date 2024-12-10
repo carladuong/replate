@@ -9,17 +9,21 @@ const props = defineProps(["review"]);
 
 const { currentUsername } = storeToRefs(useUserStore());
 // State to track whether the review is being edited
+const review = ref(props.review);
 const isEditing = ref(false);
 const editedMessage = ref(props.review.message);
+const editedRating = ref(props.review.rating);
 
 function startEditing() {
   isEditing.value = true;
-  editedMessage.value = props.review.message; // Set the initial value
+  editedMessage.value = review.value.message;
+  editedRating.value = review.value.rating; // Set the initial value
 }
 
 function cancelEditing() {
   isEditing.value = false;
-  editedMessage.value = props.review.message; // Revert changes
+  editedMessage.value = review.value.message;
+  editedRating.value = review.value.rating; // Revert changes
 }
 
 async function saveChanges() {
@@ -31,12 +35,16 @@ async function saveChanges() {
     await fetchy(`/api/reviews/${props.review._id.toString()}`, "PATCH", {
       body: {
         message: editedMessage.value,
+        rating: editedRating.value,
       },
     });
     isEditing.value = false;
+    review.value.message = editedMessage.value;
+    review.value.rating = editedRating.value;
   } catch (error) {
     console.error("Failed to save changed", error);
-    editedMessage.value = props.review.message;
+    editedMessage.value = review.value.message;
+    editedRating.value = review.value.rating;
   }
 }
 
@@ -55,19 +63,21 @@ const weeksAgo = computed(() => {
 </script>
 
 <template>
-  <UserComponent :userId="props.review.reviewer" class="hide-rating" />
+  <UserComponent :userId="review.reviewer" class="hide-rating" />
   <p class="review-rating">
     <span>Rating:</span>
     <span class="star-rating">
-      <span v-for="(fill, index) in generateStarArray(props.review.rating)" :key="index" class="star">
+      <span v-for="(fill, index) in generateStarArray(isEditing ? editedRating : review.rating)" :key="index" class="star">
         <span class="star-filled" :style="{ width: fill * 100 + '%' }"></span>
       </span>
     </span>
   </p>
   <div>
     <span class="timestamp">Written {{ weeksAgo }}</span>
-    <!-- Show editable text area or static message based on editing state -->
+
+    <!-- Editable text and rating controls -->
     <div v-if="isEditing">
+      Rating: <input type="number" v-model.number="editedRating" min="0" max="5" step="1" class="rating-input" />
       <textarea v-model="editedMessage" class="edit-area"></textarea>
       <button @click="saveChanges">Save</button>
       <button @click="cancelEditing">Cancel</button>
