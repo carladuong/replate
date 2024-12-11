@@ -192,6 +192,8 @@ class Routes {
     const RequestExp = await Request_Expiring.getExpireByItem(oid);
     await Request_Expiring.delete(RequestExp._id);
 
+    await Offering.removeAllItemOffers(oid);
+
     return Requesting.delete(oid);
   }
 
