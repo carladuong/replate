@@ -131,7 +131,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <p>{{ claimed }} {{ claimId }}</p>
+  <p>Claimed ? {{ claimed }} ID: {{ claimId }}</p>
   <h1>Listing</h1>
   <div v-if="listing" class="listing-item">
     <div class="image-column">

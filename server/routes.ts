@@ -240,10 +240,9 @@ class Routes {
   }
 
   @Router.delete("/claims/:id")
-  async unclaimItem(session: SessionDoc, claimId: string) {
-    const oid = new ObjectId(claimId);
-    const claim = await Claiming.getClaimById(oid);
-    console.log(claim);
+  async unclaimItem(session: SessionDoc, id: string) {
+    const oid = new ObjectId(id);
+    const claim = await Claiming.getClaimById(oid); //for some reason returns Claim does not exist
     //update listing
     const remaining = await Listing.getRemainingQuantity(claim.item);
     if (remaining == 0) {

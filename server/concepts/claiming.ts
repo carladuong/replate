@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
-import { NotAllowedError } from "./errors";
+import { NotAllowedError, NotFoundError } from "./errors";
 
 export interface ClaimDoc extends BaseDoc {
   claimer: ObjectId;
@@ -28,7 +28,7 @@ export default class ClaimingConcept {
   }
 
   async unclaim(claimId: ObjectId) {
-    await this.claims.deleteOne({ claimId });
+    await this.claims.deleteOne({ _id: claimId });
     return { msg: "Successfully unclaimed item!" };
   }
 
@@ -50,10 +50,10 @@ export default class ClaimingConcept {
 
   async getClaimById(claimId: ObjectId) {
     const claim = await this.claims.readOne({ _id: claimId });
-    if (claim) {
-      return claim;
+    if (!claim) {
+      throw new NotFoundError("Claim does not exists!");
     }
-    throw new NotAllowedError("Claim does not exist.");
+    return claim;
   }
 
   async getClaimsByListing(listingId: ObjectId) {
