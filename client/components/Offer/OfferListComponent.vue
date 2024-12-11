@@ -68,8 +68,6 @@ onBeforeMount(async () => {
 }
 
 article {
-  border-radius: 1em;
-  border: 2px solid #000;
   gap: 0.5em;
   padding: 1em;
   margin-bottom: 10px;

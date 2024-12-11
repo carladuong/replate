@@ -85,8 +85,6 @@ body {
 }
 
 .thumbnail {
-  /* background-color: #fabb7d;
-  border: 2px solid #d15c2a;  */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 15px;      
   padding: 20px;

@@ -43,7 +43,6 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <p>You're viewing claims you've made.</p>
   <section class="thumb-container" v-if="loaded && listings.length !== 0">
     <article class="thumb" v-for="listing in listings" :key="listing._id">
       <ListingThumbComponent :listingId="listing._id" />

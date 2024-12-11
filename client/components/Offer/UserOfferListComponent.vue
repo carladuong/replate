@@ -47,11 +47,4 @@ onBeforeMount(async () => {
   padding: 1em;
 }
 
-article {
-  border-radius: 1em;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  gap: 0.5em;
-  padding: 1em;
-  margin-bottom: 10px;
-}
 </style>
