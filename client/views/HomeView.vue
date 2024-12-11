@@ -6,8 +6,21 @@ import { storeToRefs } from "pinia";
 import { ref } from "vue";
 
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
+const categories = ["Ingredient", "Non-Perishable", "Produce", "Gluten-Free", "Vegan", "No Nuts", "Vegetarian"];
+const selectedCategory = ref("");
 
 const searchTerm = ref("");
+
+const toggleTag = (tag: string) => {
+  if (selectedCategory.value === tag) {
+    selectedCategory.value = "";
+  } else if (selectedCategory.value === "") {
+    selectedCategory.value = tag;
+  } else {
+    return;
+  }
+  console.log(selectedCategory.value)
+};
 </script>
 
 <template>
@@ -15,13 +28,21 @@ const searchTerm = ref("");
     <div class="control-bar">
       <input type="text" v-model="searchTerm" placeholder="Search items" />
     </div>
+    <div class="categories">
+      <p>Select a tag:</p>
+      <div class="category-options">
+        <span v-for="category in categories" :key="category" :class="['category-option', { selected: selectedCategory===category }]" @click="toggleTag(category)">
+          {{ category }}
+        </span>
+      </div>
+    </div>
     <section>
       <h1 v-if="!isLoggedIn">Please login!</h1>
     </section>
     <h2>Listings</h2>
-    <ListingListComponent :searchTerm="searchTerm" />
+    <ListingListComponent :searchTerm="searchTerm" :tag="selectedCategory" />
     <h2>Requests</h2>
-    <RequestListComponent :searchTerm="searchTerm" />
+    <RequestListComponent :searchTerm="searchTerm" :tag="selectedCategory"/>
   </main>
 </template>
 
@@ -93,4 +114,39 @@ const searchTerm = ref("");
 }
 
 
+
+.tagging-component {
+  display: flex;
+  gap: 1em;
+}
+.categories,
+.dietary-restrictions {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  align-items: center;
+  margin-bottom: 30px;
+}
+.category-options,
+.dietary-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+}
+.category-option,
+.dietary-option {
+  background-color: #fabb7d;
+  border-radius: 1em;
+  padding: 0.5em;
+  cursor: pointer;
+  margin: 0;
+  transition: background-color 0.2s;
+  text-align: center;
+  align-items: center;
+}
+.category-option.selected,
+.dietary-option.selected {
+  background-color: #d15c2a;
+  color: white;
+}
 </style>
