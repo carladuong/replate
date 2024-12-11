@@ -242,8 +242,16 @@ class Routes {
   @Router.delete("/claims/:id")
   async unclaimItem(session: SessionDoc, claimId: string) {
     const oid = new ObjectId(claimId);
+    const claim = await Claiming.getClaimById(oid);
     await Claiming.unclaim(oid);
-    //Listing edit quantity
+    //update listing
+    const remaining = await Listing.getRemainingQuantity(claim.item);
+    if (remaining == 0) {
+      await Listing.hideSwitch(claim.item);
+    }
+    const quantity = remaining + claim.quantity;
+    await Listing.editlisting(claim.item, undefined, undefined, undefined, quantity, undefined, undefined);
+    return { msg: "Success" };
   }
 
   /*

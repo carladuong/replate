@@ -80,7 +80,7 @@ export default class ListingConcept {
       throw new NotFoundError(`Listing ${_id} does not exist!`);
     }
     const remaining = await listing.remaining;
-    return { msg: "Remaining quantity: " + remaining };
+    return remaining;
   }
 
   async assertAuthorIsUser(_id: ObjectId, user: ObjectId) {

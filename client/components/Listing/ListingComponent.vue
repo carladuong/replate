@@ -14,6 +14,8 @@ const isEditing = ref(false);
 const listing = ref<Record<string, string> | null>(null);
 const expire = ref<Record<string, string> | null>(null);
 const quantity = ref("0");
+const claimed = ref(false);
+const claimId = ref("");
 
 const editedName = ref("");
 const editedQuantity = ref("");
@@ -63,9 +65,14 @@ const cancelEditing = () => {
 async function getListing(listingId: string) {
   try {
     const listingResult = await fetchy(`/api/listings/${listingId}`, "GET");
-    console.log(listingResult);
     listing.value = listingResult;
-    expire.value = await fetchy(`expirations/item`, "GET", { query: { itemId: listingId } });
+    //expire.value = await fetchy(`expirations/item`, "GET", { query: { itemId: listingId } });
+    //check if listing already claimed by user
+    const claims = await fetchy("/api/claims", "GET", { query: { listingId: props.listingId } });
+    const userClaim = claims.find((claim) => claim.claimer === currentUsername.value);
+    console.log(userClaim);
+    claimed.value = !!userClaim;
+    claimId.value = userClaim ? userClaim._id.toString() : "";
   } catch (_) {
     console.error("Failed to fetch listing details.");
   }
@@ -104,6 +111,19 @@ async function claimListing(quantity: string) {
   const claim = await fetchy("/api/claims", "POST", { body: { listingId: props.listingId, quantity: new_quantity } });
   if (claim.msg.startsWith("Success")) {
     void router.push(`/listingClaimed/${props.listingId}`);
+  }
+}
+
+async function unclaimListing() {
+  try {
+    const unclaim = await fetchy(`/api/claims/${claimId.value}`, "DELETE");
+    if (unclaim) {
+      claimed.value = false;
+      claimId.value = "";
+      await getListing(props.listingId);
+    }
+  } catch (error) {
+    console.error("Failed to unclaim the listing:", error);
   }
 }
 
@@ -186,13 +206,12 @@ onBeforeMount(async () => {
           <button v-if="isEditing" @click="cancelEditing">Cancel</button>
           <button v-else-if="listing.author === currentUsername && !listing.hidden" @click="startEditing">Edit</button>
 
-          <!-- Show 'Claimed' button if the listing is hidden (claimed) -->
-          <button v-if="listing.hidden" disabled>Claimed</button>
-
-          <!-- Form for claiming the listing if it's not claimed and the user is not the author -->
-          <form v-if="listing.author !== currentUsername && !listing.hidden" @submit.prevent="claimListing(quantity)">
+          <!-- Claiming/Unclaiming Buttons -->
+          <button v-if="claimed && listing.author !== currentUsername" @click="unclaimListing">Unclaim</button>
+          <button v-else-if="listing.hidden" disabled>Claimed out</button>
+          <form v-else-if="listing.author !== currentUsername && !listing.hidden" @submit.prevent="claimListing(quantity)">
             <label for="quantity">Enter the quantity you wish to claim:</label>
-            <input id="quantity" type="text" v-model="quantity" />
+            <input id="quantity" type="number" :min="1" :max="listing.quantity" v-model="quantity" />
             <button type="submit">Claim</button>
           </form>
         </div>
