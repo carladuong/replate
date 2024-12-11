@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import router from "@/router";
 import { fetchy } from "@/utils/fetchy";
 import { onBeforeMount, ref } from "vue";
@@ -14,20 +13,20 @@ let contactNumber = ref("");
 let location = ref("");
 
 async function getListing() {
-    let results;
-    try {
-        results = await fetchy(`/api/listings/${props.listingId}`, "GET");
-    } catch (_) {
-        return;
-    }
-    listing.value = results;
-    location.value = results.meetup_location;
-    itemName.value = results.name;
-    contactUsername.value = results.author;
+  let results;
+  try {
+    results = await fetchy(`/api/listings/${props.listingId}`, "GET");
+  } catch (_) {
+    return;
+  }
+  listing.value = results;
+  location.value = results.meetup_location;
+  itemName.value = results.name;
+  contactUsername.value = results.author;
 }
 
 async function getUser() {
-    let result;
+  let result;
   try {
     result = await fetchy(`/api/users/${contactUsername.value}`, "GET");
   } catch (_) {
@@ -38,25 +37,22 @@ async function getUser() {
 }
 
 function goHome() {
-    void router.push('/');
+  void router.push("/");
 }
 
 onBeforeMount(async () => {
   await getListing();
   await getUser();
 });
-
 </script>
-
 
 <template>
   <main>
-    <h1>You've claimed a listing for {{itemName}} from {{contactUsername}}! </h1>
+    <h1>You've claimed a listing for {{ itemName }} from {{ contactUsername }}!</h1>
     <h2>Contact them at {{ contactNumber }} to arrange a pickup at {{ location }}.</h2>
     <button @click="goHome">Back</button>
   </main>
 </template>
-
 
 <style scoped>
 h1 {

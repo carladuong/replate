@@ -407,13 +407,13 @@ class Routes {
     return { message: `User has been reported: ${isUserReported}`, "numberOfReports:": countReports };
   }
 
-  @Router.get("expirations/:id")
-  async getExpirationOfItem(itemId: string) {
-    const oid = new ObjectId(itemId);
-    return await Listing_Expiring.getExpire(oid);
+  @Router.get("/expirations/:listingId") //getting expiration by item
+  async getExpirationOfItem(listingId: string) {
+    const oid = new ObjectId(listingId);
+    return await Listing_Expiring.getExpireByItem(oid);
   }
 
-  @Router.patch("expirations/:id")
+  @Router.patch("/expirations/:id")
   async editExpirationDate(session: SessionDoc, id: string, expireDate: string) {
     const oid = new ObjectId(id);
     const user = Sessioning.getUser(session);
@@ -422,11 +422,11 @@ class Routes {
     await Listing_Expiring.editExpiration(oid, expireDate, "00:00");
   }
 
-  @Router.get("expirations/item")
-  async getExpireOfItem(itemId: string) {
-    const oid = new ObjectId(itemId);
-    return await Listing_Expiring.getExpireByItem(oid);
-  }
+  // @Router.get("expirations/item")
+  // async getExpireOfItem(itemId: string) {
+  //   const oid = new ObjectId(itemId);
+  //   return await Listing_Expiring.getExpireByItem(oid);
+  // }
 
   //routes for displaying the count in profile
   @Router.get("/userCounts/:userId")

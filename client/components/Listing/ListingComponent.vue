@@ -63,11 +63,21 @@ const cancelEditing = () => {
 async function getListing(listingId: string) {
   try {
     const listingResult = await fetchy(`/api/listings/${listingId}`, "GET");
-    console.log(listingResult);
     listing.value = listingResult;
-    expire.value = await fetchy(`expirations/item`, "GET", { query: { itemId: listingId } });
   } catch (_) {
     console.error("Failed to fetch listing details.");
+  }
+}
+
+async function getExpirationDate(listingId: string) {
+  console.log("getting expiration date for:", listingId);
+  try {
+    const expirationResult = await fetchy(`/api/expirations/${listingId}`, "GET");
+    console.log("fetched");
+    expire.value = expirationResult;
+    console.log("expiration result:", expirationResult);
+  } catch (_) {
+    console.error("Failed to fetch expiration detailsssss :(.");
   }
 }
 const saveChanges = async () => {
@@ -107,8 +117,21 @@ async function claimListing(quantity: string) {
   }
 }
 
+// Function to format the date
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 onBeforeMount(async () => {
   await getListing(props.listingId);
+  await getExpirationDate(props.listingId);
 });
 </script>
 
@@ -147,7 +170,7 @@ onBeforeMount(async () => {
           <input v-model="editedExpiration" placeholder="mm/dd/yyyy" />
         </div>
         <div v-else-if="expire">
-          {{ expire.expireAt }}
+          {{ formatDate(expire.expireAt) }}
         </div>
 
         <!-- Meetup Location -->
