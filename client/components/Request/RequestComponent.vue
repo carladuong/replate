@@ -11,6 +11,7 @@ const props = defineProps(["requestId"]);
 const { currentUsername } = storeToRefs(useUserStore());
 const isEditing = ref(false);
 const request = ref<Record<string, string> | null>(null);
+const needBy = ref<string>("");
 
 const editedName = ref("");
 const editedQuantity = ref("");
@@ -34,6 +35,18 @@ const cancelEditing = () => {
   editedDescription.value = request.value.description;
   editedImage.value = request.value.image;
 };
+
+// Function to format the date
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 const saveChanges = async () => {
   if (!request.value) {
@@ -71,6 +84,17 @@ async function getRequest(requestId: string) {
   }
 }
 
+//called request Id but is actually the objectId for listing
+async function getNeedByDate(requestId: string) {
+  console.log("getting expiration date forrrr:", requestId);
+  try {
+    const needByData = await fetchy(`/api/expirations/requestExpiration/${requestId}`, "GET");
+    console.log("fetched");
+    needBy.value = needByData.expireAt;
+  } catch (_) {
+    console.error("Failed to fetch expiration detailsssssssss :(.");
+  }
+}
 function goToOfferPage() {
   void router.push(`/makeOffer/${props.requestId}`);
 }
@@ -81,6 +105,7 @@ function goToViewOffersPage() {
 
 onBeforeMount(async () => {
   await getRequest(props.requestId);
+  await getNeedByDate(props.requestId);
 });
 </script>
 
@@ -111,6 +136,12 @@ onBeforeMount(async () => {
         </div>
         <div v-else>
           {{ request.quantity }}
+        </div>
+
+        <!-- Need By -->
+        <p><strong>Need By:</strong></p>
+        <div>
+          {{ formatDate(needBy) }}
         </div>
 
         <!-- Description -->

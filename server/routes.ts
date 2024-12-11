@@ -413,6 +413,12 @@ class Routes {
     return await Listing_Expiring.getExpireByItem(oid);
   }
 
+  @Router.get("/expirations/requestExpiration/:requestId") //getting expiration by item
+  async getExpirationOfRequest(requestId: string) {
+    const oid = new ObjectId(requestId);
+    return await Request_Expiring.getExpireByItem(oid);
+  }
+
   @Router.patch("/expirations/:id")
   async editExpirationDate(session: SessionDoc, id: string, expireDate: string) {
     const oid = new ObjectId(id);
