@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { z } from "zod";
 
-import { Authing, Claiming, Listing, Listing_Expiring, Offering, Reporting, Request_Expiring, Requesting, Reviewing, Sessioning } from "./app";
+import { Authing, Claiming, Listing, Listing_Expiring, Offering, Reporting, Request_Expiring, Requesting, Reviewing, Sessioning, Tagging } from "./app";
 import { NotAllowedError, NotFoundError } from "./concepts/errors";
 import { SessionDoc } from "./concepts/sessioning";
 import { Router, getExpressRouter } from "./framework/router";
@@ -110,6 +110,9 @@ class Routes {
 
     if (created.listing) {
       const create_expireObj = await Listing_Expiring.allocate(created.listing._id, expireDate, "00:00");
+      for (const tag of tags) {
+        await Tagging.tagItem(created.listing._id, tag);
+      }
       return { msg: created.msg, listing: await Responses.listing(created.listing) };
     }
   }
@@ -444,6 +447,16 @@ class Routes {
     // const claims = await Claiming.getClaimsByClaimer(oid);
     // const reviews = await Reviewing.getReviewsOfSubject(oid);
     return { listings: listings, requests: requests };
+  }
+
+  @Router.get("/tagged/:tag")
+  async getItemsWithTag(tag: string) {
+    return await Tagging.getItemsWithTag(tag)
+  }
+
+  @Router.post("/tags/:tag")
+  async createTag(tag:string) {
+    return await Tagging.createTag(tag);
   }
 }
 
