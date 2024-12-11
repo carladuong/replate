@@ -243,7 +243,7 @@ class Routes {
   async unclaimItem(session: SessionDoc, claimId: string) {
     const oid = new ObjectId(claimId);
     const claim = await Claiming.getClaimById(oid);
-    await Claiming.unclaim(oid);
+    console.log(claim);
     //update listing
     const remaining = await Listing.getRemainingQuantity(claim.item);
     if (remaining == 0) {
@@ -251,7 +251,8 @@ class Routes {
     }
     const quantity = remaining + claim.quantity;
     await Listing.editlisting(claim.item, undefined, undefined, undefined, quantity, undefined, undefined);
-    return { msg: "Success" };
+    //now can delete
+    return await Claiming.unclaim(oid);
   }
 
   /*

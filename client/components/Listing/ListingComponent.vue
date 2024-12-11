@@ -116,12 +116,10 @@ async function claimListing(quantity: string) {
 
 async function unclaimListing() {
   try {
-    const unclaim = await fetchy(`/api/claims/${claimId.value}`, "DELETE");
-    if (unclaim) {
-      claimed.value = false;
-      claimId.value = "";
-      await getListing(props.listingId);
-    }
+    await fetchy(`/api/claims/${claimId.value}`, "DELETE");
+    claimed.value = false;
+    claimId.value = "";
+    await getListing(props.listingId);
   } catch (error) {
     console.error("Failed to unclaim the listing:", error);
   }
@@ -133,6 +131,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
+  <p>{{ claimed }} {{ claimId }}</p>
   <h1>Listing</h1>
   <div v-if="listing" class="listing-item">
     <div class="image-column">

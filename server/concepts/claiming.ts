@@ -28,9 +28,6 @@ export default class ClaimingConcept {
   }
 
   async unclaim(claimId: ObjectId) {
-    if (!this.checkIfClaimed(claimId)) {
-      throw new ObjectNotClaimedError();
-    }
     await this.claims.deleteOne({ claimId });
     return { msg: "Successfully unclaimed item!" };
   }
@@ -43,8 +40,8 @@ export default class ClaimingConcept {
     return { msg: `Successfully deleted claims on item ${itemId}!` };
   }
 
-  async checkIfClaimed(item: ObjectId) {
-    const claim = await this.claims.readOne({ item: item });
+  async checkIfClaimed(id: ObjectId) {
+    const claim = await this.claims.readOne({ _id: id });
     if (claim) {
       return true;
     }
