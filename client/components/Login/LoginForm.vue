@@ -40,6 +40,6 @@ h3 {
 }
 
 button {
-  background-color: #69825a
+  background-color: #69825a;
 }
 </style>

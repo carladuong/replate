@@ -1,59 +1,64 @@
+<!-- client/components/Claiming/UserClaimListComponent.vue -->
 <script setup lang="ts">
-import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
-import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
-import ListingThumbComponent from "../Listing/ListingThumbComponent.vue";
 
-const props = defineProps(["username"]);
+const props = defineProps<{ listingId: string }>();
 
-const { isLoggedIn } = storeToRefs(useUserStore());
 const loaded = ref(false);
-let claims = ref<Array<Record<string, string>>>([]);
-let listings = ref<Array<Record<string, string>>>([]);
+const claims = ref<Array<{ _id: string; claimer: string; quantity: number }>>([]);
+const isError = ref(false);
 
+/**
+ * Fetches claims associated with the given listingId.
+ */
 async function getClaims() {
-  let results;
   try {
-    results = await fetchy("/api/claims", "GET", { query: { claimer: props.username } });
-  } catch (_) {
-    console.log("failed");
-    return;
-  }
-  claims.value = results;
-}
-
-async function getListings() {
-  let result;
-  try {
-    claims.value?.forEach(async (claim) => {
-      result = await fetchy(`/api/listings/${claim.item}`, "GET");
-      listings.value.push(result);
+    const results = await fetchy("/api/claims", "GET", {
+      query: { listingId: props.listingId },
     });
-  } catch (_) {
-    return;
+    claims.value = results;
+  } catch (error) {
+    console.error("Failed to fetch claims:", error);
+    isError.value = true;
   }
 }
 
 onBeforeMount(async () => {
   await getClaims();
-  await getListings();
   loaded.value = true;
 });
 </script>
 
 <template>
-  <section class="thumb-container" v-if="loaded && listings.length !== 0">
-    <article class="thumb" v-for="listing in listings" :key="listing._id">
-      <ListingThumbComponent :listingId="listing._id" />
-    </article>
-  </section>
-  <p class="none" v-else-if="loaded">No claims found</p>
-  <p v-else>Loading...</p>
+  <div>
+    <h2>Claims for Listing ID: {{ props.listingId }}</h2>
+
+    <section class="claims-container" v-if="loaded && claims.length !== 0">
+      <article v-for="claim in claims" :key="claim._id" class="claim-item">
+        <p><strong>Claimer ID:</strong> {{ claim.claimer }}</p>
+        <p><strong>Quantity:</strong> {{ claim.quantity }}</p>
+        <!-- Add more claim details as needed -->
+      </article>
+    </section>
+
+    <p v-else-if="loaded && !isError">No claims found for this listing.</p>
+    <p v-else-if="isError">Failed to load claims. Please try again later.</p>
+    <p v-else>Loading...</p>
+  </div>
 </template>
 
 <style scoped>
-.none {
-  font-size: small;
+.claims-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  padding: 1em;
+}
+
+.claim-item {
+  border: 1px solid #ccc;
+  padding: 1em;
+  border-radius: 5px;
 }
 </style>

@@ -1,6 +1,7 @@
 import { storeToRefs } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 
+import UserClaimListComponent from "@/components/Claiming/UserClaimListComponent.vue";
 import { useUserStore } from "@/stores/user";
 import FaqView from "@/views/FaqView.vue";
 import CreateListingView from "../views/CreateListingView.vue";
@@ -101,6 +102,13 @@ const router = createRouter({
       component: OfferAcceptedView,
       meta: { requiresAuth: true },
     },
+    {
+      path: "/viewClaims/:listingId",
+      name: "ViewClaims",
+      component: UserClaimListComponent,
+      props: true,
+    },
+
     {
       path: "/login",
       name: "Login",

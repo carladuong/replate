@@ -9,7 +9,7 @@ export type BodyT = string | number | boolean | null | BodyT[] | { [key: string]
  * @param url The url to fetch from
  * @param method The HTTP method to use
  * @param options.query The query parameters to add to the url
- * @param options.body The body to send 
+ * @param options.body The body to send
  * @param options.alert Whether to alert the user of the response message (default: true)
  * @returns The response body
  * @throws An error if the response is not ok
@@ -56,7 +56,7 @@ export async function fetchy(
   // }
 
   if (options.body) {
-      fetchOptions.body = JSON.stringify(options.body);
+    fetchOptions.body = JSON.stringify(options.body);
   }
 
   // Perform fetch request

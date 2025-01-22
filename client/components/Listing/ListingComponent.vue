@@ -133,6 +133,13 @@ onBeforeMount(async () => {
   await getListing(props.listingId);
   await getExpirationDate(props.listingId);
 });
+
+/**
+ * Navigates to the Claims page for the current listing.
+ */
+function goToClaims() {
+  void router.push({ name: "ViewClaims", params: { listingId: props.listingId } });
+}
 </script>
 
 <template>
@@ -208,6 +215,9 @@ onBeforeMount(async () => {
           <button v-if="isEditing" @click="saveChanges">Save</button>
           <button v-if="isEditing" @click="cancelEditing">Cancel</button>
           <button v-else-if="listing.author === currentUsername && !listing.hidden" @click="startEditing">Edit</button>
+
+          <!-- View Claims Button -->
+          <button v-if="listing.author === currentUsername" @click="goToClaims" class="view-claims-button">View Claims</button>
 
           <!-- Show 'Claimed' button if the listing is hidden (claimed) -->
           <button v-if="listing.hidden" disabled>Claimed</button>
