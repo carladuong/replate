@@ -51,11 +51,11 @@ app.all("*", (req, res) => {
   });
 });
 
-// void connectDb().then(() => {
-//   app.listen(PORT, () => {
-//     console.log("Started listening on port", PORT);
-//   });
-// });
+void connectDb().then(() => {
+  app.listen(PORT, () => {
+    console.log("Started listening on port", PORT);
+  });
+});
 
 
 // Expiring schedule
@@ -67,49 +67,49 @@ app.all("*", (req, res) => {
 // });
 
 
-// Function to handle expired listings
-async function handleListingsExpired() {
-  const expiredDocs = await Listing_Expiring.getAllExpired();
-  if (!expiredDocs || expiredDocs.length === 0) {
-    console.log("No expired listings to process.");
-    return;
-  }
+// // Function to handle expired listings
+// async function handleListingsExpired() {
+//   const expiredDocs = await Listing_Expiring.getAllExpired();
+//   if (!expiredDocs || expiredDocs.length === 0) {
+//     console.log("No expired listings to process.");
+//     return;
+//   }
 
-  for (const doc of expiredDocs) {
-    const itemOid = new ObjectId(doc.item);
-    const listingExp = await Listing_Expiring.getExpireByItem(itemOid);
+//   for (const doc of expiredDocs) {
+//     const itemOid = new ObjectId(doc.item);
+//     const listingExp = await Listing_Expiring.getExpireByItem(itemOid);
 
-    // if listing is expired and still avalable(not hidden) then delete 
-    //when item are created hidden is set to false 
-    const listing = await Listing.getListingById(itemOid);
-    if (listingExp && listing && !listing.hidden) {
-      await Listing_Expiring.delete(listingExp._id);
-      await Listing.delete(itemOid);
-    }
-  }
-  console.log("Processed expired listings.");
-}
+//     // if listing is expired and still avalable(not hidden) then delete 
+//     //when item are created hidden is set to false 
+//     const listing = await Listing.getListingById(itemOid);
+//     if (listingExp && listing && !listing.hidden) {
+//       await Listing_Expiring.delete(listingExp._id);
+//       await Listing.delete(itemOid);
+//     }
+//   }
+//   console.log("Processed expired listings.");
+// }
 
-// Function to handle expired requests
-async function handleRequestsExpired() {
-  const expiredDocs = await Request_Expiring.getAllExpired();
-  if (!expiredDocs || expiredDocs.length === 0) {
-    console.log("No expired requests to process.");
-    return;
-  }
+// // Function to handle expired requests
+// async function handleRequestsExpired() {
+//   const expiredDocs = await Request_Expiring.getAllExpired();
+//   if (!expiredDocs || expiredDocs.length === 0) {
+//     console.log("No expired requests to process.");
+//     return;
+//   }
 
-  for (const doc of expiredDocs) {
-    const itemOid = new ObjectId(doc.item);
-    const requestExp = await Request_Expiring.getExpireByItem(itemOid);
-    // if listing is expired and still avalable(not hidden) then delete 
-    //when item are created hidden is set to false 
-    if (requestExp && !(await Requesting.getRequestById(itemOid)).hidden ) {
-      await Request_Expiring.delete(requestExp._id);
-      await Requesting.delete(itemOid);
-    }
-  }
-  console.log("Processed expired requests.");
-}
+//   for (const doc of expiredDocs) {
+//     const itemOid = new ObjectId(doc.item);
+//     const requestExp = await Request_Expiring.getExpireByItem(itemOid);
+//     // if listing is expired and still avalable(not hidden) then delete 
+//     //when item are created hidden is set to false 
+//     if (requestExp && !(await Requesting.getRequestById(itemOid)).hidden ) {
+//       await Request_Expiring.delete(requestExp._id);
+//       await Requesting.delete(itemOid);
+//     }
+//   }
+//   console.log("Processed expired requests.");
+// }
 
 
 export default app;
