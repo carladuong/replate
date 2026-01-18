@@ -6,9 +6,16 @@ import { ref } from "vue";
 //form fields
 const props = defineProps(["userId"]);
 const rating = ref(0);
+const ratingError = ref("");
 const message = ref("");
 
 const createReview = async () => {
+  ratingError.value = "";
+  if (rating.value < 1 || rating.value > 5) {
+    ratingError.value = "Rating must be between 1 and 5.";
+    return;
+  }
+
   try {
     const response = await fetchy("/api/reviews", "POST", {
       body: {
@@ -38,7 +45,8 @@ const createReview = async () => {
       <legend>Create a New Review</legend>
       <div class="pure-control-group">
         <label for="rating">Rating</label>
-        <input id="rating" type="number" v-model="rating" placeholder="Rating" required />
+        <input id="rating" type="number" v-model.number="rating" placeholder="1-5" required min="1" max="5" step="1" />
+        <small v-if="ratingError" style="color: #c72d12">{{ ratingError }}</small>
       </div>
       <div class="pure-control-group">
         <label for="message">Tell us more</label>
